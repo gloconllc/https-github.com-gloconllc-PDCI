@@ -10,17 +10,18 @@
         theme: {
           extend: {
             colors: {
-              'gray-900': '#121212',
-              'gray-800': '#1E1E1E',
-              'gray-700': '#2C2C2C',
-              'gray-600': '#3A3A3A',
-              'gray-400': '#B3B3B3',
-              'gray-200': '#E0E0E0',
-              'accent-green': '#1DB954',
-              'accent-blue': '#2D72D9',
-              'must-buy': 'rgba(29, 185, 84, 0.1)',
-              'high-conviction': 'rgba(45, 114, 217, 0.1)',
-              'on-radar': 'rgba(179, 179, 179, 0.1)',
+              'gray-900': '#0A0E27', // Deep Space
+              'gray-800': '#1C2833',
+              'gray-700': '#2C3E50',
+              'gray-600': '#566573',
+              'gray-400': '#B0B8C8', // Soft Gray
+              'gray-200': '#FFFFFF', // Pure White
+              'accent-green': '#00FF88', // Neon Green
+              'accent-blue': '#00D9FF', // Electric Blue
+              'accent-red': '#FF0080', // Hot Pink
+              'must-buy': 'rgba(0, 255, 136, 0.1)',
+              'high-conviction': 'rgba(0, 217, 255, 0.1)',
+              'on-radar': 'rgba(176, 184, 200, 0.1)',
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
@@ -32,27 +33,94 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
     <style>
+      @keyframes gradient-animation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      @keyframes scroll-left {
+        from { transform: translateX(0%); }
+        to { transform: translateX(-100%); }
+      }
+      .animate-scroll-left {
+        animation: scroll-left 90s linear infinite;
+      }
+      .ticker-container:hover .animate-scroll-left {
+        animation-play-state: paused;
+      }
       body {
         font-family: 'Inter', sans-serif;
-        background-color: #121212;
-        color: #E0E0E0;
+        background: linear-gradient(-45deg, #0A0E27, #1E0A3C, #001F3F, #0A3D2C);
+        background-size: 400% 400%;
+        animation: gradient-animation 30s ease infinite;
+        color: #FFFFFF;
+      }
+      .glass-panel {
+        background: rgba(28, 40, 51, 0.5); /* Semi-transparent base */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .glass-panel:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+      }
+       .neuro-button {
+        background: linear-gradient(145deg, #0F1729, #0A0E27);
+        box-shadow: 
+          5px 5px 10px rgba(0, 0, 0, 0.4),
+          -5px -5px 10px rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .neuro-button:hover {
+        box-shadow: 
+          2px 2px 5px rgba(0, 0, 0, 0.4),
+          -2px -2px 5px rgba(255, 255, 255, 0.03);
+        transform: translateY(1px);
+      }
+      .neuro-button:active {
+        box-shadow: 
+          inset 3px 3px 6px rgba(0, 0, 0, 0.5),
+          inset -3px -3px 6px rgba(255, 255, 255, 0.02);
+        transform: translateY(2px);
+      }
+       /* For Webkit browsers like Chrome, Safari */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: rgba(10, 14, 39, 0.5); /* Deep Space transparent */
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #566573;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #B0B8C8;
       }
     </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="module" src="/index.tsx"></script>
   <script type="importmap">
 {
   "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0"
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
   }
 }
 </script>
 </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>
 </html>

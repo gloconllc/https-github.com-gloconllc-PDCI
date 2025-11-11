@@ -1,26 +1,76 @@
-
-import React from 'react';
-import { CloseIcon, SparkleIcon } from './icons/Icons';
+import React, { useRef, useState } from 'react';
+import { CloseIcon, SparkleIcon, DownloadIcon, ThumbsUpIcon, WarningIcon, LightbulbIcon, ShieldIcon } from './icons/Icons';
 import { PortfolioAnalysisResult } from '../lib/gemini';
 
-// --- Embedded BarChart Component ---
+// Add jsPDF and html2canvas types for window object
+declare global {
+    interface Window {
+        html2canvas: any;
+        jspdf: any;
+    }
+}
+
+// --- Embedded Components ---
+
+// Health Score Gauge
+const HealthScoreGauge: React.FC<{ score: number }> = ({ score }) => {
+    const circumference = 2 * Math.PI * 45; // 2 * pi * r
+    const offset = circumference - (score / 100) * circumference;
+
+    const getColor = (s: number) => {
+        if (s > 75) return '#00FF88'; // accent-green
+        if (s > 40) return '#FFD700'; // yellow
+        return '#FF0080'; // accent-red
+    };
+
+    return (
+        <div className="relative flex items-center justify-center w-48 h-48">
+            <svg className="transform -rotate-90" width="100%" height="100%" viewBox="0 0 100 100">
+                <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="#1C2833" // gray-800
+                    strokeWidth="10"
+                    fill="transparent"
+                />
+                <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke={getColor(score)}
+                    strokeWidth="10"
+                    fill="transparent"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={offset}
+                    strokeLinecap="round"
+                    style={{ transition: 'stroke-dashoffset 0.5s ease-out' }}
+                />
+            </svg>
+            <div className="absolute flex flex-col items-center justify-center">
+                <span className="text-5xl font-bold" style={{ color: getColor(score) }}>{score}</span>
+                <span className="text-sm text-gray-400">Health Score</span>
+            </div>
+        </div>
+    );
+};
+
+// Bar Chart
 interface ChartDataItem {
     label: string;
     value: number;
 }
-
 interface BarChartProps {
     data: ChartDataItem[];
     title: string;
 }
-
 const BarChart: React.FC<BarChartProps> = ({ data, title }) => {
     if (!data || data.length === 0) return null;
     const maxValue = Math.max(...data.map(item => item.value), 1);
-    const colors = ['#1DB954', '#2D72D9', '#B3B3B3', '#F59E0B', '#EF4444', '#8B5CF6'];
+    const colors = ['#00FF88', '#00D9FF', '#B0B8C8', '#F59E0B', '#FF0080', '#8B5CF6'];
 
     return (
-        <div>
+        <div className="glass-panel p-4 h-full">
             <h4 className="text-md font-semibold text-gray-300 mb-3">{title}</h4>
             <div className="space-y-2.5">
                 {data.map((item, index) => (
@@ -45,15 +95,58 @@ const BarChart: React.FC<BarChartProps> = ({ data, title }) => {
     );
 };
 
-// --- Analysis Section Component ---
-const AnalysisSection: React.FC<{ title: string; items: string[] }> = ({ title, items }) => (
-    <div>
-        <h3 className="text-lg font-semibold text-accent-green mb-3 border-b-2 border-accent-green pb-1 inline-block">{title}</h3>
-        <ul className="list-disc list-inside space-y-2 text-gray-300">
-            {items.map((item, index) => (
-                <li key={index} dangerouslySetInnerHTML={{ __html: item.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-100">$1</strong>') }}></li>
-            ))}
-        </ul>
+// Markdown Renderer
+const MarkdownRenderer: React.FC<{ content: string | null }> = ({ content }) => {
+    if (!content) return null;
+
+    const renderLine = (line: string, key: number) => {
+        if (line.trim().startsWith('###')) {
+            return <h3 key={key} className="text-lg font-semibold text-gray-200 mt-4 mb-2">{line.replace('###', '').trim()}</h3>;
+        }
+        if (line.trim().startsWith('**') && line.trim().endsWith('**')) {
+             return <p key={key}><strong className="font-semibold text-gray-100">{line.slice(2, -2)}</strong></p>;
+        }
+        if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
+            const cleanLine = line.trim().substring(line.trim().indexOf(' ') + 1);
+            const parts = cleanLine.split(/(\*\*.*?\*\*)/g).map((part, i) =>
+                part.startsWith('**') && part.endsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part
+            );
+            return <li key={key} className="flex items-start"><span className="mr-2 mt-1 text-accent-blue">•</span><span>{parts}</span></li>;
+        }
+        if (line.trim() === '') {
+            return <br key={key} />;
+        }
+        return <p key={key} className="text-gray-300 my-2">{line}</p>;
+    };
+
+    const lines = content.split('\n');
+    const listItems = lines.filter(line => line.trim().startsWith('- ') || line.trim().startsWith('* '));
+    const nonListItems = lines.filter(line => !line.trim().startsWith('- ') && !line.trim().startsWith('* '));
+
+    if (listItems.length > 0) {
+        return (
+            <>
+                {nonListItems.map(renderLine)}
+                <ul className="space-y-2 mt-2">
+                    {listItems.map(renderLine)}
+                </ul>
+            </>
+        )
+    }
+
+    return <>{lines.map(renderLine)}</>;
+};
+
+// Analysis Card
+const AnalysisCard: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
+    <div className="glass-panel p-6 h-full">
+        <div className="flex items-center gap-3 mb-4">
+            <div className="text-accent-blue">{icon}</div>
+            <h3 className="text-xl font-bold text-gray-100">{title}</h3>
+        </div>
+        <div className="text-gray-300 space-y-2 text-sm">
+            {children}
+        </div>
     </div>
 );
 
@@ -65,72 +158,136 @@ interface AnalysisModalProps {
 }
 
 const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose, isAnalyzing }) => {
+    const reportRef = useRef<HTMLDivElement>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const handleDownloadPdf = async () => {
+        if (!reportRef.current || isDownloading) return;
+        
+        if (typeof window.html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+            alert('PDF generation library not loaded yet. Please wait a moment and try again.');
+            return;
+        }
+
+        setIsDownloading(true);
+        try {
+            const canvas = await window.html2canvas(reportRef.current, {
+                backgroundColor: '#0A0E27', // Match the body background
+                scale: 2, // Increase resolution
+                useCORS: true
+            });
+            const imgData = canvas.toDataURL('image/png');
+            
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [canvas.width, canvas.height]
+            });
+
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+            pdf.save('PDCI_Portfolio_Analysis.pdf');
+
+        } catch (error) {
+            console.error("Failed to generate PDF:", error);
+            alert("Sorry, there was an error creating the PDF report.");
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
     const renderContent = () => {
         if (isAnalyzing) {
             return (
-                <div className="text-center py-10">
-                    <p className="text-gray-300 text-lg animate-pulse">Analyzing your portfolio with Network Intelligence...</p>
-                    <p className="text-gray-500 mt-2">This may take a moment to generate your BI report.</p>
+                <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+                    <SparkleIcon />
+                    <p className="text-gray-300 text-lg animate-pulse mt-4">Analyzing your portfolio with PDCI Network Intelligence...</p>
+                    <p className="text-gray-500 mt-2">This may take a moment to generate your deep analysis report.</p>
                 </div>
             );
         }
 
-        if (!analysis) {
+        if (!analysis || analysis.summary.startsWith("Error:")) {
              return (
-                <div className="text-center py-10">
-                    <p className="text-gray-400">Analysis report will appear here.</p>
-                </div>
-            );
-        }
-        
-        if (analysis.summary.startsWith("Error:")) {
-             return (
-                <div className="text-center py-10">
-                    <p className="text-red-400">{analysis.summary}</p>
+                <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+                    <WarningIcon className="text-accent-red w-12 h-12" />
+                    <p className="text-red-400 mt-4">{analysis?.summary || 'Analysis report will appear here.'}</p>
                 </div>
             );
         }
 
         return (
-            <div className="space-y-8">
-                <div>
-                    <h3 className="text-lg font-semibold text-accent-green mb-3 border-b-2 border-accent-green pb-1 inline-block">Executive Summary</h3>
-                    <p className="text-gray-300">{analysis.summary}</p>
+             <div ref={reportRef} className="p-8 bg-gray-900">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    <div className="lg:col-span-1 flex flex-col items-center justify-center glass-panel p-6">
+                         <HealthScoreGauge score={analysis.healthScore} />
+                    </div>
+                    <div className="lg:col-span-2">
+                        <AnalysisCard title="Executive Summary" icon={<SparkleIcon />}>
+                           <MarkdownRenderer content={analysis.summary} />
+                        </AnalysisCard>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <AnalysisSection title="Strengths" items={analysis.strengths} />
-                    <AnalysisSection title="Weaknesses" items={analysis.weaknesses} />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <AnalysisCard title="Strengths" icon={<ThumbsUpIcon />}>
+                        <MarkdownRenderer content={analysis.strengths} />
+                    </AnalysisCard>
+                    <AnalysisCard title="Weaknesses" icon={<WarningIcon />}>
+                         <MarkdownRenderer content={analysis.weaknesses} />
+                    </AnalysisCard>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                     <div className="lg:col-span-2">
+                        <AnalysisCard title="Risk Analysis" icon={<ShieldIcon />}>
+                           <MarkdownRenderer content={analysis.riskAnalysis} />
+                        </AnalysisCard>
+                    </div>
+                     <div className="lg:col-span-1">
+                        <AnalysisCard title="Recommendations" icon={<LightbulbIcon />}>
+                            <MarkdownRenderer content={analysis.recommendations} />
+                        </AnalysisCard>
+                    </div>
                 </div>
                 
-                <AnalysisSection title="Key Risk Analysis" items={analysis.riskAnalysis} />
-                <AnalysisSection title="Recommendations" items={analysis.recommendations} />
-
-                <div>
-                     <h3 className="text-lg font-semibold text-accent-green mb-4 border-b-2 border-accent-green pb-1 inline-block">Portfolio Composition</h3>
-                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 bg-gray-900 rounded-lg">
-                        <BarChart title="By Category" data={analysis.composition.byCategory} />
-                        <BarChart title="By Risk Level" data={analysis.composition.byRisk} />
-                        <BarChart title="By Investment Tier" data={analysis.composition.byTier} />
-                     </div>
-                </div>
+                {analysis.composition && (
+                    <div>
+                        <h3 className="text-2xl font-bold text-gray-100 mb-4">Portfolio Composition</h3>
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <BarChart title="By Category" data={analysis.composition.byCategory} />
+                            <BarChart title="By Risk Level" data={analysis.composition.byRisk} />
+                            <BarChart title="By Investment Tier" data={analysis.composition.byTier} />
+                        </div>
+                    </div>
+                )}
             </div>
         );
     };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                <div className="bg-gray-700 p-4 border-b border-gray-600 flex justify-between items-center flex-shrink-0">
+            <div className="glass-panel w-full max-w-7xl max-h-[95vh] flex flex-col" onClick={e => e.stopPropagation()}>
+                <div className="bg-white/5 p-4 border-b border-white/10 flex justify-between items-center flex-shrink-0">
                     <h2 className="text-xl font-bold text-gray-100 flex items-center gap-2">
                         <SparkleIcon />
-                        AI Portfolio Analysis Report
+                        PDCI AI Portfolio Analysis Report
                     </h2>
-                    <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-gray-600">
-                        <CloseIcon />
-                    </button>
+                    <div className="flex items-center gap-3">
+                         <button
+                            onClick={handleDownloadPdf}
+                            disabled={isAnalyzing || !analysis || isDownloading || analysis.summary.startsWith("Error:")}
+                            className="neuro-button flex items-center gap-2 text-white font-semibold py-2 px-4 disabled:opacity-50"
+                        >
+                            <DownloadIcon className={isDownloading ? 'animate-pulse' : ''} />
+                            {isDownloading ? 'Downloading...' : 'Download PDF'}
+                        </button>
+                        <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10">
+                            <CloseIcon />
+                        </button>
+                    </div>
                 </div>
-                <div className="p-6 overflow-y-auto">
+                <div className="overflow-y-auto">
                     {renderContent()}
                 </div>
             </div>

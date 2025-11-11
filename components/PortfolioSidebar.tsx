@@ -1,13 +1,14 @@
-
 import React, { useMemo } from 'react';
 import { Company } from '../types';
-import { TrashIcon, SparkleIcon } from './icons/Icons';
+import { TrashIcon, SparkleIcon, FlaskIcon, OptimizeIcon } from './icons/Icons';
 
 interface PortfolioSidebarProps {
     portfolio: Company[];
     onRemove: (ticker: string) => void;
     onAnalyze: () => void;
     isAnalyzing: boolean;
+    onStressTest: () => void;
+    onOptimize: () => void;
 }
 
 const KPIRow: React.FC<{ label: string; value: string; tooltip: string; colorClass: string }> = ({ label, value, tooltip, colorClass }) => (
@@ -17,7 +18,7 @@ const KPIRow: React.FC<{ label: string; value: string; tooltip: string; colorCla
     </div>
 );
 
-const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove, onAnalyze, isAnalyzing }) => {
+const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove, onAnalyze, isAnalyzing, onStressTest, onOptimize }) => {
     
     const kpis = useMemo(() => {
         if (portfolio.length === 0) return null;
@@ -77,7 +78,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
     };
 
     return (
-        <div className="bg-gray-800 p-4 rounded-lg sticky top-24">
+        <div className="glass-panel p-4 sticky top-24">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold text-gray-200">Portfolio</h2>
                 <span className="text-sm font-medium bg-accent-green text-black rounded-full px-2 py-0.5">
@@ -90,14 +91,17 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
                     <p className="text-gray-500 text-center py-8">Your portfolio is empty. Add companies from the list.</p>
                 ) : (
                     portfolio.map(company => (
-                        <div key={company.Ticker} className="flex items-center justify-between bg-gray-700 p-2 rounded-md">
-                            <div>
-                                <p className="font-semibold text-gray-200 text-sm">{company.Company}</p>
-                                <p className="text-xs text-gray-400">{company.Ticker}</p>
+                        <div key={company.Ticker} className="flex items-center justify-between bg-black/20 p-2 rounded-md">
+                            <div className="flex items-center min-w-0">
+                                <img src={company.logoUrl} alt={`${company.Company} logo`} className="w-6 h-6 rounded-full object-contain bg-white mr-3 flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="font-semibold text-gray-200 text-sm truncate">{company.Company}</p>
+                                    <p className="text-xs text-gray-400">{company.Ticker}</p>
+                                </div>
                             </div>
                             <button
                                 onClick={() => onRemove(company.Ticker)}
-                                className="p-1 rounded-full text-gray-400 hover:bg-red-500 hover:text-white transition-colors"
+                                className="p-1 rounded-full text-gray-400 hover:bg-accent-red hover:text-white transition-colors ml-2 flex-shrink-0"
                                 aria-label={`Remove ${company.Company} from portfolio`}
                             >
                                 <TrashIcon />
@@ -109,7 +113,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
 
             {portfolio.length > 0 && kpis && (
                 <>
-                    <div className="mt-4 pt-4 border-t border-gray-700">
+                    <div className="mt-4 pt-4 border-t border-white/10">
                         <h3 className="text-md font-semibold text-gray-300 mb-3">BI Key Performance Indicators</h3>
                         <div className="space-y-2 text-sm">
                             <KPIRow label="Univ. Score W. Avg (USWA)" value={kpis.uswa.value} colorClass={kpis.uswa.color} tooltip="Target: >85" />
@@ -118,18 +122,34 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
                             <KPIRow label="Geographic Risk (TW+KR)" value={kpis.gcr_tw_kr.value} colorClass={kpis.gcr_tw_kr.color} tooltip="Target: <40%" />
                         </div>
                     </div>
-                    <div className="mt-6 space-y-3">
+                     <div className="mt-6 space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                             <button
+                                onClick={onAnalyze}
+                                disabled={isAnalyzing}
+                                className="neuro-button w-full flex items-center justify-center gap-2 text-white font-bold py-2 px-3 text-sm disabled:opacity-50"
+                            >
+                                <SparkleIcon />
+                                {isAnalyzing ? 'Analyzing...' : 'Analyze'}
+                            </button>
+                            <button
+                                onClick={onStressTest}
+                                className="neuro-button w-full flex items-center justify-center gap-2 text-white font-bold py-2 px-3 text-sm"
+                            >
+                                <FlaskIcon />
+                                Stress Test
+                            </button>
+                        </div>
                          <button
-                            onClick={onAnalyze}
-                            disabled={isAnalyzing}
-                            className="w-full flex items-center justify-center gap-2 bg-accent-blue text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 transition-colors disabled:bg-gray-600"
+                            onClick={onOptimize}
+                            className="neuro-button w-full flex items-center justify-center gap-2 bg-accent-green text-black font-bold py-2 px-4"
                         >
-                            <SparkleIcon />
-                            {isAnalyzing ? 'Analyzing...' : 'Analyze with AI'}
+                            <OptimizeIcon />
+                            Optimize Portfolio
                         </button>
                         <button
                             onClick={exportToCSV}
-                            className="w-full bg-gray-600 text-white font-bold py-2 px-4 rounded-md hover:bg-gray-500 transition-colors"
+                            className="neuro-button w-full text-white font-bold py-2 px-4 text-sm"
                         >
                             Export to CSV
                         </button>

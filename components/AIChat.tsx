@@ -94,17 +94,17 @@ const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
     };
 
     return (
-        <div className="bg-gray-800 rounded-lg shadow-2xl w-96 h-[70vh] max-h-[600px] flex flex-col animate-fade-in-up">
-            <div className="bg-gray-700 p-3 flex justify-between items-center rounded-t-lg">
+        <div className="glass-panel w-96 h-[70vh] max-h-[600px] flex flex-col animate-fade-in-up">
+            <div className="bg-white/5 p-3 flex justify-between items-center rounded-t-lg">
                 <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
                     <SparkleIcon />
                     PDCI AI Analyst
                 </h2>
                 <div>
-                    <button onClick={handleExport} className="p-2 rounded-full text-gray-400 hover:bg-gray-600 mr-2" aria-label="Export chat to PDF">
+                    <button onClick={handleExport} className="p-2 rounded-full text-gray-400 hover:bg-white/10 mr-2" aria-label="Export chat to PDF">
                         <ExportIcon />
                     </button>
-                    <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-gray-600" aria-label="Close chat">
+                    <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10" aria-label="Close chat">
                         <CloseIcon />
                     </button>
                 </div>
@@ -117,7 +117,7 @@ const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
                 {messages.map((msg, index) => (
                     <div key={index}>
                         <div className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`rounded-lg p-3 max-w-xs md:max-w-sm break-words ${msg.type === 'user' ? 'bg-accent-blue text-white' : 'bg-gray-700 text-gray-200'}`}>
+                            <div className={`rounded-lg p-3 max-w-xs md:max-w-sm break-words ${msg.type === 'user' ? 'bg-accent-blue text-white' : 'bg-black/20 text-gray-200'}`}>
                                 <pre className="whitespace-pre-wrap font-sans text-sm">{msg.text}</pre>
                             </div>
                         </div>
@@ -140,15 +140,15 @@ const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
                 ))}
                  {isLoading && (
                     <div className="flex justify-start">
-                        <div className="rounded-lg p-3 max-w-sm bg-gray-700 text-gray-400 animate-pulse">
-                            {isDeepAnalysis ? 'Network Intelligence is thinking...' : 'PDCI is thinking...'}
+                        <div className="rounded-lg p-3 max-w-sm bg-black/20 text-gray-400 animate-pulse">
+                            {isDeepAnalysis ? 'PDCI Network Intelligence is thinking...' : 'PDCI AI is thinking...'}
                         </div>
                     </div>
                 )}
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-3 border-t border-gray-700 space-y-2">
+            <div className="p-3 border-t border-white/10 space-y-2">
                 <div className="flex items-center justify-center">
                      <label htmlFor="deep-analysis-toggle" className="flex items-center cursor-pointer">
                         <span className="mr-3 text-sm font-medium text-gray-300">Deep Analysis</span>
@@ -172,13 +172,13 @@ const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleQuery()}
                         placeholder={isDeepAnalysis ? "Enter a complex query..." : "Ask anything..."}
-                        className="flex-grow bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-green"
+                        className="flex-grow bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
                         disabled={isLoading}
                     />
                     <button
                         onClick={handleQuery}
                         disabled={isLoading || !query.trim()}
-                        className="bg-accent-green text-black font-bold p-2 rounded-md hover:bg-green-400 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+                        className="neuro-button bg-accent-green text-black font-bold p-2 disabled:opacity-50"
                         aria-label="Send query to AI"
                     >
                         <SendIcon />

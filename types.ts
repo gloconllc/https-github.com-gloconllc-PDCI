@@ -1,4 +1,3 @@
-
 export enum InvestmentTier {
   MustBuy = 'MUST BUY',
   HighConviction = 'HIGH CONVICTION',
@@ -44,9 +43,26 @@ export interface Company {
   Substitutability_Score: number; // Impossible=0, Difficult=30, Moderate=60, Easy=100
   Supply_Chain_Depth_Score: number; // Raw Material=100, Component=70, System=40, Software=10
   SCSI: number; // Supply Constraint Severity Index
+  ESG_Score?: number;
+  // New valuation and financial health metrics
+  PE_Ratio: number;
+  Forward_PE: number;
+  Revenue_Growth_YoY: number; // in percent
+  Debt_to_Equity: number;
+  // New qualitative/wisdom metric
+  Graham_Score?: number; // Score from 1-10 based on value investing principles
 }
 
 export interface SortConfig {
   key: keyof Company;
   direction: 'ascending' | 'descending';
 }
+
+// Types for the new Supply Chain Visualizer
+export interface SupplyChainNode {
+    ticker: string;
+    upstream: string[]; // Tickers of suppliers
+    downstream: string[]; // Tickers of customers
+}
+
+export type SupplyChainData = Record<string, SupplyChainNode>;
