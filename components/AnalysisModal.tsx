@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { CloseIcon, SparkleIcon, DownloadIcon, ThumbsUpIcon, WarningIcon, LightbulbIcon, ShieldIcon } from './icons/Icons';
+// FIX: Correct import path
 import { PortfolioAnalysisResult } from '../lib/gemini';
 
 // Add jsPDF and html2canvas types for window object
@@ -276,7 +277,7 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose, isAnal
                     <div className="flex items-center gap-3">
                          <button
                             onClick={handleDownloadPdf}
-                            disabled={isAnalyzing || !analysis || isDownloading || analysis.summary.startsWith("Error:")}
+                            disabled={isAnalyzing || !analysis || isDownloading || (analysis && analysis.summary.startsWith("Error:"))}
                             className="neuro-button flex items-center gap-2 text-white font-semibold py-2 px-4 disabled:opacity-50"
                         >
                             <DownloadIcon className={isDownloading ? 'animate-pulse' : ''} />

@@ -1,38 +1,32 @@
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Company, InvestmentTier, RiskLevel, SortConfig } from './types';
-import { companiesData as initialCompaniesData } from './constants';
-import CompanyTable from './components/CompanyTable';
+import { Company, SortConfig, InvestmentTier, RiskLevel } from './types';
+import { companiesData } from './constants';
+import Header from './components/Header';
 import FilterSidebar from './components/FilterSidebar';
+import CompanyTable from './components/CompanyTable';
 import PortfolioSidebar from './components/PortfolioSidebar';
 import CompanyModal from './components/CompanyModal';
-import Header from './components/Header';
-import AIChat from './components/AIChat';
-import UpdateModal from './components/UpdateModal';
-import AnalysisModal from './components/AnalysisModal';
-import DashboardSummary from './components/DashboardSummary';
-import { getPortfolioAnalysis, getMarketUpdate, GeminiResponse, PortfolioAnalysisResult, runScenarioAnalysis, ScenarioAnalysisResult, getNewsFeed, NewsItem, optimizePortfolio, PortfolioOptimizationResult, SuggestedTrade, HistoricalBacktestResult, runHistoricalBacktest, getMarketCommentary } from './lib/gemini';
-import { SparkleIcon } from './components/icons/Icons';
 import GlossaryModal from './components/GlossaryModal';
-import FactorCorrelationMatrix from './components/FactorCorrelationMatrix';
-import MarketDistribution from './components/MarketDistribution';
-import ScenarioAnalysisModal from './components/ScenarioAnalysisModal';
+import UpdateModal from './components/UpdateModal';
 import NewsTicker from './components/NewsTicker';
+import { getMarketNews, NewsItem } from './lib/gemini';
+import AIChat from './components/AIChat';
 import AISyncModal from './components/AISyncModal';
-import PortfolioOptimizerModal from './components/PortfolioOptimizerModal';
 import HistoricalBacktestModal from './components/HistoricalBacktestModal';
 import MarketCommentaryModal from './components/MarketCommentaryModal';
+import { getMarketCommentary } from './lib/gemini';
+import OpportunityPipelineModal from './components/OpportunityPipelineModal';
+import DashboardSummary from './components/DashboardSummary';
+import DeepDive from './components/DeepDive';
+import QuantitativeFactorAnalysis from './components/QuantitativeFactorAnalysis';
 
-
-const categories = [...new Set(initialCompaniesData.map(c => c.Category))].sort();
+type ViewMode = 'standard' | 'quant' | 'deepDive';
 
 const App: React.FC = () => {
-    const [companies] = useState<Company[]>(initialCompaniesData);
-    const [lastUpdated, setLastUpdated] = useState(new Date());
-    
-    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-    const [marketUpdateContent, setMarketUpdateContent] = useState<GeminiResponse | null>(null);
-    const [isMarketUpdateLoading, setIsMarketUpdateLoading] = useState(false);
-
+    // Data and Filtering State
+    const [companies, setCompanies] = useState<Company[]>(companiesData);
+    const [sortConfig, setSortConfig] = useState<SortConfig | null>({ key: 'Universal_Score', direction: 'descending' });
     const [filters, setFilters] = useState({
         search: '',
         tiers: new Set<InvestmentTier>(),
@@ -41,105 +35,47 @@ const App: React.FC = () => {
         maxPE: '',
         minGrowth: '',
         minCriticality: '',
+        minUnivScore: '',
+        showBlueChips: true
     });
-    const [portfolio, setPortfolio] = useState<Company[]>([]);
+
+    // UI State
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState(new Date());
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-    const [sortConfig, setSortConfig] = useState<SortConfig | null>({ key: 'Universal_Score', direction: 'descending' });
-
-    const [showAnalysisModal, setShowAnalysisModal] = useState(false);
-    const [portfolioAnalysis, setPortfolioAnalysis] = useState<PortfolioAnalysisResult | null>(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [portfolio, setPortfolio] = useState<Company[]>(companiesData.slice(0, 5)); // Initial portfolio
+    const [currentView, setCurrentView] = useState<ViewMode>('standard');
+    
+    // Modal States
     const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
-    const [isQuantView, setIsQuantView] = useState(false);
-    const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
-
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [isChatOpen, setIsChatOpen] = useState(true);
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [isBacktestOpen, setIsBacktestOpen] = useState(false);
+    const [isCommentaryOpen, setIsCommentaryOpen] = useState(false);
+    const [isOpportunityPipelineOpen, setIsOpportunityPipelineOpen] = useState(false);
+    
+    // AI Content State
     const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
     const [isNewsLoading, setIsNewsLoading] = useState(true);
-
-    const [isScenarioModalOpen, setIsScenarioModalOpen] = useState(false);
-    const [scenarioAnalysisResult, setScenarioAnalysisResult] = useState<ScenarioAnalysisResult | null>(null);
-    const [isScenarioLoading, setIsScenarioLoading] = useState(false);
-
-    const [isOptimizerModalOpen, setIsOptimizerModalOpen] = useState(false);
-    const [optimizationResult, setOptimizationResult] = useState<PortfolioOptimizationResult | null>(null);
-    const [isOptimizing, setIsOptimizing] = useState(false);
-    
-    const [isBacktestModalOpen, setIsBacktestModalOpen] = useState(false);
-    
-    const [isCommentaryModalOpen, setIsCommentaryModalOpen] = useState(false);
     const [marketCommentary, setMarketCommentary] = useState<string | null>(null);
     const [isCommentaryLoading, setIsCommentaryLoading] = useState(false);
 
-    useEffect(() => {
-        const fetchNews = async () => {
-            setIsNewsLoading(true);
-            const news = await getNewsFeed(initialCompaniesData);
-            setNewsItems(news || []);
-            setIsNewsLoading(false);
-        };
-        fetchNews();
-    }, []);
-
-
-    const handleUpdateData = useCallback(async () => {
-        setIsUpdateModalOpen(true);
-        setIsMarketUpdateLoading(true);
-        setMarketUpdateContent(null);
-        const update = await getMarketUpdate();
-        setMarketUpdateContent(update);
-        setLastUpdated(new Date());
-        setIsMarketUpdateLoading(false);
-    }, []);
-
-    const handleFilterChange = useCallback((newFilters: typeof filters) => {
-        setFilters(newFilters);
-    }, []);
-
-    const handleSearchChange = useCallback((searchValue: string) => {
-        setFilters(prevFilters => ({...prevFilters, search: searchValue}));
-    }, []);
-
-    const filteredCompanies = useMemo(() => {
-        if (isQuantView) {
-             return companies.filter(company => {
-                const searchLower = filters.search.toLowerCase();
-                return company.Company.toLowerCase().includes(searchLower) || company.Ticker.toLowerCase().includes(searchLower);
-             });
-        }
-
-        const maxPE = filters.maxPE ? parseFloat(filters.maxPE) : Infinity;
-        const minGrowth = filters.minGrowth ? parseFloat(filters.minGrowth) : -Infinity;
-        const minCriticality = filters.minCriticality ? parseInt(filters.minCriticality, 10) : 0;
-
-        return companies.filter(company => {
-            const searchLower = filters.search.toLowerCase();
-            const matchesSearch = company.Company.toLowerCase().includes(searchLower) || company.Ticker.toLowerCase().includes(searchLower);
-            const matchesTier = filters.tiers.size === 0 || filters.tiers.has(company.Investment_Tier);
-            const matchesRisk = filters.risks.size === 0 || filters.risks.has(company.Risk_Level);
-            const matchesCategory = filters.category === 'All' || company.Category === filters.category;
-            
-            const matchesPE = company.PE_Ratio <= maxPE;
-            const matchesGrowth = company.Revenue_Growth_YoY >= minGrowth;
-            const matchesCriticality = company.Criticality >= minCriticality;
-
-            return matchesSearch && matchesTier && matchesRisk && matchesCategory && matchesPE && matchesGrowth && matchesCriticality;
-        });
-    }, [filters, companies, isQuantView]);
-
-    const sortedCompanies = useMemo(() => {
-        let sortableItems = [...filteredCompanies];
-        if (sortConfig !== null) {
-            sortableItems.sort((a, b) => {
-                const aValue = a[sortConfig.key];
-                const bValue = b[sortConfig.key];
-                if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
-                if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
-                return 0;
-            });
-        }
-        return sortableItems;
-    }, [filteredCompanies, sortConfig]);
+    // Handlers
+    const handleUpdate = () => {
+        setIsUpdating(true);
+        setTimeout(() => {
+            // Simulate fetching new data and updating scores
+            const updatedCompanies = companies.map(c => ({
+                ...c,
+                Current_Price_USD: c.Current_Price_USD * (1 + (Math.random() - 0.45) * 0.1),
+            }));
+            setCompanies(updatedCompanies);
+            setLastUpdated(new Date());
+            setIsUpdating(false);
+            setIsUpdateModalOpen(true);
+        }, 2000);
+    };
 
     const handleSort = (key: keyof Company) => {
         let direction: 'ascending' | 'descending' = 'ascending';
@@ -149,181 +85,206 @@ const App: React.FC = () => {
         setSortConfig({ key, direction });
     };
 
-    const addToPortfolio = useCallback((company: Company) => {
-        setPortfolio(prev => {
-            if (prev.find(c => c.Ticker === company.Ticker)) return prev;
-            return [...prev, company];
-        });
-    }, []);
+    const handleAddToPortfolio = useCallback((company: Company) => {
+        if (!portfolio.find(p => p.Ticker === company.Ticker)) {
+            setPortfolio(prev => [...prev, company]);
+        }
+    }, [portfolio]);
 
-    const removeFromPortfolio = useCallback((ticker: string) => {
+    const handleRemoveFromPortfolio = useCallback((ticker: string) => {
         setPortfolio(prev => prev.filter(c => c.Ticker !== ticker));
     }, []);
 
-    const viewCompanyDetails = useCallback((company: Company) => setSelectedCompany(company), []);
-    const closeModal = useCallback(() => setSelectedCompany(null), []);
-
-    const handleAnalyzePortfolio = useCallback(async () => {
-        if (portfolio.length === 0) return;
-        setShowAnalysisModal(true);
-        setIsAnalyzing(true);
-        setPortfolioAnalysis(null);
-        const analysis = await getPortfolioAnalysis(portfolio);
-        setPortfolioAnalysis(analysis);
-        setIsAnalyzing(false);
-    }, [portfolio]);
-
-    const handleRunScenario = useCallback(async (scenario: string) => {
-        if (portfolio.length === 0) return;
-        setIsScenarioLoading(true);
-        setScenarioAnalysisResult(null);
-        const result = await runScenarioAnalysis(portfolio, scenario);
-        setScenarioAnalysisResult(result);
-        setIsScenarioLoading(false);
-    }, [portfolio]);
-
-    const handleClearScenarioResult = () => setScenarioAnalysisResult(null);
+    const fetchNews = useCallback(async () => {
+        setIsNewsLoading(true);
+        try {
+            const news = await getMarketNews();
+            setNewsItems(news);
+        } catch (error) {
+            console.error("Failed to fetch news:", error);
+        } finally {
+            setIsNewsLoading(false);
+        }
+    }, []);
     
-    const handleRunOptimization = useCallback(async (strategy: string) => {
-        if (portfolio.length === 0) return;
-        setIsOptimizing(true);
-        setOptimizationResult(null);
-        const result = await optimizePortfolio(portfolio, companies, strategy);
-        setOptimizationResult(result);
-        setIsOptimizing(false);
-    }, [portfolio, companies]);
+     const openCommentary = useCallback(async () => {
+        setIsCommentaryOpen(true);
+        if (!marketCommentary) {
+            setIsCommentaryLoading(true);
+            try {
+                const commentaryText = await getMarketCommentary();
+                setMarketCommentary(commentaryText);
+            } catch (error) {
+                console.error("Failed to generate commentary:", error);
+                setMarketCommentary("Error: Could not generate market commentary.");
+            } finally {
+                setIsCommentaryLoading(false);
+            }
+        }
+    }, [marketCommentary]);
 
-    const handleApplyOptimizations = useCallback((trades: SuggestedTrade[]) => {
-        setPortfolio(currentPortfolio => {
-            let newPortfolio = [...currentPortfolio];
-            
-            trades.forEach(trade => {
-                if (trade.action === 'Remove') {
-                    newPortfolio = newPortfolio.filter(c => c.Ticker !== trade.ticker);
-                } else if (trade.action === 'Add') {
-                    const companyToAdd = companies.find(c => c.Ticker === trade.ticker);
-                    const isAlreadyIn = newPortfolio.some(c => c.Ticker === trade.ticker);
-                    if (companyToAdd && !isAlreadyIn) {
-                        newPortfolio.push(companyToAdd);
-                    }
+    useEffect(() => {
+        fetchNews();
+    }, [fetchNews]);
+
+    // Memoized Calculations
+    const categories = useMemo(() => [...new Set(companiesData.map(c => c.Category))], []);
+
+    const filteredAndSortedCompanies = useMemo(() => {
+        let filtered = [...companies];
+
+        // Search filter
+        if (filters.search) {
+            const searchTerm = filters.search.toLowerCase();
+            filtered = filtered.filter(c =>
+                c.Company.toLowerCase().includes(searchTerm) ||
+                c.Ticker.toLowerCase().includes(searchTerm)
+            );
+        }
+
+        // Tier filter
+        if (filters.tiers.size > 0) {
+            filtered = filtered.filter(c => filters.tiers.has(c.Investment_Tier));
+        }
+        
+        // Risk filter
+        if (filters.risks.size > 0) {
+            filtered = filtered.filter(c => c.Risk_Level && filters.risks.has(c.Risk_Level));
+        }
+
+        // Category filter
+        if (filters.category !== 'All') {
+            filtered = filtered.filter(c => c.Category === filters.category);
+        }
+
+        // Blue Chip filter
+        if (!filters.showBlueChips) {
+            filtered = filtered.filter(c => !c.isBlueChip);
+        }
+        
+        // Quantitative filters
+        if (filters.maxPE) {
+            filtered = filtered.filter(c => c.PE_Ratio <= parseFloat(filters.maxPE));
+        }
+        if (filters.minGrowth) {
+             filtered = filtered.filter(c => c.Revenue_Growth_YoY >= parseFloat(filters.minGrowth));
+        }
+        if (filters.minCriticality) {
+             filtered = filtered.filter(c => c.Criticality >= parseInt(filters.minCriticality, 10));
+        }
+        if (filters.minUnivScore) {
+             filtered = filtered.filter(c => c.Universal_Score >= parseInt(filters.minUnivScore, 10));
+        }
+
+        // Sorting
+        if (sortConfig !== null) {
+            filtered.sort((a, b) => {
+                const aValue = a[sortConfig.key];
+                const bValue = b[sortConfig.key];
+
+                if (aValue === undefined || aValue === null) return 1;
+                if (bValue === undefined || bValue === null) return -1;
+                
+                if (aValue < bValue) {
+                    return sortConfig.direction === 'ascending' ? -1 : 1;
                 }
+                if (aValue > bValue) {
+                    return sortConfig.direction === 'ascending' ? 1 : -1;
+                }
+                return 0;
             });
-            
-            return newPortfolio;
-        });
-        setIsOptimizerModalOpen(false);
-    }, [companies]);
+        }
+        return filtered;
+    }, [companies, filters, sortConfig]);
 
-    const handleOpenBacktest = () => setIsBacktestModalOpen(true);
-    
-    const handleOpenCommentaryModal = useCallback(async () => {
-        setIsCommentaryModalOpen(true);
-        setIsCommentaryLoading(true);
-        setMarketCommentary(null); // Clear old commentary
-        const commentary = await getMarketCommentary(companies);
-        setMarketCommentary(commentary);
-        setIsCommentaryLoading(false);
-    }, [companies]);
+    const renderView = () => {
+        switch(currentView) {
+            case 'quant':
+                return <QuantitativeFactorAnalysis companies={filteredAndSortedCompanies} />;
+            case 'deepDive':
+                return <DeepDive allCompanies={companies} onViewDetails={setSelectedCompany} onAddToPortfolio={handleAddToPortfolio} />;
+            case 'standard':
+            default:
+                return (
+                    <>
+                        <DashboardSummary companies={filteredAndSortedCompanies} />
+                        <CompanyTable
+                            companies={filteredAndSortedCompanies}
+                            onViewDetails={setSelectedCompany}
+                            onAddToPortfolio={handleAddToPortfolio}
+                            onSort={handleSort}
+                            sortConfig={sortConfig}
+                        />
+                    </>
+                );
+        }
+    }
+
 
     return (
-        <div className="min-h-screen text-gray-200">
+        <div className="min-h-screen bg-gray-900 text-gray-100 font-sans">
             <Header
-                onUpdate={handleUpdateData}
+                onUpdate={handleUpdate}
                 lastUpdated={lastUpdated}
-                isUpdating={isMarketUpdateLoading}
+                isUpdating={isUpdating}
                 searchValue={filters.search}
-                onSearchChange={handleSearchChange}
+                onSearchChange={value => setFilters(f => ({ ...f, search: value }))}
                 onOpenGlossary={() => setIsGlossaryOpen(true)}
-                isQuantView={isQuantView}
-                onToggleQuantView={() => setIsQuantView(!isQuantView)}
-                onSyncAI={() => setIsSyncModalOpen(true)}
-                onOpenBacktest={handleOpenBacktest}
-                onOpenCommentary={handleOpenCommentaryModal}
+                currentView={currentView}
+                onSetView={setCurrentView}
+                onSyncAI={() => setIsSyncing(true)}
+                onOpenBacktest={() => setIsBacktestOpen(true)}
+                onOpenCommentary={openCommentary}
+                onOpenOpportunityPipeline={() => setIsOpportunityPipelineOpen(true)}
             />
             <NewsTicker newsItems={newsItems} isLoading={isNewsLoading} />
-            <main className="p-4 sm:p-6 lg:p-8 max-w-screen-2xl mx-auto">
-                {isQuantView ? (
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        <div className="space-y-6">
-                            <FactorCorrelationMatrix companies={initialCompaniesData} />
-                             <PortfolioSidebar
-                                portfolio={portfolio}
-                                onRemove={removeFromPortfolio}
-                                onAnalyze={handleAnalyzePortfolio}
-                                isAnalyzing={isAnalyzing}
-                                onStressTest={() => setIsScenarioModalOpen(true)}
-                                onOptimize={() => setIsOptimizerModalOpen(true)}
-                            />
-                        </div>
-                        <div className="space-y-6">
-                            <MarketDistribution companies={initialCompaniesData} />
-                             <CompanyTable
-                                companies={sortedCompanies}
-                                onViewDetails={viewCompanyDetails}
-                                onAddToPortfolio={addToPortfolio}
-                                onSort={handleSort}
-                                sortConfig={sortConfig}
-                            />
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        <DashboardSummary companies={companies} />
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                            <div className="lg:col-span-3 space-y-6">
-                                <FilterSidebar filters={filters} onFilterChange={handleFilterChange} categories={categories} />
-                            </div>
-                            <div className="lg:col-span-6">
-                                <CompanyTable
-                                    companies={sortedCompanies}
-                                    onViewDetails={viewCompanyDetails}
-                                    onAddToPortfolio={addToPortfolio}
-                                    onSort={handleSort}
-                                    sortConfig={sortConfig}
-                                />
-                            </div>
-                            <div className="lg:col-span-3">
-                                <PortfolioSidebar
-                                    portfolio={portfolio}
-                                    onRemove={removeFromPortfolio}
-                                    onAnalyze={handleAnalyzePortfolio}
-                                    isAnalyzing={isAnalyzing}
-                                    onStressTest={() => setIsScenarioModalOpen(true)}
-                                    onOptimize={() => setIsOptimizerModalOpen(true)}
-                                />
-                            </div>
-                        </div>
-                    </>
-                )}
-            </main>
-            {selectedCompany && <CompanyModal company={selectedCompany} onClose={closeModal} onAddToPortfolio={addToPortfolio} viewCompanyDetails={viewCompanyDetails} />}
-            {isUpdateModalOpen && <UpdateModal isLoading={isMarketUpdateLoading} content={marketUpdateContent} onClose={() => setIsUpdateModalOpen(false)} />}
-            {showAnalysisModal && <AnalysisModal analysis={portfolioAnalysis} isAnalyzing={isAnalyzing} onClose={() => setShowAnalysisModal(false)} />}
-            {isGlossaryOpen && <GlossaryModal onClose={() => setIsGlossaryOpen(false)} />}
-            {isScenarioModalOpen && <ScenarioAnalysisModal onClose={() => setIsScenarioModalOpen(false)} onRunScenario={handleRunScenario} isLoading={isScenarioLoading} result={scenarioAnalysisResult} onClearResult={handleClearScenarioResult} />}
-            {isSyncModalOpen && <AISyncModal onClose={() => setIsSyncModalOpen(false)} />}
-            {isOptimizerModalOpen && <PortfolioOptimizerModal onClose={() => setIsOptimizerModalOpen(false)} onRunOptimization={handleRunOptimization} isLoading={isOptimizing} result={optimizationResult} onApply={handleApplyOptimizations} />}
-            {isBacktestModalOpen && <HistoricalBacktestModal onClose={() => setIsBacktestModalOpen(false)} />}
-            {isCommentaryModalOpen && <MarketCommentaryModal onClose={() => setIsCommentaryModalOpen(false)} isLoading={isCommentaryLoading} commentary={marketCommentary} />}
 
+            <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="lg:col-span-2 hidden lg:block">
+                        <FilterSidebar
+                            filters={filters}
+                            onFilterChange={setFilters}
+                            categories={categories}
+                        />
+                    </div>
+
+                    <div className="lg:col-span-7">
+                        {renderView()}
+                    </div>
+
+                    <div className="lg:col-span-3">
+                         <PortfolioSidebar
+                            portfolio={portfolio}
+                            onRemove={handleRemoveFromPortfolio}
+                            onViewDetails={setSelectedCompany}
+                            allCompanies={companies}
+                        />
+                    </div>
+                </div>
+            </main>
+
+            {selectedCompany && (
+                <CompanyModal
+                    company={selectedCompany}
+                    onClose={() => setSelectedCompany(null)}
+                    onAddToPortfolio={handleAddToPortfolio}
+                    viewCompanyDetails={setSelectedCompany}
+                />
+            )}
             
-            <div className="fixed bottom-6 right-6 z-40">
-                {!isChatOpen && (
-                    <button
-                        onClick={() => setIsChatOpen(true)}
-                        className="bg-accent-blue text-white rounded-full p-4 shadow-lg hover:bg-blue-600 transition-transform hover:scale-110 flex items-center gap-2"
-                        aria-label="Open PDCI AI Chat"
-                    >
-                        <SparkleIcon />
-                    </button>
-                )}
-                 {isChatOpen && (
-                    <AIChat
-                        companies={companies}
-                        onClose={() => setIsChatOpen(false)}
-                    />
-                )}
-            </div>
+            {isGlossaryOpen && <GlossaryModal onClose={() => setIsGlossaryOpen(false)} />}
+            {isUpdateModalOpen && <UpdateModal onClose={() => setIsUpdateModalOpen(false)} />}
+            {isSyncing && <AISyncModal onClose={() => setIsSyncing(false)} />}
+            {isBacktestOpen && <HistoricalBacktestModal onClose={() => setIsBacktestOpen(false)} portfolio={portfolio} allCompanies={companies} />}
+            {isCommentaryOpen && <MarketCommentaryModal onClose={() => setIsCommentaryOpen(false)} isLoading={isCommentaryLoading} commentary={marketCommentary} allCompanies={companies} newsItems={newsItems.slice(0, 3)} />}
+            {isOpportunityPipelineOpen && <OpportunityPipelineModal onClose={() => setIsOpportunityPipelineOpen(false)} allCompanies={companies} portfolio={portfolio} />}
+
+            {isChatOpen && (
+                <div className="fixed bottom-4 right-4 z-40">
+                    <AIChat companies={companies} onClose={() => setIsChatOpen(false)} />
+                </div>
+            )}
         </div>
     );
 };

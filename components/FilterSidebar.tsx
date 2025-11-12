@@ -10,9 +10,10 @@ interface FilterSidebarProps {
         maxPE: string;
         minGrowth: string;
         minCriticality: string;
+        minUnivScore: string;
+        showBlueChips: boolean;
     };
     onFilterChange: (filters: FilterSidebarProps['filters']) => void;
-    // FIX: Add categories to props
     categories: string[];
 }
 
@@ -42,16 +43,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
         onFilterChange({ ...filters, category: e.target.value });
     }, [filters, onFilterChange]);
 
-    const handleMaxPEChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        onFilterChange({ ...filters, maxPE: e.target.value });
-    }, [filters, onFilterChange]);
-
-    const handleMinGrowthChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        onFilterChange({ ...filters, minGrowth: e.target.value });
-    }, [filters, onFilterChange]);
-    
-    const handleMinCriticalityChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-        onFilterChange({ ...filters, minCriticality: e.target.value });
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        onFilterChange({ ...filters, [e.target.name]: e.target.value });
     }, [filters, onFilterChange]);
 
 
@@ -66,6 +59,24 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
     return (
         <div className="glass-panel p-4 sticky top-24">
             <h2 className="text-lg font-semibold mb-4 text-gray-200">Filters</h2>
+
+            <div className="mb-6">
+                <h3 className="font-semibold text-gray-300 mb-2">View Options</h3>
+                <label htmlFor="blue-chip-toggle" className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm text-gray-300">Show Blue Chips</span>
+                    <div className="relative">
+                        <input
+                            type="checkbox"
+                            id="blue-chip-toggle"
+                            className="sr-only"
+                            checked={filters.showBlueChips}
+                            onChange={(e) => onFilterChange({ ...filters, showBlueChips: e.target.checked })}
+                        />
+                        <div className={`block w-10 h-6 rounded-full ${filters.showBlueChips ? 'bg-accent-blue' : 'bg-gray-600'}`}></div>
+                        <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${filters.showBlueChips ? 'translate-x-full' : ''}`}></div>
+                    </div>
+                </label>
+            </div>
             
             <div className="mb-6">
                 <h3 className="font-semibold text-gray-300 mb-2">Investment Tier</h3>
@@ -84,11 +95,83 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                 </div>
             </div>
 
+             <div className="mb-6">
+                <h3 className="font-semibold text-gray-300 mb-2">Quantitative Filters</h3>
+                <div className="space-y-3">
+                    <div>
+                        <label htmlFor="minUnivScore" className="block text-sm font-medium text-gray-400">Min Universal Score</label>
+                        <input
+                            type="number"
+                            id="minUnivScore"
+                            name="minUnivScore"
+                            value={filters.minUnivScore}
+                            onChange={handleInputChange}
+                            placeholder="e.g., 90"
+                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                        />
+                    </div>
+                     <div>
+                        <label htmlFor="minCriticality" className="block text-sm font-medium text-gray-400">Min Criticality</label>
+                        <select
+                            id="minCriticality"
+                            name="minCriticality"
+                            value={filters.minCriticality}
+                            onChange={handleInputChange}
+                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                        >
+                            <option value="">Any</option>
+                            <option value="8">8+</option>
+                            <option value="9">9+</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label htmlFor="maxPE" className="block text-sm font-medium text-gray-400">Max P/E Ratio</label>
+                        <input
+                            type="number"
+                            id="maxPE"
+                            name="maxPE"
+                            value={filters.maxPE}
+                            onChange={handleInputChange}
+                            placeholder="e.g., 50"
+                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="minGrowth" className="block text-sm font-medium text-gray-400">Min Revenue Growth (YoY %)</label>
+                        <input
+                            type="number"
+                            id="minGrowth"
+                            name="minGrowth"
+                            value={filters.minGrowth}
+                            onChange={handleInputChange}
+                            placeholder="e.g., 20"
+                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                        />
+                    </div>
+                </div>
+            </div>
+
             <div className="mb-6">
+                <h3 className="font-semibold text-gray-300 mb-2">Category</h3>
+                <select
+                    name="category"
+                    value={filters.category}
+                    onChange={handleInputChange}
+                    className="w-full bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                >
+                    <option value="All">All Categories</option>
+                    {categories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                </select>
+            </div>
+
+            <div>
                 <h3 className="font-semibold text-gray-300 mb-2">Risk Level</h3>
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
                     {riskOptions.map(risk => (
-                        <label key={risk} className="flex items-center space-x-2 cursor-pointer">
+                        <label key={risk} className="flex items-center space-x-2 cursor-pointer text-sm">
                             <input
                                 type="checkbox"
                                 checked={filters.risks.has(risk)}
@@ -99,62 +182,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                         </label>
                     ))}
                 </div>
-            </div>
-
-            <div className="mb-6">
-                <h3 className="font-semibold text-gray-300 mb-2">Minimum Criticality</h3>
-                <select
-                    value={filters.minCriticality}
-                    onChange={handleMinCriticalityChange}
-                    className="w-full bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                >
-                    <option value="">Any</option>
-                    <option value="8">8+</option>
-                    <option value="9">9+</option>
-                    <option value="10">10</option>
-                </select>
-            </div>
-
-            <div className="mb-6">
-                <h3 className="font-semibold text-gray-300 mb-2">Valuation & Growth</h3>
-                <div className="space-y-3">
-                    <div>
-                        <label htmlFor="max-pe" className="block text-sm font-medium text-gray-400">Max P/E Ratio</label>
-                        <input
-                            type="number"
-                            id="max-pe"
-                            value={filters.maxPE}
-                            onChange={handleMaxPEChange}
-                            placeholder="e.g., 50"
-                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="min-growth" className="block text-sm font-medium text-gray-400">Min Revenue Growth (YoY %)</label>
-                        <input
-                            type="number"
-                            id="min-growth"
-                            value={filters.minGrowth}
-                            onChange={handleMinGrowthChange}
-                            placeholder="e.g., 20"
-                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <h3 className="font-semibold text-gray-300 mb-2">Category</h3>
-                <select
-                    value={filters.category}
-                    onChange={handleCategoryChange}
-                    className="w-full bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                >
-                    <option value="All">All Categories</option>
-                    {categories.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                </select>
             </div>
         </div>
     );

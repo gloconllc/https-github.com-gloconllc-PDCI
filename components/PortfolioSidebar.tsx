@@ -1,160 +1,163 @@
-import React, { useMemo } from 'react';
-import { Company } from '../types';
-import { TrashIcon, SparkleIcon, FlaskIcon, OptimizeIcon } from './icons/Icons';
+
+import React, { useMemo, useState } from 'react';
+import { Company, InvestmentTier } from '../types';
+import { CloseIcon, SparkleIcon, OptimizeIcon } from './icons/Icons';
+import AnalysisModal from './AnalysisModal';
+import PortfolioOptimizerModal from './PortfolioOptimizerModal';
+import { getPortfolioAnalysis, getPortfolioOptimization, PortfolioAnalysisResult, PortfolioOptimizationResult, SuggestedTrade } from '../lib/gemini';
 
 interface PortfolioSidebarProps {
     portfolio: Company[];
     onRemove: (ticker: string) => void;
-    onAnalyze: () => void;
-    isAnalyzing: boolean;
-    onStressTest: () => void;
-    onOptimize: () => void;
+    onViewDetails: (company: Company) => void;
+    allCompanies: Company[];
 }
 
-const KPIRow: React.FC<{ label: string; value: string; tooltip: string; colorClass: string }> = ({ label, value, tooltip, colorClass }) => (
-    <div className="flex justify-between items-center" title={tooltip}>
-        <span className="text-gray-400">{label}</span>
-        <span className={`font-bold px-2 py-0.5 rounded ${colorClass}`}>{value}</span>
-    </div>
-);
-
-const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove, onAnalyze, isAnalyzing, onStressTest, onOptimize }) => {
+const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove, onViewDetails, allCompanies }) => {
+    const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+    const [isOptimizerModalOpen, setIsOptimizerModalOpen] = useState(false);
     
-    const kpis = useMemo(() => {
-        if (portfolio.length === 0) return null;
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState<PortfolioAnalysisResult | null>(null);
 
-        const weight = 1 / portfolio.length;
-        
-        const uswa = portfolio.reduce((acc, c) => acc + c.Universal_Score * weight, 0);
-        const cei = portfolio.reduce((acc, c) => acc + c.Criticality * weight, 0) / 10;
-        const srs = portfolio.reduce((acc, c) => acc + c.Substitutability_Score * weight, 0);
+    const [isOptimizing, setIsOptimizing] = useState(false);
+    const [optimizationResult, setOptimizationResult] = useState<PortfolioOptimizationResult | null>(null);
 
-        const twCount = portfolio.filter(c => c.Country === 'Taiwan').length;
-        const krCount = portfolio.filter(c => c.Country === 'Korea').length;
-        const gcr_tw_kr = ((twCount + krCount) / portfolio.length) * 100;
-        
-        return {
-            uswa: {
-                value: uswa.toFixed(1),
-                color: uswa > 92 ? 'bg-green-800 text-green-300' : uswa >= 85 ? 'bg-yellow-800 text-yellow-300' : 'bg-red-800 text-red-300'
-            },
-            cei: {
-                value: cei.toFixed(2),
-                color: cei >= 9.0 ? 'bg-green-800 text-green-300' : 'bg-yellow-800 text-yellow-300'
-            },
-            srs: {
-                value: srs.toFixed(1),
-                color: srs < 35 ? 'bg-green-800 text-green-300' : srs <= 50 ? 'bg-yellow-800 text-yellow-300' : 'bg-red-800 text-red-300'
-            },
-            gcr_tw_kr: {
-                value: `${gcr_tw_kr.toFixed(0)}%`,
-                color: gcr_tw_kr < 40 ? 'bg-green-800 text-green-300' : 'bg-red-800 text-red-300'
-            }
-        };
+    const { uswa, srs, totalMarketCap } = useMemo(() => {
+        if (portfolio.length === 0) {
+            return { uswa: 0, srs: 0, totalMarketCap: 0 };
+        }
+        const totalMarketCap = portfolio.reduce((sum, c) => sum + c.Market_Cap_B, 0);
+        const uswa = portfolio.reduce((sum, c) => sum + c.Universal_Score * c.Market_Cap_B, 0) / totalMarketCap;
+        const srs = portfolio.reduce((sum, c) => sum + c.Substitutability_Score * c.Market_Cap_B, 0) / totalMarketCap;
+        return { uswa, srs, totalMarketCap };
     }, [portfolio]);
 
-    const exportToCSV = () => {
-        if (portfolio.length === 0) return;
-
-        const headers = Object.keys(portfolio[0]).join(',');
-        const rows = portfolio.map(company =>
-            Object.values(company).map(value =>
-                `"${String(value).replace(/"/g, '""')}"`
-            ).join(',')
-        );
-
-        const csvContent = [headers, ...rows].join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'pdci_portfolio.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+    const handleRunAnalysis = async () => {
+        setIsAnalysisModalOpen(true);
+        setIsAnalyzing(true);
+        setAnalysisResult(null);
+        try {
+            const result = await getPortfolioAnalysis(portfolio);
+            setAnalysisResult(result);
+        } catch (error) {
+            console.error("Failed to get portfolio analysis:", error);
+            setAnalysisResult({
+                summary: `Error: Could not retrieve analysis. ${error instanceof Error ? error.message : ''}`,
+                healthScore: 0,
+                strengths: '',
+                weaknesses: '',
+                riskAnalysis: '',
+                recommendations: '',
+            });
+        } finally {
+            setIsAnalyzing(false);
         }
+    };
+    
+    const handleRunOptimization = async (strategy: string) => {
+        if (!strategy) { // Used for clearing results when going back
+            setOptimizationResult(null);
+            return;
+        }
+        setIsOptimizing(true);
+        setOptimizationResult(null);
+        try {
+            const result = await getPortfolioOptimization(portfolio, strategy, allCompanies);
+            setOptimizationResult(result);
+        } catch (error) {
+            console.error("Failed to run optimization:", error);
+            // Handle error state in UI if necessary
+        } finally {
+            setIsOptimizing(false);
+        }
+    };
+    
+    const handleApplyTrades = (trades: SuggestedTrade[]) => {
+        // This is a mock implementation. A real app would have more complex logic.
+        console.log("Applying trades:", trades);
+        // For simplicity, we just log this. In a real app, you'd update the portfolio state.
+        setIsOptimizerModalOpen(false);
     };
 
     return (
-        <div className="glass-panel p-4 sticky top-24">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-gray-200">Portfolio</h2>
-                <span className="text-sm font-medium bg-accent-green text-black rounded-full px-2 py-0.5">
-                    {portfolio.length}
-                </span>
-            </div>
+        <div className="glass-panel p-4 sticky top-24 h-[calc(100vh-7rem)] flex flex-col">
+            <h2 className="text-lg font-semibold mb-4 text-gray-200">My Portfolio ({portfolio.length})</h2>
 
-            <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
-                {portfolio.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">Your portfolio is empty. Add companies from the list.</p>
-                ) : (
-                    portfolio.map(company => (
-                        <div key={company.Ticker} className="flex items-center justify-between bg-black/20 p-2 rounded-md">
-                            <div className="flex items-center min-w-0">
-                                <img src={company.logoUrl} alt={`${company.Company} logo`} className="w-6 h-6 rounded-full object-contain bg-white mr-3 flex-shrink-0" />
-                                <div className="min-w-0">
-                                    <p className="font-semibold text-gray-200 text-sm truncate">{company.Company}</p>
-                                    <p className="text-xs text-gray-400">{company.Ticker}</p>
-                                </div>
+            <div className="grid grid-cols-3 gap-3 text-center mb-4">
+                <div className="bg-black/20 p-2 rounded-md">
+                    <h4 className="text-xs text-gray-400">USWA</h4>
+                    <p className="font-bold text-lg text-accent-blue">{uswa.toFixed(1)}</p>
+                </div>
+                <div className="bg-black/20 p-2 rounded-md">
+                    <h4 className="text-xs text-gray-400">SRS</h4>
+                    <p className="font-bold text-lg text-accent-green">{srs.toFixed(1)}</p>
+                </div>
+                <div className="bg-black/20 p-2 rounded-md">
+                    <h4 className="text-xs text-gray-400">Mkt Cap</h4>
+                    <p className="font-bold text-lg text-gray-300">${totalMarketCap.toFixed(0)}B</p>
+                </div>
+            </div>
+            
+            <div className="flex-grow overflow-y-auto pr-1 space-y-2">
+                {portfolio.map(company => (
+                    <div key={company.Ticker} className="bg-black/20 p-2 rounded-md flex items-center justify-between group">
+                        <div className="flex items-center gap-3 cursor-pointer min-w-0" onClick={() => onViewDetails(company)}>
+                            <img src={company.logoUrl} alt={`${company.Company} logo`} className="w-7 h-7 rounded-full object-contain bg-white" />
+                            <div className="min-w-0">
+                                <p className="font-semibold text-gray-200 text-sm truncate">{company.Company}</p>
+                                <p className="text-xs text-gray-400">{company.Ticker}</p>
                             </div>
-                            <button
-                                onClick={() => onRemove(company.Ticker)}
-                                className="p-1 rounded-full text-gray-400 hover:bg-accent-red hover:text-white transition-colors ml-2 flex-shrink-0"
-                                aria-label={`Remove ${company.Company} from portfolio`}
-                            >
-                                <TrashIcon />
-                            </button>
                         </div>
-                    ))
+                        <button 
+                            onClick={() => onRemove(company.Ticker)} 
+                            className="p-1 rounded-full text-gray-500 hover:bg-accent-red hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            aria-label={`Remove ${company.Company}`}
+                        >
+                            <CloseIcon />
+                        </button>
+                    </div>
+                ))}
+                 {portfolio.length === 0 && (
+                    <div className="text-center text-gray-500 pt-10">Your portfolio is empty. Add companies from the main table.</div>
                 )}
             </div>
 
-            {portfolio.length > 0 && kpis && (
-                <>
-                    <div className="mt-4 pt-4 border-t border-white/10">
-                        <h3 className="text-md font-semibold text-gray-300 mb-3">BI Key Performance Indicators</h3>
-                        <div className="space-y-2 text-sm">
-                            <KPIRow label="Univ. Score W. Avg (USWA)" value={kpis.uswa.value} colorClass={kpis.uswa.color} tooltip="Target: >85" />
-                            <KPIRow label="Criticality Index (CEI)" value={kpis.cei.value} colorClass={kpis.cei.color} tooltip="Target: >9.0" />
-                            <KPIRow label="Substitutability Risk (SRS)" value={kpis.srs.value} colorClass={kpis.srs.color} tooltip="Target: <35" />
-                            <KPIRow label="Geographic Risk (TW+KR)" value={kpis.gcr_tw_kr.value} colorClass={kpis.gcr_tw_kr.color} tooltip="Target: <40%" />
-                        </div>
-                    </div>
-                     <div className="mt-6 space-y-2">
-                        <div className="grid grid-cols-2 gap-2">
-                             <button
-                                onClick={onAnalyze}
-                                disabled={isAnalyzing}
-                                className="neuro-button w-full flex items-center justify-center gap-2 text-white font-bold py-2 px-3 text-sm disabled:opacity-50"
-                            >
-                                <SparkleIcon />
-                                {isAnalyzing ? 'Analyzing...' : 'Analyze'}
-                            </button>
-                            <button
-                                onClick={onStressTest}
-                                className="neuro-button w-full flex items-center justify-center gap-2 text-white font-bold py-2 px-3 text-sm"
-                            >
-                                <FlaskIcon />
-                                Stress Test
-                            </button>
-                        </div>
-                         <button
-                            onClick={onOptimize}
-                            className="neuro-button w-full flex items-center justify-center gap-2 bg-accent-green text-black font-bold py-2 px-4"
-                        >
-                            <OptimizeIcon />
-                            Optimize Portfolio
-                        </button>
-                        <button
-                            onClick={exportToCSV}
-                            className="neuro-button w-full text-white font-bold py-2 px-4 text-sm"
-                        >
-                            Export to CSV
-                        </button>
-                    </div>
-                </>
+            <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
+                 <button 
+                    onClick={handleRunAnalysis}
+                    disabled={portfolio.length === 0}
+                    className="w-full neuro-button flex items-center justify-center gap-2 bg-accent-blue text-white font-bold py-2 px-4 disabled:opacity-50"
+                 >
+                    <SparkleIcon />
+                    Run AI Analysis
+                </button>
+                 <button 
+                    onClick={() => setIsOptimizerModalOpen(true)}
+                    disabled={portfolio.length === 0}
+                    className="w-full neuro-button flex items-center justify-center gap-2 bg-gray-700 text-gray-200 font-bold py-2 px-4 hover:bg-gray-600 disabled:opacity-50"
+                 >
+                    <OptimizeIcon />
+                    Quantitative Strategist
+                </button>
+            </div>
+            
+            {isAnalysisModalOpen && (
+                <AnalysisModal 
+                    onClose={() => setIsAnalysisModalOpen(false)}
+                    isAnalyzing={isAnalyzing}
+                    analysis={analysisResult}
+                />
+            )}
+            
+            {isOptimizerModalOpen && (
+                <PortfolioOptimizerModal
+                    onClose={() => setIsOptimizerModalOpen(false)}
+                    onRunOptimization={handleRunOptimization}
+                    isLoading={isOptimizing}
+                    result={optimizationResult}
+                    onApply={handleApplyTrades}
+                />
             )}
         </div>
     );

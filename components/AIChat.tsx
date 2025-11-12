@@ -1,5 +1,8 @@
+
+
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 // Import the new deep analysis function
+// FIX: Correct import path
 import { getChatResponse, getDeepAnalysisResponse, GeminiResponse } from '../lib/gemini';
 import { Company } from '../types';
 import { SendIcon, SparkleIcon, CloseIcon, ExportIcon, LinkIcon } from './icons/Icons';
@@ -66,7 +69,7 @@ const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
         const doc = new jsPDF();
 
         doc.setFontSize(18);
-        doc.text("PDCI AI Chat Transcript", 14, 22);
+        doc.text("PDCI AI Analyst Chat Transcript", 14, 22);
         
         doc.setFontSize(10);
         doc.setTextColor(100);

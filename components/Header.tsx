@@ -1,5 +1,7 @@
 import React from 'react';
-import { UpdateIcon, SearchIcon, PDCIcon, GlossaryIcon, GridIcon, AlgorithmUpdateIcon, HistoryIcon, CommentaryIcon } from './icons/Icons';
+import { UpdateIcon, SearchIcon, PDCIcon, GlossaryIcon, GridIcon, BrainCircuitIcon, HistoryIcon, CommentaryIcon, PipelineIcon, DeepDiveIcon, SparkleIcon } from './icons/Icons';
+
+type ViewMode = 'standard' | 'quant' | 'deepDive';
 
 interface HeaderProps {
     onUpdate: () => void;
@@ -8,14 +10,19 @@ interface HeaderProps {
     searchValue: string;
     onSearchChange: (value: string) => void;
     onOpenGlossary: () => void;
-    isQuantView: boolean;
-    onToggleQuantView: () => void;
+    currentView: ViewMode;
+    onSetView: (view: ViewMode) => void;
     onSyncAI: () => void;
     onOpenBacktest: () => void;
     onOpenCommentary: () => void;
+    onOpenOpportunityPipeline: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onUpdate, lastUpdated, isUpdating, searchValue, onSearchChange, onOpenGlossary, isQuantView, onToggleQuantView, onSyncAI, onOpenBacktest, onOpenCommentary }) => {
+const Header: React.FC<HeaderProps> = ({ 
+    onUpdate, lastUpdated, isUpdating, searchValue, onSearchChange, 
+    onOpenGlossary, currentView, onSetView, onSyncAI, onOpenBacktest, 
+    onOpenCommentary, onOpenOpportunityPipeline 
+}) => {
     return (
         <header className="bg-gray-900/50 backdrop-blur-md p-4 shadow-md sticky top-0 z-20 border-b border-white/10">
             <div className="max-w-screen-2xl mx-auto flex justify-between items-center gap-4">
@@ -23,9 +30,9 @@ const Header: React.FC<HeaderProps> = ({ onUpdate, lastUpdated, isUpdating, sear
                     <PDCIcon />
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold text-gray-200 tracking-wider">
-                            PDCI Dashboard
+                            PDCI
                         </h1>
-                        <p className="text-sm text-gray-400 hidden sm:block">Quantitative Investment Platform for AI Infrastructure</p>
+                        <p className="text-sm text-gray-400 hidden sm:block">Quantitative Intelligence for the Global AI Supply Chain</p>
                     </div>
                 </div>
 
@@ -45,15 +52,34 @@ const Header: React.FC<HeaderProps> = ({ onUpdate, lastUpdated, isUpdating, sear
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
                      <button
-                        onClick={onToggleQuantView}
-                        className={`p-2 rounded-full transition-colors ${isQuantView ? 'bg-accent-blue text-white' : 'text-gray-400 hover:bg-white/10'}`}
-                        aria-label="Toggle Quantitative View"
-                        title="Toggle Quantitative View"
+                        onClick={() => onSetView('standard')}
+                        className={`p-2 rounded-full transition-colors ${currentView === 'standard' ? 'bg-accent-blue text-white' : 'text-gray-400 hover:bg-white/10'}`}
+                        aria-label="Standard View"
+                        title="Standard View"
                     >
                         <GridIcon />
                     </button>
+                    <button
+                        onClick={() => onSetView('quant')}
+                        className={`p-2 rounded-full transition-colors ${currentView === 'quant' ? 'bg-accent-blue text-white' : 'text-gray-400 hover:bg-white/10'}`}
+                        aria-label="Quantitative View"
+                        title="Quantitative View"
+                    >
+                        <SparkleIcon />
+                    </button>
+                     <button
+                        onClick={() => onSetView('deepDive')}
+                        className={`p-2 rounded-full transition-colors ${currentView === 'deepDive' ? 'bg-accent-blue text-white' : 'text-gray-400 hover:bg-white/10'}`}
+                        aria-label="Deep Dive View"
+                        title="Deep Dive View"
+                    >
+                        <DeepDiveIcon />
+                    </button>
+                    
+                    <div className="w-px h-6 bg-white/10 mx-1.5"></div>
+
                     <button
                         onClick={onOpenGlossary}
                         className="p-2 rounded-full text-gray-400 hover:bg-white/10 transition-colors"
@@ -70,13 +96,21 @@ const Header: React.FC<HeaderProps> = ({ onUpdate, lastUpdated, isUpdating, sear
                     >
                         <HistoryIcon />
                     </button>
+                     <button
+                        onClick={onOpenOpportunityPipeline}
+                        className="p-2 rounded-full text-gray-400 hover:bg-white/10 transition-colors"
+                        aria-label="Opportunity Pipeline"
+                        title="Opportunity Pipeline"
+                    >
+                        <PipelineIcon />
+                    </button>
                     <button
                         onClick={onSyncAI}
                         className="p-2 rounded-full text-gray-400 hover:bg-white/10 transition-colors"
                         aria-label="Sync PDCI Models"
                         title="Sync PDCI Models"
                     >
-                        <AlgorithmUpdateIcon />
+                        <BrainCircuitIcon />
                     </button>
                      <button
                         onClick={onOpenCommentary}
@@ -86,7 +120,7 @@ const Header: React.FC<HeaderProps> = ({ onUpdate, lastUpdated, isUpdating, sear
                     >
                         <CommentaryIcon />
                     </button>
-                    <div className="flex flex-col items-end">
+                    <div className="flex flex-col items-end pl-2">
                         <button
                             onClick={onUpdate}
                             disabled={isUpdating}

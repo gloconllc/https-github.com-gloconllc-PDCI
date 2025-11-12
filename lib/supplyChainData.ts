@@ -1,57 +1,186 @@
 import { SupplyChainData } from '../types';
 
-// This data defines the direct relationships for the Supply Chain Visualizer.
-// It's a simplified representation based on the company descriptions.
 export const supplyChainData: SupplyChainData = {
-    // Computing
-    "TSM": { ticker: "TSM", upstream: ["6488.TW", "3436.T"], downstream: ["AVGO", "SMCI"] },
-    "6488.TW": { ticker: "6488.TW", upstream: [], downstream: ["TSM"] },
-    "3436.T": { ticker: "3436.T", upstream: [], downstream: ["TSM"] },
-    "000660.KS": { ticker: "000660.KS", upstream: [], downstream: ["SMCI", "DELL"] },
-    // Raw Materials & Construction
-    "FCX": { ticker: "FCX", upstream: [], downstream: ["PRY.MI", "APH"] },
-    "SCCO": { ticker: "SCCO", upstream: [], downstream: ["PRY.MI", "APH"] },
-    "MP": { ticker: "MP", upstream: [], downstream: ["STX", "WDC"] },
-    "NUE": { ticker: "NUE", upstream: [], downstream: ["SMCI", "DELL"] },
-    "VMC": { ticker: "VMC", upstream: [], downstream: [] }, // Sells to contractors, end of chain here
-    "MLM": { ticker: "MLM", upstream: [], downstream: [] }, // Sells to contractors
-    // Networking
-    "ANET": { ticker: "ANET", upstream: ["AVGO"], downstream: [] }, // Sells to end users
-    "AVGO": { ticker: "AVGO", upstream: ["TSM"], downstream: ["ANET"] },
-    "CRDO": { ticker: "CRDO", upstream: [], downstream: ["ANET"] },
-    // Storage
-    "STX": { ticker: "STX", upstream: ["MP"], downstream: [] }, // Sells to integrators/end users
-    "WDC": { ticker: "WDC", upstream: ["MP"], downstream: [] }, // Sells to integrators/end users
-    // Power & Cooling
-    "VRT": { ticker: "VRT", upstream: ["ENS", "EMR"], downstream: [] },
-    "ETN": { ticker: "ETN", upstream: ["NUE", "FCX"], downstream: [] },
-    "SBGSY": { ticker: "SBGSY", upstream: ["NUE", "FCX"], downstream: [] },
-    "CAT": { ticker: "CAT", upstream: ["NUE"], downstream: [] },
-    "CMI": { ticker: "CMI", upstream: ["NUE"], downstream: [] },
-    "ENS": { ticker: "ENS", upstream: [], downstream: ["VRT", "ETN", "SBGSY"] },
-    // Interconnects
-    "APH": { ticker: "APH", upstream: ["FCX", "DOW"], downstream: ["SMCI", "DELL", "ANET"] },
-    "PRY.MI": { ticker: "PRY.MI", upstream: ["FCX", "DOW"], downstream: ["ETN", "SBGSY"] },
-    // Hardware & Components
-    "SMCI": { ticker: "SMCI", upstream: ["TSM", "000660.KS", "NUE", "TTMI"], downstream: [] },
-    "DELL": { ticker: "DELL", upstream: ["000660.KS", "NUE", "TTMI", "WDC", "STX"], downstream: [] },
-    "6981.T": { ticker: "6981.T", upstream: [], downstream: ["TTMI", "SANM"] },
-    "2327.TW": { ticker: "2327.TW", upstream: [], downstream: ["TTMI", "SANM"] },
-    "VSH": { ticker: "VSH", upstream: [], downstream: ["TTMI", "SANM"] },
-    "TTMI": { ticker: "TTMI", upstream: ["6981.T", "2327.TW", "VSH", "DD"], downstream: ["SMCI", "DELL"] },
-    "SANM": { ticker: "SANM", upstream: ["6981.T", "2327.TW", "VSH"], downstream: ["DELL"] },
-    "JBL": { ticker: "JBL", upstream: ["TTMI"], downstream: ["DELL"] },
-    // Materials
-    "DOW": { ticker: "DOW", upstream: [], downstream: ["APH", "PRY.MI"] },
-    "DD": { ticker: "DD", upstream: [], downstream: ["TTMI", "APH"] },
-    "PPG": { ticker: "PPG", upstream: [], downstream: ["NUE"] },
-    // Other
-    "CARR": { ticker: "CARR", upstream: [], downstream: [] },
-    "TT": { ticker: "TT", upstream: [], downstream: [] },
-    "HON": { ticker: "HON", upstream: [], downstream: [] },
-    "JCI": { ticker: "JCI", upstream: [], downstream: [] },
-    "COHR": { ticker: "COHR", upstream: [], downstream: ["ANET"] },
-    "EMR": { ticker: "EMR", upstream: [], downstream: ["VRT", "ETN"] },
-    "LIGHT.AS": { ticker: "LIGHT.AS", upstream: [], downstream: [] },
-    "ABB": { ticker: "ABB", upstream: ["NUE", "FCX"], downstream: [] }
+    // NVIDIA
+    'NVDA': {
+        ticker: 'NVDA',
+        upstream: ['TSM', 'ASML', '000660.KS', 'ENTG', 'DD'],
+        downstream: ['SMCI', 'DELL', 'ANET'],
+        competitors: ['AMD', 'INTC'], // Placeholder for non-listed competitors
+    },
+    // TSMC
+    'TSM': {
+        ticker: 'TSM',
+        upstream: ['ASML', '6488.TWO', 'ENTG', 'DD'],
+        downstream: ['NVDA', 'AVGO'],
+        competitors: ['SAMSUNG', 'INTC'], // Placeholders
+    },
+    // Super Micro
+    'SMCI': {
+        ticker: 'SMCI',
+        upstream: ['NVDA', 'VRT', 'APH', 'TEL', 'NVT'],
+        downstream: [],
+        competitors: ['DELL', 'HPE'], // Placeholder
+    },
+    // Broadcom
+    'AVGO': {
+        ticker: 'AVGO',
+        upstream: ['TSM'],
+        downstream: ['ANET', 'APH'],
+        competitors: ['MRVL'], // Placeholder
+    },
+    // SK Hynix
+    '000660.KS': {
+        ticker: '000660.KS',
+        upstream: ['ASML', '6488.TWO', 'ENTG'],
+        downstream: ['NVDA'],
+        competitors: ['MU', 'SAMSUNG'], // Placeholders
+    },
+    // Vertiv
+    'VRT': {
+        ticker: 'VRT',
+        upstream: ['ETN', 'SIEGY', 'CC', 'NVT', 'PH'],
+        downstream: ['SMCI', 'DELL'],
+        competitors: ['ETN', 'Schneider'], // Schneider is a placeholder
+    },
+    // Arista Networks
+    'ANET': {
+        ticker: 'ANET',
+        upstream: ['AVGO', 'TSM', 'APH', 'TEL'],
+        downstream: [],
+        competitors: ['CSCO'], // Placeholder
+    },
+    // ASML
+    'ASML': {
+        ticker: 'ASML',
+        upstream: ['DD'],
+        downstream: ['TSM', '000660.KS'],
+        competitors: [], // Monopoly
+    },
+    // Dell
+    'DELL': {
+        ticker: 'DELL',
+        upstream: ['NVDA', 'VRT', 'ETN', 'APH', 'TEL'],
+        downstream: [],
+        competitors: ['SMCI', 'HPE'],
+    },
+    // Eaton
+    'ETN': {
+        ticker: 'ETN',
+        upstream: ['DD'],
+        downstream: ['VRT', 'SMCI', 'DELL', 'SIEGY'],
+        competitors: ['VRT', 'Schneider'],
+    },
+    // GlobalWafers
+    '6488.TWO': {
+        ticker: '6488.TWO',
+        upstream: ['DD'],
+        downstream: ['TSM', '000660.KS'],
+        competitors: ['3436.T', 'Shin-Etsu'],
+    },
+    // Siemens
+    'SIEGY': {
+        ticker: 'SIEGY',
+        upstream: ['ETN', 'DD'],
+        downstream: ['VRT'],
+        competitors: ['ABB', 'Schneider'],
+    },
+    // Atkore
+    'ATKR': {
+        ticker: 'ATKR',
+        upstream: ['NUE'],
+        downstream: [],
+        competitors: ['NVT'],
+    },
+    // nVent
+    'NVT': {
+        ticker: 'NVT',
+        upstream: ['DD'],
+        downstream: ['SMCI', 'VRT'],
+        competitors: ['ATKR'],
+    },
+    // TE Connectivity
+    'TEL': {
+        ticker: 'TEL',
+        upstream: ['DD'],
+        downstream: ['SMCI', 'DELL', 'ANET'],
+        competitors: ['APH'],
+    },
+    // Chemours
+    'CC': {
+        ticker: 'CC',
+        upstream: [],
+        downstream: ['VRT'],
+        competitors: ['3M'],
+    },
+    // DuPont
+    'DD': {
+        ticker: 'DD',
+        upstream: [],
+        downstream: ['TSM', 'ASML', 'NVDA', 'ETN', '6488.TWO', 'TEL', 'NVT'],
+        competitors: ['DOW', 'CC'],
+    },
+    // Entegris
+    'ENTG': {
+        ticker: 'ENTG',
+        upstream: ['DD'],
+        downstream: ['TSM', 'NVDA', '000660.KS'],
+        competitors: [], // Niche leader
+    },
+    // Amphenol
+    'APH': {
+        ticker: 'APH',
+        upstream: ['AVGO', 'DD'],
+        downstream: ['SMCI', 'DELL', 'ANET'],
+        competitors: ['TEL'],
+    },
+    // Parker-Hannifin
+    'PH': {
+        ticker: 'PH',
+        upstream: ['DD'],
+        downstream: ['VRT', 'CARR', 'TT'],
+        competitors: ['EMR'],
+    },
+    // Kingspan Group
+    'KGP.L': {
+        ticker: 'KGP.L',
+        upstream: ['NUE'],
+        downstream: [],
+        competitors: [], // Niche leader
+    },
+    // Nextracker
+    'NXT': {
+        ticker: 'NXT',
+        upstream: ['NUE'],
+        downstream: [],
+        competitors: ['Array Technologies'],
+    },
+    // Nucor
+    'NUE': {
+        ticker: 'NUE',
+        upstream: [],
+        downstream: ['ATKR', 'KGP.L', 'NXT'],
+        competitors: ['STLD'],
+    },
+    // Freeport-McMoRan
+    'FCX': {
+        ticker: 'FCX',
+        upstream: [],
+        downstream: ['PRY.MI', 'APH', 'TEL'],
+        competitors: ['SCCO'],
+    },
+    // Southern Copper
+    'SCCO': {
+        ticker: 'SCCO',
+        upstream: [],
+        downstream: ['PRY.MI', 'APH', 'TEL'],
+        competitors: ['FCX'],
+    },
+    // Prysmian
+    'PRY.MI': {
+        ticker: 'PRY.MI',
+        upstream: ['FCX', 'SCCO'],
+        downstream: [],
+        competitors: ['NKT'],
+    },
 };

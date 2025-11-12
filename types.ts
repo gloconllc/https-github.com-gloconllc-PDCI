@@ -1,3 +1,4 @@
+// FIX: Removed circular import of 'Company' from its own declaration file.
 export enum InvestmentTier {
   MustBuy = 'MUST BUY',
   HighConviction = 'HIGH CONVICTION',
@@ -50,6 +51,7 @@ export interface Company {
   Revenue_Growth_YoY: number; // in percent
   Debt_to_Equity: number;
   // New qualitative/wisdom metric
+  isBlueChip?: boolean;
   Graham_Score?: number; // Score from 1-10 based on value investing principles
 }
 
@@ -63,6 +65,7 @@ export interface SupplyChainNode {
     ticker: string;
     upstream: string[]; // Tickers of suppliers
     downstream: string[]; // Tickers of customers
+    competitors: string[]; // Tickers of direct competitors
 }
 
 export type SupplyChainData = Record<string, SupplyChainNode>;

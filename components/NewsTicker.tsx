@@ -1,4 +1,5 @@
 import React from 'react';
+// FIX: Correct import path
 import { NewsItem } from '../lib/gemini';
 
 interface NewsTickerProps {

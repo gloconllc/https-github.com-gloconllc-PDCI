@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { CloseIcon, OptimizeIcon, SparkleIcon, PlusIcon, MinusIcon } from './icons/Icons';
+// FIX: Correct import path
 import { PortfolioOptimizationResult, SuggestedTrade } from '../lib/gemini';
 
 interface PortfolioOptimizerModalProps {
@@ -18,6 +19,32 @@ const strategies = [
     { name: "Supply Chain Resilience", description: "Optimizes for companies that are critical (Criticality > 9) and difficult to substitute (Substitutability Score < 35)." },
 ];
 
+const TradeCard: React.FC<{ trade: SuggestedTrade }> = ({ trade }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <div className="bg-black/20 p-3 rounded-md transition-all duration-200">
+            <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+                <div className="flex items-center gap-3">
+                    {trade.action === 'Add' ? <PlusIcon className="text-accent-green" /> : <MinusIcon className="text-accent-red" />}
+                    <div>
+                        <p className={`font-bold ${trade.action === 'Add' ? 'text-accent-green' : 'text-accent-red'}`}>{trade.action} {trade.companyName} ({trade.ticker})</p>
+                        <p className="text-xs text-gray-400 mt-1">{trade.reasoning}</p>
+                    </div>
+                </div>
+                <span className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>&#9660;</span>
+            </div>
+            {isExpanded && (
+                 <div className="mt-2 pl-8 pt-2 border-t border-white/10 text-xs text-gray-300 animate-fade-in-up">
+                    <p className="font-semibold text-gray-200">Detailed Rationale:</p>
+                    <p>{trade.detailedReasoning}</p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+
 const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClose, onRunOptimization, isLoading, result, onApply }) => {
     const [selectedStrategy, setSelectedStrategy] = useState<string | null>(null);
 
@@ -30,7 +57,7 @@ const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClo
     const renderSelectionScreen = () => (
         <div className="p-6">
             <h3 className="text-xl font-semibold text-gray-200 mb-4">Select a Quantitative Strategy</h3>
-            <p className="text-sm text-gray-400 mb-4">The PDCI AI will analyze your current portfolio and suggest trades to align it with your chosen strategy.</p>
+            <p className="text-sm text-gray-400 mb-4">The PICOU AI will analyze your current portfolio and suggest trades to align it with your chosen strategy.</p>
             <div className="space-y-3">
                 {strategies.map((strategy) => (
                     <div
@@ -60,7 +87,7 @@ const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClo
         <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
             <SparkleIcon />
             <p className="text-gray-300 text-lg animate-pulse mt-4">Optimizing your portfolio...</p>
-            <p className="text-gray-500 mt-2 max-w-md">Our PDCI AI is running thousands of simulations to find the optimal trades for your selected strategy.</p>
+            <p className="text-gray-500 mt-2 max-w-md">Our PICOU AI is running thousands of simulations to find the optimal trades for your selected strategy.</p>
         </div>
     );
     
@@ -71,32 +98,33 @@ const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClo
              <div className="p-6 space-y-4">
                 <div>
                     <button onClick={() => { setSelectedStrategy(null); onRunOptimization(''); /* Clear results */ }} className="text-sm text-accent-blue hover:underline mb-2">&larr; Back to Strategies</button>
-                    <h3 className="text-2xl font-bold text-gray-100">Optimization Results</h3>
+                    <h3 className="text-2xl font-bold text-gray-100">Optimization Report</h3>
                     <p className="text-md text-gray-400">Strategy: <span className="font-semibold text-accent-blue">{result.strategy}</span></p>
                 </div>
                 
-                <div className="glass-panel p-4">
-                    <h4 className="font-semibold text-gray-200 mb-2">PDCI AI Summary</h4>
-                    <p className="text-sm text-gray-300">{result.summary}</p>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="glass-panel p-4">
+                        <h4 className="font-semibold text-gray-200 mb-2">Strategy Rationale</h4>
+                        <p className="text-sm text-gray-300">{result.strategyRationale}</p>
+                    </div>
+                     <div className="glass-panel p-4">
+                        <h4 className="font-semibold text-gray-200 mb-2">Risk Considerations</h4>
+                        <p className="text-sm text-gray-300">{result.riskConsiderations}</p>
+                    </div>
                 </div>
-                
+
                 <div className="glass-panel p-4">
                     <h4 className="font-semibold text-gray-200 mb-3">Suggested Trades</h4>
                     <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
                         {result.suggestedTrades.map((trade, index) => (
-                            <div key={index} className="bg-black/20 p-3 rounded-md">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        {trade.action === 'Add' ? <PlusIcon /> : <MinusIcon />}
-                                        <div>
-                                            <p className={`font-bold ${trade.action === 'Add' ? 'text-accent-green' : 'text-accent-red'}`}>{trade.action} {trade.companyName} ({trade.ticker})</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                 <p className="text-xs text-gray-400 mt-1 pl-8">{trade.reasoning}</p>
-                            </div>
+                           <TradeCard key={index} trade={trade} />
                         ))}
                     </div>
+                </div>
+                
+                <div className="glass-panel p-4">
+                     <h4 className="font-semibold text-gray-200 mb-2">AI Summary</h4>
+                    <p className="text-sm text-gray-300">{result.summary}</p>
                 </div>
 
                 <div className="mt-4 flex justify-end">
@@ -110,7 +138,7 @@ const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClo
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="glass-panel w-full max-w-3xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="glass-panel w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
                 <div className="bg-white/5 p-4 border-b border-white/10 flex justify-between items-center flex-shrink-0">
                     <h2 className="text-xl font-bold text-gray-100 flex items-center gap-2">
                         <OptimizeIcon />
