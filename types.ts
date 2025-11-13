@@ -135,3 +135,18 @@ export interface GoalPlannerResult {
     };
     disclaimer: string;
 }
+// FIX: Consolidate all global type declarations into a single location to resolve conflicts.
+// This defines the shape of the `aistudio` object on the window, as well as other
+// third-party libraries injected globally.
+export interface AIStudio {
+    hasSelectedApiKey: () => Promise<boolean>;
+    openSelectKey: () => Promise<void>;
+}
+
+declare global {
+    interface Window {
+        aistudio: AIStudio;
+        html2canvas: any;
+        jspdf: any;
+    }
+}

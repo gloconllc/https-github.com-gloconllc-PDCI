@@ -12,12 +12,8 @@ import { PortfolioAnalysisResult } from '../lib/gemini';
 import ShareDropdown from './ShareDropdown';
 
 // Add jsPDF and html2canvas types for window object
-declare global {
-    interface Window {
-        html2canvas: any;
-        jspdf: any;
-    }
-}
+// FIX: Removed declare global block to prevent type conflicts.
+// Global types are now centralized in `types.ts`.
 
 // --- Embedded Components ---
 

@@ -6,12 +6,8 @@ import { CloseIcon, OptimizeIcon, SparkleIcon, PlusIcon, MinusIcon, DownloadIcon
 import { PortfolioOptimizationResult, SuggestedTrade } from '../lib/gemini';
 import ShareDropdown from './ShareDropdown';
 
-declare global {
-    interface Window {
-        html2canvas: any;
-        jspdf: any;
-    }
-}
+// FIX: Removed declare global block to prevent type conflicts.
+// Global types are now centralized in `types.ts`.
 interface PortfolioOptimizerModalProps {
     onClose: () => void;
     onRunOptimization: (strategy: string) => void;

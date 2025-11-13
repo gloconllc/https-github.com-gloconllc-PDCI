@@ -11,12 +11,8 @@ import { Company } from '../types';
 import { NewsItem } from '../lib/gemini';
 import ShareDropdown from './ShareDropdown';
 
-declare global {
-    interface Window {
-        html2canvas: any;
-        jspdf: any;
-    }
-}
+// FIX: Removed declare global block to prevent type conflicts.
+// Global types are now centralized in `types.ts`.
 interface MarketCommentaryModalProps {
     onClose: () => void;
     isLoading: boolean;

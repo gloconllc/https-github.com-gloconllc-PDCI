@@ -6,12 +6,13 @@
  * This software is for institutional use only. All rights reserved.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useContext } from 'react';
 import { Company } from '../types';
 import { CloseIcon, ClipboardCheckIcon, FlaskIcon } from './icons/Icons';
 import AnalysisModal from './AnalysisModal';
 import PortfolioOptimizerModal from './PortfolioOptimizerModal';
 import { getPortfolioAnalysis, getPortfolioOptimization, PortfolioAnalysisResult, PortfolioOptimizationResult, SuggestedTrade } from '../lib/gemini';
+import { ApiKeyContext } from '../context';
 
 interface PortfolioSidebarProps {
     portfolio: Company[];
@@ -21,6 +22,7 @@ interface PortfolioSidebarProps {
 }
 
 const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove, onViewDetails, allCompanies }) => {
+    const { setIsKeyReady } = useContext(ApiKeyContext);
     const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
     const [isOptimizerModalOpen, setIsOptimizerModalOpen] = useState(false);
     
@@ -49,6 +51,9 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
             setAnalysisResult(result);
         } catch (error) {
             console.error("Failed to get portfolio analysis:", error);
+            if (error instanceof Error && error.message.includes("Requested entity was not found.")) {
+                setIsKeyReady(false);
+            }
             setAnalysisResult({
                 summary: `Error: Could not retrieve analysis. ${error instanceof Error ? error.message : ''}`,
                 healthScore: 0,
@@ -75,6 +80,9 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
             setOptimizationResult(result);
         } catch (error) {
             console.error("Failed to run optimization:", error);
+            if (error instanceof Error && error.message.includes("Requested entity was not found.")) {
+                setIsKeyReady(false);
+            }
         } finally {
             setIsOptimizing(false);
         }

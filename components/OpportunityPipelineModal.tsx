@@ -5,20 +5,17 @@
  *
  * This software is for institutional use only. All rights reserved.
  */
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { CloseIcon, PipelineIcon, SparkleIcon, LightbulbIcon, DownloadIcon, ExpandIcon, CompressIcon } from './icons/Icons';
 import { Company } from '../types';
 // FIX: Correct import path
 import { findFutureOpportunities, FutureOpportunityAnalysis } from '../lib/gemini';
 import { upcomingProjects, UpcomingProject } from '../lib/upcomingProjects';
 import ShareDropdown from './ShareDropdown';
+import { ApiKeyContext } from '../context';
 
-declare global {
-    interface Window {
-        html2canvas: any;
-        jspdf: any;
-    }
-}
+// FIX: Removed declare global block to prevent type conflicts.
+// Global types are now centralized in `types.ts`.
 interface OpportunityPipelineModalProps {
     onClose: () => void;
     allCompanies: Company[];
@@ -33,6 +30,7 @@ const strategies = [
 ];
 
 const OpportunityPipelineModal: React.FC<OpportunityPipelineModalProps> = ({ onClose, allCompanies, portfolio }) => {
+    const { setIsKeyReady } = useContext(ApiKeyContext);
     const [step, setStep] = useState(1); // 1: Project, 2: Strategy, 3: Results
     const [selectedProjects, setSelectedProjects] = useState<UpcomingProject[]>([]);
     const [selectedStrategy, setSelectedStrategy] = useState<string | null>(null);
@@ -97,6 +95,9 @@ const OpportunityPipelineModal: React.FC<OpportunityPipelineModalProps> = ({ onC
             setResult(analysisResult);
         } catch(e) {
              console.error("Opportunity analysis failed:", e);
+             if (e instanceof Error && e.message.includes("Requested entity was not found.")) {
+                setIsKeyReady(false);
+             }
              setResult(null); // Explicitly set to null on error
         } finally {
             setIsLoading(false);

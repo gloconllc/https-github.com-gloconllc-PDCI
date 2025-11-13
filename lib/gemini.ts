@@ -63,7 +63,14 @@ export interface FutureOpportunityAnalysis {
 }
 
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+const getAiClient = () => {
+    // The API key is injected by the environment. The `window.aistudio.hasSelectedApiKey` flow
+    // ensures that process.env.API_KEY is populated before this is called.
+    if (!process.env.API_KEY) {
+        throw new Error("Gemini API key not found. Please select a key to use the AI features.");
+    }
+    return new GoogleGenAI({ apiKey: process.env.API_KEY });
+};
 
 const attribution = "This logic was created by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC, by combining all data sources and algorithms."
 
@@ -104,6 +111,7 @@ const formatCompanyDataForPrompt = (companies: Company[]): string => {
 // --- Chat and Analysis Functions ---
 
 export const getChatResponse = async (query: string, contextCompanies: Company[]): Promise<GeminiResponse> => {
+    const ai = getAiClient();
     const prompt = `
         System: ${systemInstruction} Answer the user's query based on the provided company data. Be concise and helpful.
 
@@ -123,6 +131,7 @@ export const getChatResponse = async (query: string, contextCompanies: Company[]
 };
 
 export const getDeepAnalysisResponse = async (query: string, contextCompanies: Company[]): Promise<GeminiResponse> => {
+    const ai = getAiClient();
     const prompt = `
         System: ${systemInstruction} Provide a detailed, insightful, and well-structured answer to the user's complex query. Use the extensive company data provided to formulate your response, citing specific data points where relevant. Structure your answer with markdown for clarity.
 
@@ -144,6 +153,7 @@ export const getDeepAnalysisResponse = async (query: string, contextCompanies: C
 // --- Market and Portfolio Intelligence Functions ---
 
 export const getMarketNews = async (location?: { latitude: number; longitude: number }): Promise<NewsItem[]> => {
+    const ai = getAiClient();
     const locationPrompt = location ? `The user is located near latitude ${location.latitude}, longitude ${location.longitude}. Prioritize news relevant to their region (e.g., country, state) if available.` : '';
 
     const response = await ai.models.generateContent({
@@ -175,6 +185,7 @@ export const getMarketNews = async (location?: { latitude: number; longitude: nu
 };
 
 export const getMarketCommentary = async (location?: { latitude: number; longitude: number }): Promise<string> => {
+    const ai = getAiClient();
     const locationPrompt = location ? `Tailor regional insights to the user's location (lat: ${location.latitude}, long: ${location.longitude}) if relevant information is available.` : '';
 
     const response = await ai.models.generateContent({
@@ -188,6 +199,7 @@ export const getMarketCommentary = async (location?: { latitude: number; longitu
 };
 
 export const getPortfolioAnalysis = async (portfolio: Company[]): Promise<PortfolioAnalysisResult> => {
+    const ai = getAiClient();
     const prompt = `System: ${systemInstruction}
     
     Analyze the following investment portfolio of data center supply chain companies. Your analysis should focus on how well the portfolio captures opportunities beyond the obvious blue-chip names. Also generate the portfolio's composition breakdown by Category, Risk Level, and Investment Tier based on market cap weighting.
@@ -260,6 +272,7 @@ export const getPortfolioAnalysis = async (portfolio: Company[]): Promise<Portfo
 };
 
 export const getPortfolioOptimization = async (portfolio: Company[], strategy: string, universe: Company[]): Promise<PortfolioOptimizationResult> => {
+    const ai = getAiClient();
     const prompt = `
         System: ${systemInstruction} Your task is to provide an in-depth, institutional-grade report suggesting trades to align a user's portfolio with a specific investment strategy, focusing on adding unique 'outlier' companies rather than standard blue chips.
 
@@ -313,6 +326,7 @@ export const getPortfolioOptimization = async (portfolio: Company[], strategy: s
 };
 
 export const findFutureOpportunities = async (projects: UpcomingProject[], strategy: string, allCompanies: Company[], portfolio: Company[]): Promise<FutureOpportunityAnalysis> => {
+    const ai = getAiClient();
     const prompt = `
         System: ${systemInstruction} Your task is to identify investment opportunities based on future data center projects, with a strong emphasis on uncovering non-obvious 'outlier' companies that will benefit.
 
@@ -379,6 +393,7 @@ export const getGoalBasedPlan = async (
     goals: { initial: number; target: number; horizon: number; risk: string },
     contextCompanies: Company[]
 ): Promise<GoalPlannerResult> => {
+    const ai = getAiClient();
     const prompt = `
         System: ${systemInstruction} You are now a hypothetical financial planner. Your task is to generate a **simulated, educational investment plan** to help a user understand how they might reach their financial goals by investing in the AI data center supply chain. **This is not financial advice.**
 
@@ -458,6 +473,7 @@ export const getGoalBasedPlan = async (
 // --- NEW INSTITUTIONAL ANALYSIS FUNCTIONS ---
 
 export const getFinancialHealthAnalysis = async (company: Company): Promise<FinancialHealthAnalysis> => {
+    const ai = getAiClient();
     const prompt = `
         System: ${systemInstruction}
         Task: As a Series 7 licensed professional, conduct a concise financial health analysis for the following company. Focus on the data provided.
@@ -492,6 +508,7 @@ export const getFinancialHealthAnalysis = async (company: Company): Promise<Fina
 };
 
 export const getPredictiveAnalysis = async (company: Company): Promise<PredictiveAnalysis> => {
+    const ai = getAiClient();
     const prompt = `
         System: ${systemInstruction}
         Task: Perform a simulated quantitative regression analysis for the specified company.

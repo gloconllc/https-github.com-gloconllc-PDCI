@@ -5,7 +5,7 @@
  *
  * This software is for institutional use only. All rights reserved.
  */
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { Company, FinancialHealthAnalysis, PredictiveAnalysis, GeopoliticalRiskLevel } from '../types';
 import { CloseIcon, PlusIcon, DownloadIcon, DocumentTextIcon, CalculatorIcon, SparkleIcon, ExpandIcon, CompressIcon, GlobeIcon, BrainCircuitIcon } from './icons/Icons';
 import { companiesData } from '../constants';
@@ -17,13 +17,10 @@ import { getFinancialHealthAnalysis, getPredictiveAnalysis } from '../lib/gemini
 import DataContextVisualizer from './DataContextVisualizer';
 import ShareDropdown from './ShareDropdown';
 import { terms as glossaryTerms } from './GlossaryModal';
+import { ApiKeyContext } from '../context';
 
-declare global {
-    interface Window {
-        html2canvas: any;
-        jspdf: any;
-    }
-}
+// FIX: Removed declare global block to prevent type conflicts.
+// Global types are now centralized in `types.ts`.
 interface CompanyModalProps {
     company: Company;
     onClose: () => void;
@@ -71,6 +68,7 @@ const ScoreStat: React.FC<{ label: string; value: string | number | undefined; t
 
 
 const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPortfolio, viewCompanyDetails }) => {
+    const { setIsKeyReady } = useContext(ApiKeyContext);
     const reportRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
@@ -92,13 +90,15 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                 setPredictiveAnalysis(predAnalysis);
             } catch (error) {
                 console.error("Failed to fetch company analysis:", error);
+                if (error instanceof Error && error.message.includes("Requested entity was not found.")) {
+                    setIsKeyReady(false);
+                }
             } finally {
-                // FIX: Corrected state setter from `setIsLoading` to `setIsLoadingAnalysis`.
                 setIsLoadingAnalysis(false);
             }
         };
         fetchAnalysis();
-    }, [company]);
+    }, [company, setIsKeyReady]);
 
     const generatePdfBlob = async (): Promise<Blob | null> => {
         if (!reportRef.current) return null;

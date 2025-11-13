@@ -5,17 +5,14 @@
  *
  * This software is for institutional use only. All rights reserved.
  */
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { getChatResponse, getDeepAnalysisResponse, GeminiResponse } from '../lib/gemini';
 import { Company } from '../types';
-// FIX: Removed unused 'ExportIcon' and added 'LinkIcon' to Icons.tsx to resolve import errors.
 import { SendIcon, SparkleIcon, CloseIcon, LinkIcon } from './icons/Icons';
+import { ApiKeyContext } from '../context';
 
-declare global {
-    interface Window {
-        jspdf: any;
-    }
-}
+// FIX: Removed declare global block to prevent type conflicts.
+// Global types are now centralized in `types.ts`.
 interface AIChatProps {
     companies: Company[];
 }
@@ -27,6 +24,7 @@ interface Message {
 }
 
 const AIChat: React.FC<AIChatProps> = ({ companies }) => {
+    const { setIsKeyReady } = useContext(ApiKeyContext);
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -54,11 +52,14 @@ const AIChat: React.FC<AIChatProps> = ({ companies }) => {
             setMessages(prev => [...prev, { type: 'ai', text: result.text, groundingMetadata: result.groundingMetadata }]);
         } catch (error) {
             console.error(error);
+            if (error instanceof Error && error.message.includes("Requested entity was not found.")) {
+                setIsKeyReady(false);
+            }
             setMessages(prev => [...prev, { type: 'ai', text: 'An error occurred. Please try again.' }]);
         } finally {
             setIsLoading(false);
         }
-    }, [query, companies, isLoading, isDeepAnalysis]);
+    }, [query, companies, isLoading, isDeepAnalysis, setIsKeyReady]);
 
     return (
         <div className="h-full flex flex-col">
