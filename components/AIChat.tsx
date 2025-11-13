@@ -1,11 +1,15 @@
-
-
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-// Import the new deep analysis function
-// FIX: Correct import path
 import { getChatResponse, getDeepAnalysisResponse, GeminiResponse } from '../lib/gemini';
 import { Company } from '../types';
-import { SendIcon, SparkleIcon, CloseIcon, ExportIcon, LinkIcon } from './icons/Icons';
+// FIX: Removed unused 'ExportIcon' and added 'LinkIcon' to Icons.tsx to resolve import errors.
+import { SendIcon, SparkleIcon, CloseIcon, LinkIcon } from './icons/Icons';
 
 declare global {
     interface Window {
@@ -14,7 +18,6 @@ declare global {
 }
 interface AIChatProps {
     companies: Company[];
-    onClose: () => void;
 }
 
 interface Message {
@@ -23,11 +26,10 @@ interface Message {
     groundingMetadata?: any;
 }
 
-const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
+const AIChat: React.FC<AIChatProps> = ({ companies }) => {
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    // State for the deep analysis toggle
     const [isDeepAnalysis, setIsDeepAnalysis] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -46,11 +48,9 @@ const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
         setIsLoading(true);
         
         try {
-            // Choose the correct Gemini function based on the toggle state
             const result: GeminiResponse = isDeepAnalysis
                 ? await getDeepAnalysisResponse(currentQuery, companies)
                 : await getChatResponse(currentQuery, companies);
-
             setMessages(prev => [...prev, { type: 'ai', text: result.text, groundingMetadata: result.groundingMetadata }]);
         } catch (error) {
             console.error(error);
@@ -60,67 +60,24 @@ const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
         }
     }, [query, companies, isLoading, isDeepAnalysis]);
 
-    const handleExport = () => {
-        if (typeof window.jspdf === 'undefined') {
-            alert('PDF library is not loaded. Please try again later.');
-            return;
-        }
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        doc.setFontSize(18);
-        doc.text("PDCI AI Analyst Chat Transcript", 14, 22);
-        
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(`Analysis Mode: ${isDeepAnalysis ? 'Deep (gemini-2.5-pro)' : 'Standard (gemini-2.5-flash)'}`, 14, 28);
-        doc.setTextColor(0);
-
-
-        let y = 40;
-        messages.forEach(msg => {
-            doc.setFontSize(12);
-            doc.setFont(undefined, msg.type === 'user' ? 'bold' : 'normal');
-            const prefix = msg.type === 'user' ? 'You: ' : 'PDCI AI: ';
-            const textLines = doc.splitTextToSize(prefix + msg.text, 180);
-            
-            if (y + (textLines.length * 7) > 280) {
-                doc.addPage();
-                y = 20;
-            }
-            
-            doc.text(textLines, 14, y);
-            y += (textLines.length * 7) + 7;
-        });
-
-        doc.save('pdci-chat-transcript.pdf');
-    };
-
     return (
-        <div className="glass-panel w-96 h-[70vh] max-h-[600px] flex flex-col animate-fade-in-up">
-            <div className="bg-white/5 p-3 flex justify-between items-center rounded-t-lg">
-                <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
-                    <SparkleIcon />
-                    PDCI AI Analyst
-                </h2>
-                <div>
-                    <button onClick={handleExport} className="p-2 rounded-full text-gray-400 hover:bg-white/10 mr-2" aria-label="Export chat to PDF">
-                        <ExportIcon />
-                    </button>
-                    <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10" aria-label="Close chat">
-                        <CloseIcon />
-                    </button>
-                </div>
-            </div>
+        <div className="h-full flex flex-col">
+            <h2 className="text-lg font-semibold mb-4 text-gray-200 flex items-center gap-2">
+                <SparkleIcon />
+                PDCI Analyst Chat
+            </h2>
             
-            <div className="flex-grow p-4 space-y-4 overflow-y-auto">
+            <div className="flex-grow bg-black/20 rounded-lg p-4 space-y-4 overflow-y-auto">
                 {messages.length === 0 && (
-                     <div className="text-center text-gray-400 p-8">Ask anything, or toggle Deep Analysis for complex queries like portfolio construction.</div>
+                     <div className="text-center text-gray-400 p-8">
+                        <p className="font-semibold">Welcome to the PDCI Analyst.</p>
+                        <p className="text-sm mt-2">Ask simple questions like "What does SCSI mean?" or toggle Deep Analysis for complex queries like "Build me a portfolio focused on supply chain resilience."</p>
+                    </div>
                 )}
                 {messages.map((msg, index) => (
                     <div key={index}>
                         <div className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`rounded-lg p-3 max-w-xs md:max-w-sm break-words ${msg.type === 'user' ? 'bg-accent-blue text-white' : 'bg-black/20 text-gray-200'}`}>
+                            <div className={`rounded-lg p-3 max-w-xs md:max-w-sm break-words ${msg.type === 'user' ? 'bg-accent-blue text-white' : 'bg-gray-800 text-gray-200'}`}>
                                 <pre className="whitespace-pre-wrap font-sans text-sm">{msg.text}</pre>
                             </div>
                         </div>
@@ -143,15 +100,15 @@ const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
                 ))}
                  {isLoading && (
                     <div className="flex justify-start">
-                        <div className="rounded-lg p-3 max-w-sm bg-black/20 text-gray-400 animate-pulse">
-                            {isDeepAnalysis ? 'PDCI Network Intelligence is thinking...' : 'PDCI AI is thinking...'}
+                        <div className="rounded-lg p-3 max-w-sm bg-gray-800 text-gray-400 animate-pulse">
+                            {isDeepAnalysis ? 'PDCI Network Intelligence is thinking...' : 'PDCI is thinking...'}
                         </div>
                     </div>
                 )}
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-3 border-t border-white/10 space-y-2">
+            <div className="mt-4 pt-4 border-t border-white/10 space-y-2">
                 <div className="flex items-center justify-center">
                      <label htmlFor="deep-analysis-toggle" className="flex items-center cursor-pointer">
                         <span className="mr-3 text-sm font-medium text-gray-300">Deep Analysis</span>
@@ -181,8 +138,8 @@ const AIChat: React.FC<AIChatProps> = ({ companies, onClose }) => {
                     <button
                         onClick={handleQuery}
                         disabled={isLoading || !query.trim()}
-                        className="neuro-button bg-accent-green text-black font-bold p-2 disabled:opacity-50"
-                        aria-label="Send query to AI"
+                        className="btn btn-success p-2.5"
+                        aria-label="Send query"
                     >
                         <SendIcon />
                     </button>

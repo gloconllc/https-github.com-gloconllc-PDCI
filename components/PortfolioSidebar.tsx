@@ -1,7 +1,14 @@
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 
 import React, { useMemo, useState } from 'react';
-import { Company, InvestmentTier } from '../types';
-import { CloseIcon, SparkleIcon, OptimizeIcon } from './icons/Icons';
+import { Company } from '../types';
+import { CloseIcon, ClipboardCheckIcon, FlaskIcon } from './icons/Icons';
 import AnalysisModal from './AnalysisModal';
 import PortfolioOptimizerModal from './PortfolioOptimizerModal';
 import { getPortfolioAnalysis, getPortfolioOptimization, PortfolioAnalysisResult, PortfolioOptimizationResult, SuggestedTrade } from '../lib/gemini';
@@ -49,6 +56,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
                 weaknesses: '',
                 riskAnalysis: '',
                 recommendations: '',
+                composition: { byCategory: [], byRisk: [], byTier: [] }
             });
         } finally {
             setIsAnalyzing(false);
@@ -56,7 +64,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
     };
     
     const handleRunOptimization = async (strategy: string) => {
-        if (!strategy) { // Used for clearing results when going back
+        if (!strategy) {
             setOptimizationResult(null);
             return;
         }
@@ -67,21 +75,18 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
             setOptimizationResult(result);
         } catch (error) {
             console.error("Failed to run optimization:", error);
-            // Handle error state in UI if necessary
         } finally {
             setIsOptimizing(false);
         }
     };
     
     const handleApplyTrades = (trades: SuggestedTrade[]) => {
-        // This is a mock implementation. A real app would have more complex logic.
         console.log("Applying trades:", trades);
-        // For simplicity, we just log this. In a real app, you'd update the portfolio state.
         setIsOptimizerModalOpen(false);
     };
 
     return (
-        <div className="glass-panel p-4 sticky top-24 h-[calc(100vh-7rem)] flex flex-col">
+        <div className="h-full flex flex-col">
             <h2 className="text-lg font-semibold mb-4 text-gray-200">My Portfolio ({portfolio.length})</h2>
 
             <div className="grid grid-cols-3 gap-3 text-center mb-4">
@@ -111,7 +116,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
                         </div>
                         <button 
                             onClick={() => onRemove(company.Ticker)} 
-                            className="p-1 rounded-full text-gray-500 hover:bg-accent-red hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="btn btn-ghost-danger rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                             aria-label={`Remove ${company.Company}`}
                         >
                             <CloseIcon />
@@ -127,17 +132,17 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
                  <button 
                     onClick={handleRunAnalysis}
                     disabled={portfolio.length === 0}
-                    className="w-full neuro-button flex items-center justify-center gap-2 bg-accent-blue text-white font-bold py-2 px-4 disabled:opacity-50"
+                    className="w-full btn btn-primary"
                  >
-                    <SparkleIcon />
-                    Run AI Analysis
+                    <ClipboardCheckIcon />
+                    Run PDCI Analysis
                 </button>
                  <button 
                     onClick={() => setIsOptimizerModalOpen(true)}
                     disabled={portfolio.length === 0}
-                    className="w-full neuro-button flex items-center justify-center gap-2 bg-gray-700 text-gray-200 font-bold py-2 px-4 hover:bg-gray-600 disabled:opacity-50"
+                    className="w-full btn btn-secondary"
                  >
-                    <OptimizeIcon />
+                    <FlaskIcon />
                     Quantitative Strategist
                 </button>
             </div>

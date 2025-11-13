@@ -1,3 +1,10 @@
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 import React, { useState } from 'react';
 import { PDCIcon } from './icons/Icons';
 
@@ -58,7 +65,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                         <div>
                             <button
                                 type="submit"
-                                className="w-full neuro-button bg-accent-blue text-white font-bold py-3 px-4 transition-transform hover:scale-105"
+                                className="w-full btn btn-primary py-3"
                             >
                                 {isLoginMode ? 'Login' : 'Create Account'}
                             </button>

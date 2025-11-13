@@ -1,3 +1,10 @@
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 import React from 'react';
 import { CloseIcon, SparkleIcon } from './icons/Icons';
 
@@ -8,14 +15,14 @@ interface UpdateModalProps {
 const UpdateModal: React.FC<UpdateModalProps> = ({ onClose }) => {
     // This is a static simulation of the dynamic update process described in the user's documents.
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="update-modal-title">
             <div className="glass-panel w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
                 <div className="bg-white/5 p-4 border-b border-white/10 flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+                    <h2 id="update-modal-title" className="text-xl font-bold text-gray-100 flex items-center gap-2">
                         <SparkleIcon />
                         PDCI Database Update Summary
                     </h2>
-                    <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10">
+                    <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10" aria-label="Close update summary modal">
                         <CloseIcon />
                     </button>
                 </div>
@@ -60,7 +67,7 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ onClose }) => {
                 <div className="mt-auto bg-white/5 p-4 border-t border-white/10">
                     <button
                         onClick={onClose}
-                        className="w-full neuro-button bg-accent-blue text-white font-bold py-2 px-4 transition-transform hover:scale-105"
+                        className="w-full btn btn-primary"
                     >
                         Close
                     </button>

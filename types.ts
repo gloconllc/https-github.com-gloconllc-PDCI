@@ -1,4 +1,10 @@
-// FIX: Removed circular import of 'Company' from its own declaration file.
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 export enum InvestmentTier {
   MustBuy = 'MUST BUY',
   HighConviction = 'HIGH CONVICTION',
@@ -10,6 +16,13 @@ export enum RiskLevel {
   Moderate = 'Moderate',
   Aggressive = 'Aggressive',
   High = 'High',
+}
+
+export enum GeopoliticalRiskLevel {
+    Low = 'Low',
+    Medium = 'Medium',
+    High = 'High',
+    VeryHigh = 'Very High',
 }
 
 export type Substitutability = 'Impossible' | 'Difficult' | 'Moderate' | 'Easy';
@@ -53,6 +66,14 @@ export interface Company {
   // New qualitative/wisdom metric
   isBlueChip?: boolean;
   Graham_Score?: number; // Score from 1-10 based on value investing principles
+  // New predictive metrics
+  Psych_Score?: number; // 0-100 score quantifying market sentiment and behavioral drivers.
+  Buy_Rank?: number; // Overall rank of all companies in the universe.
+  Probability_Of_Success?: number; // AI-driven confidence level (0-100%)
+  // New Geopolitical Fields
+  Geopolitical_Risk: GeopoliticalRiskLevel;
+  Geopolitical_Risk_Score: number; // 0-100, higher is riskier
+  Geopolitical_Notes: string;
 }
 
 export interface SortConfig {
@@ -69,3 +90,48 @@ export interface SupplyChainNode {
 }
 
 export type SupplyChainData = Record<string, SupplyChainNode>;
+
+// Types for new AI-driven analysis reports in CompanyModal
+export interface FinancialHealthAnalysis {
+    valuation: string;
+    financialHealth: string;
+    catalysts: string;
+    risks: string;
+}
+
+export interface PredictiveAnalysis {
+    keyPredictors: { predictor: string; rationale: string }[];
+    modelConfidence: number; // 0-100
+    outlook: string;
+}
+
+// Type for Data Context Visualizer
+export interface Hotspot {
+    id: string;
+    title: string;
+    description: string;
+    coordinates: { top: string; left: string; width: string; height: string; };
+    associatedCategories: string[];
+}
+
+// Types for Goal Planner Modal
+export interface GoalPlannerResult {
+    strategySummary: string;
+    hypotheticalPortfolio: {
+        ticker: string;
+        companyName: string;
+        rationale: string;
+    }[];
+    growthProjection: {
+        year: number;
+        projectedValue: number;
+        commentary: string;
+    }[];
+    keyAssumptions: string;
+    realWorldExample: {
+        title: string;
+        narrative: string;
+        sourceUrl: string;
+    };
+    disclaimer: string;
+}

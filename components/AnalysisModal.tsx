@@ -1,7 +1,15 @@
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 import React, { useRef, useState } from 'react';
-import { CloseIcon, SparkleIcon, DownloadIcon, ThumbsUpIcon, WarningIcon, LightbulbIcon, ShieldIcon } from './icons/Icons';
+import { CloseIcon, SparkleIcon, DownloadIcon, ThumbsUpIcon, WarningIcon, LightbulbIcon, ShieldIcon, ExpandIcon, CompressIcon } from './icons/Icons';
 // FIX: Correct import path
 import { PortfolioAnalysisResult } from '../lib/gemini';
+import ShareDropdown from './ShareDropdown';
 
 // Add jsPDF and html2canvas types for window object
 declare global {
@@ -161,34 +169,45 @@ interface AnalysisModalProps {
 const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose, isAnalyzing }) => {
     const reportRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
-    const handleDownloadPdf = async () => {
-        if (!reportRef.current || isDownloading) return;
-        
+    const generatePdfBlob = async (): Promise<Blob | null> => {
+        if (!reportRef.current) return null;
         if (typeof window.html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
             alert('PDF generation library not loaded yet. Please wait a moment and try again.');
-            return;
+            return null;
         }
+        const canvas = await window.html2canvas(reportRef.current, {
+            backgroundColor: '#0A0E27',
+            scale: 2,
+            useCORS: true
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        return pdf.output('blob');
+    };
 
+    const handleDownloadPdf = async () => {
+        if (isDownloading) return;
         setIsDownloading(true);
         try {
-            const canvas = await window.html2canvas(reportRef.current, {
-                backgroundColor: '#0A0E27', // Match the body background
-                scale: 2, // Increase resolution
-                useCORS: true
-            });
-            const imgData = canvas.toDataURL('image/png');
-            
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'px',
-                format: [canvas.width, canvas.height]
-            });
-
-            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-            pdf.save('PDCI_Portfolio_Analysis.pdf');
-
+            const blob = await generatePdfBlob();
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'PDCI_Portfolio_Analysis.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
         } catch (error) {
             console.error("Failed to generate PDF:", error);
             alert("Sorry, there was an error creating the PDF report.");
@@ -266,24 +285,38 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose, isAnal
         );
     };
 
+    const modalContainerClasses = isFullScreen
+        ? 'fixed inset-0 w-screen h-screen max-w-none max-h-none rounded-none z-50 flex flex-col'
+        : 'glass-panel w-full max-w-7xl max-h-[95vh] flex flex-col';
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="glass-panel w-full max-w-7xl max-h-[95vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={!isFullScreen ? onClose : undefined} role="dialog" aria-modal="true" aria-labelledby="analysis-modal-title">
+            <div className={modalContainerClasses} onClick={e => e.stopPropagation()}>
                 <div className="bg-white/5 p-4 border-b border-white/10 flex justify-between items-center flex-shrink-0">
-                    <h2 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+                    <h2 id="analysis-modal-title" className="text-xl font-bold text-gray-100 flex items-center gap-2">
                         <SparkleIcon />
                         PDCI AI Portfolio Analysis Report
                     </h2>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                         <ShareDropdown
+                            generatePdfBlob={generatePdfBlob}
+                            title="PDCI Portfolio Analysis Report"
+                            text="Check out this portfolio analysis from the PDCI Dashboard."
+                            fileName="PDCI_Portfolio_Analysis.pdf"
+                         />
                          <button
                             onClick={handleDownloadPdf}
                             disabled={isAnalyzing || !analysis || isDownloading || (analysis && analysis.summary.startsWith("Error:"))}
                             className="neuro-button flex items-center gap-2 text-white font-semibold py-2 px-4 disabled:opacity-50"
+                            title="Download PDF"
                         >
                             <DownloadIcon className={isDownloading ? 'animate-pulse' : ''} />
-                            {isDownloading ? 'Downloading...' : 'Download PDF'}
+                            <span className="hidden sm:inline">{isDownloading ? '...' : 'PDF'}</span>
                         </button>
-                        <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10">
+                        <button onClick={() => setIsFullScreen(!isFullScreen)} className="p-2 rounded-full text-gray-400 hover:bg-white/10" title={isFullScreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
+                            {isFullScreen ? <CompressIcon /> : <ExpandIcon />}
+                        </button>
+                        <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10" aria-label="Close analysis modal">
                             <CloseIcon />
                         </button>
                     </div>

@@ -1,5 +1,7 @@
 {
   "name": "PDCI Data Center Investment Dashboard",
-  "description": "An institutional-grade quantitative analysis and investment strategy platform for the global AI data center infrastructure market.",
-  "requestFramePermissions": []
+  "description": "Institutional-grade intelligence for the AI data center supply chain. Uncover non-obvious opportunities with the proprietary PDCI engine.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }

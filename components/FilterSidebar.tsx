@@ -1,17 +1,26 @@
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 import React, { useCallback } from 'react';
-import { InvestmentTier, RiskLevel } from '../types';
+import { InvestmentTier, RiskLevel, GeopoliticalRiskLevel } from '../types';
 
 interface FilterSidebarProps {
     filters: {
         search: string;
         tiers: Set<InvestmentTier>;
         risks: Set<RiskLevel>;
+        geoRisks: Set<GeopoliticalRiskLevel>;
         category: string;
         maxPE: string;
         minGrowth: string;
         minCriticality: string;
         minUnivScore: string;
         showBlueChips: boolean;
+        minESG: string;
     };
     onFilterChange: (filters: FilterSidebarProps['filters']) => void;
     categories: string[];
@@ -38,23 +47,24 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
         }
         onFilterChange({ ...filters, risks: newRisks });
     }, [filters, onFilterChange]);
-
-    const handleCategoryChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-        onFilterChange({ ...filters, category: e.target.value });
+    
+    const handleGeoRiskChange = useCallback((risk: GeopoliticalRiskLevel) => {
+        const newGeoRisks = new Set(filters.geoRisks);
+        if (newGeoRisks.has(risk)) {
+            newGeoRisks.delete(risk);
+        } else {
+            newGeoRisks.add(risk);
+        }
+        onFilterChange({ ...filters, geoRisks: newGeoRisks });
     }, [filters, onFilterChange]);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         onFilterChange({ ...filters, [e.target.name]: e.target.value });
     }, [filters, onFilterChange]);
 
-
-    const tierOptions: { value: InvestmentTier; label: string; color: string }[] = [
-      { value: InvestmentTier.MustBuy, label: 'Must Buy', color: 'border-accent-green' },
-      { value: InvestmentTier.HighConviction, label: 'High Conviction', color: 'border-accent-blue' },
-      { value: InvestmentTier.OnRadar, label: 'On Radar', color: 'border-gray-400' },
-    ];
-    
+    const tierOptions = Object.values(InvestmentTier);
     const riskOptions = Object.values(RiskLevel);
+    const geoRiskOptions = Object.values(GeopoliticalRiskLevel);
 
     return (
         <div className="glass-panel p-4 sticky top-24">
@@ -79,9 +89,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             </div>
             
             <div className="mb-6">
-                <h3 className="font-semibold text-gray-300 mb-2">Investment Tier</h3>
+                <h3 className="font-semibold text-gray-300 mb-2">PDCI Tier</h3>
                 <div className="space-y-2">
-                    {tierOptions.map(({value, label}) => (
+                    {tierOptions.map((value) => (
                         <label key={value} className="flex items-center space-x-2 cursor-pointer">
                             <input
                                 type="checkbox"
@@ -89,7 +99,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                                 onChange={() => handleTierChange(value)}
                                 className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-accent-green focus:ring-accent-green"
                             />
-                            <span className="text-gray-300">{label}</span>
+                            <span className="text-gray-300">{value}</span>
                         </label>
                     ))}
                 </div>
@@ -149,6 +159,18 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                             className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
                         />
                     </div>
+                    <div>
+                        <label htmlFor="minESG" className="block text-sm font-medium text-gray-400">Min ESG Score</label>
+                        <input
+                            type="number"
+                            id="minESG"
+                            name="minESG"
+                            value={filters.minESG}
+                            onChange={handleInputChange}
+                            placeholder="e.g., 75"
+                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -167,8 +189,25 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                 </select>
             </div>
 
+             <div className="mb-6">
+                <h3 className="font-semibold text-gray-300 mb-2">Geopolitical Risk</h3>
+                <div className="grid grid-cols-2 gap-2">
+                    {geoRiskOptions.map(risk => (
+                        <label key={risk} className="flex items-center space-x-2 cursor-pointer text-sm">
+                            <input
+                                type="checkbox"
+                                checked={filters.geoRisks.has(risk)}
+                                onChange={() => handleGeoRiskChange(risk)}
+                                className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-accent-green focus:ring-accent-green"
+                            />
+                            <span className="text-gray-300">{risk}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
+
             <div>
-                <h3 className="font-semibold text-gray-300 mb-2">Risk Level</h3>
+                <h3 className="font-semibold text-gray-300 mb-2">Financial Risk</h3>
                 <div className="grid grid-cols-2 gap-2">
                     {riskOptions.map(risk => (
                         <label key={risk} className="flex items-center space-x-2 cursor-pointer text-sm">

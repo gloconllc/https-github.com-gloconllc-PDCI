@@ -1,3 +1,10 @@
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 import React, { useMemo } from 'react';
 import { Company } from '../types';
 
@@ -33,7 +40,7 @@ const Histogram: React.FC<HistogramProps> = ({ data, title, bins }) => {
         
         const maxCount = Math.max(...histogramBins.map(b => b.count));
 
-        return { histogramData, maxCount };
+        return { histogramData: histogramBins, maxCount };
     }, [data, bins]);
 
     return (

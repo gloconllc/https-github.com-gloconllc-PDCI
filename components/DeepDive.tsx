@@ -1,7 +1,13 @@
-
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 import React, { useState } from 'react';
 import { Company } from '../types';
-import { PlusIcon } from './icons/Icons';
+import { PlusIcon, RawMaterialIcon, ComponentIcon, SystemIntegratorIcon, InfrastructureIcon, SoftwareIcon, CriticalityIcon } from './icons/Icons';
 
 interface DeepDiveProps {
     allCompanies: Company[];
@@ -79,21 +85,60 @@ const checkStrategyFit = (company: Company, strategy: Strategy | null): boolean 
     }
 };
 
+const getRoleIcon = (role: string) => {
+    const lowerRole = role.toLowerCase();
+    if (lowerRole.includes('material') || lowerRole.includes('mining')) {
+        return <RawMaterialIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+    }
+    if (lowerRole.includes('component') || lowerRole.includes('specialty')) {
+        return <ComponentIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+    }
+    if (lowerRole.includes('integrator')) {
+        return <SystemIntegratorIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+    }
+    if (lowerRole.includes('software')) {
+        return <SoftwareIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+    }
+    if (lowerRole.includes('infrastructure') || lowerRole.includes('bottleneck') || lowerRole.includes('equipment') || lowerRole.includes('power') || lowerRole.includes('distribution')) {
+        return <InfrastructureIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+    }
+    return null;
+};
+
 const CompanyCard: React.FC<{ company: Company; onViewDetails: (c: Company) => void; onAddToPortfolio: (c: Company) => void; isHighlighted: boolean; }> = ({ company, onViewDetails, onAddToPortfolio, isHighlighted }) => {
     const handleAddClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         onAddToPortfolio(company);
     };
 
-    const highlightClass = isHighlighted ? 'ring-2 ring-yellow-400 shadow-lg shadow-yellow-400/20 bg-yellow-400/10' : 'border-white/10';
+    const isHighCriticality = company.Criticality >= 9;
+    const roleIcon = getRoleIcon(company.Supply_Chain_Role);
+
+    let cardClasses = 'bg-black/30 p-2 rounded-lg border flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-all duration-200';
+    
+    if (isHighlighted) {
+        cardClasses += ' ring-2 ring-yellow-400 shadow-lg shadow-yellow-400/20 bg-yellow-400/10';
+    } else {
+        cardClasses += ' border-white/10';
+    }
+
+    if (isHighCriticality) {
+        cardClasses += ' animate-subtle-glow-red';
+    }
 
     return (
         <div className="relative group" onClick={() => onViewDetails(company)}>
-            <div className={`bg-black/30 p-2 rounded-lg border flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-all duration-200 ${highlightClass}`}>
+            <div className={cardClasses}>
                 <img src={company.logoUrl} alt={`${company.Company} logo`} className="w-8 h-8 rounded-full object-contain bg-white flex-shrink-0" />
-                <div className="min-w-0">
-                    <p className="font-semibold text-gray-200 text-sm truncate">{company.Company}</p>
-                    <p className="text-xs text-gray-400">{company.Ticker}</p>
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                        <p className="font-semibold text-gray-200 text-sm truncate">{company.Company}</p>
+                        {isHighCriticality && <CriticalityIcon className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" title={`Criticality Score: ${company.Criticality}`} />}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                        {roleIcon}
+                        <span>{company.Ticker}</span>
+                    </div>
                 </div>
                 <button
                     onClick={handleAddClick}

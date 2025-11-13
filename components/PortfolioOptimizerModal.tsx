@@ -1,9 +1,17 @@
 
-import React, { useState } from 'react';
-import { CloseIcon, OptimizeIcon, SparkleIcon, PlusIcon, MinusIcon } from './icons/Icons';
+
+import React, { useState, useRef } from 'react';
+import { CloseIcon, OptimizeIcon, SparkleIcon, PlusIcon, MinusIcon, DownloadIcon, ExpandIcon, CompressIcon } from './icons/Icons';
 // FIX: Correct import path
 import { PortfolioOptimizationResult, SuggestedTrade } from '../lib/gemini';
+import ShareDropdown from './ShareDropdown';
 
+declare global {
+    interface Window {
+        html2canvas: any;
+        jspdf: any;
+    }
+}
 interface PortfolioOptimizerModalProps {
     onClose: () => void;
     onRunOptimization: (strategy: string) => void;
@@ -47,7 +55,47 @@ const TradeCard: React.FC<{ trade: SuggestedTrade }> = ({ trade }) => {
 
 const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClose, onRunOptimization, isLoading, result, onApply }) => {
     const [selectedStrategy, setSelectedStrategy] = useState<string | null>(null);
+    const reportRef = useRef<HTMLDivElement>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
+    const generatePdfBlob = async (): Promise<Blob | null> => {
+        if (!reportRef.current) return null;
+        if (typeof window.html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+            alert('PDF generation library not loaded yet. Please wait a moment and try again.');
+            return null;
+        }
+        const canvas = await window.html2canvas(reportRef.current, { backgroundColor: '#0A0E27', scale: 2, useCORS: true });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        return pdf.output('blob');
+    };
+
+    const handleDownloadPdf = async () => {
+        if (isDownloading) return;
+        setIsDownloading(true);
+        try {
+            const blob = await generatePdfBlob();
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'PDCI_Optimization_Report.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error("Failed to generate PDF:", error);
+            alert("Sorry, there was an error creating the PDF report.");
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+    
     const handleRunClick = () => {
         if (selectedStrategy) {
             onRunOptimization(selectedStrategy);
@@ -74,7 +122,7 @@ const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClo
                 <button
                     onClick={handleRunClick}
                     disabled={!selectedStrategy}
-                    className="neuro-button flex items-center gap-2 bg-accent-green text-black font-bold py-2 px-4 disabled:opacity-50"
+                    className="btn btn-success"
                 >
                     <OptimizeIcon />
                     Generate Suggestions
@@ -95,58 +143,85 @@ const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClo
         if (!result) return null;
 
         return (
-             <div className="p-6 space-y-4">
-                <div>
-                    <button onClick={() => { setSelectedStrategy(null); onRunOptimization(''); /* Clear results */ }} className="text-sm text-accent-blue hover:underline mb-2">&larr; Back to Strategies</button>
-                    <h3 className="text-2xl font-bold text-gray-100">Optimization Report</h3>
-                    <p className="text-md text-gray-400">Strategy: <span className="font-semibold text-accent-blue">{result.strategy}</span></p>
-                </div>
-                
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div ref={reportRef} className="p-6 bg-gray-900">
+                <div className="space-y-4">
+                    <div className="print:hidden">
+                        <button onClick={() => { setSelectedStrategy(null); onRunOptimization(''); /* Clear results */ }} className="text-sm text-accent-blue hover:underline mb-2">&larr; Back to Strategies</button>
+                        <h3 className="text-2xl font-bold text-gray-100">Optimization Report</h3>
+                        <p className="text-md text-gray-400">Strategy: <span className="font-semibold text-accent-blue">{result.strategy}</span></p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="glass-panel p-4">
+                            <h4 className="font-semibold text-gray-200 mb-2">Strategy Rationale</h4>
+                            <p className="text-sm text-gray-300">{result.strategyRationale}</p>
+                        </div>
+                        <div className="glass-panel p-4">
+                            <h4 className="font-semibold text-gray-200 mb-2">Risk Considerations</h4>
+                            <p className="text-sm text-gray-300">{result.riskConsiderations}</p>
+                        </div>
+                    </div>
+
                     <div className="glass-panel p-4">
-                        <h4 className="font-semibold text-gray-200 mb-2">Strategy Rationale</h4>
-                        <p className="text-sm text-gray-300">{result.strategyRationale}</p>
+                        <h4 className="font-semibold text-gray-200 mb-3">Suggested Trades</h4>
+                        <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                            {result.suggestedTrades.map((trade, index) => (
+                            <TradeCard key={index} trade={trade} />
+                            ))}
+                        </div>
                     </div>
-                     <div className="glass-panel p-4">
-                        <h4 className="font-semibold text-gray-200 mb-2">Risk Considerations</h4>
-                        <p className="text-sm text-gray-300">{result.riskConsiderations}</p>
+                    
+                    <div className="glass-panel p-4">
+                        <h4 className="font-semibold text-gray-200 mb-2">AI Summary</h4>
+                        <p className="text-sm text-gray-300">{result.summary}</p>
                     </div>
-                </div>
 
-                <div className="glass-panel p-4">
-                    <h4 className="font-semibold text-gray-200 mb-3">Suggested Trades</h4>
-                    <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
-                        {result.suggestedTrades.map((trade, index) => (
-                           <TradeCard key={index} trade={trade} />
-                        ))}
+                    <div className="mt-4 flex justify-end gap-3 print:hidden">
+                         <ShareDropdown
+                            generatePdfBlob={generatePdfBlob}
+                            title="PDCI Portfolio Optimization Report"
+                            text={`Check out this portfolio optimization report from the PDCI Dashboard, based on the ${selectedStrategy} strategy.`}
+                            fileName="PDCI_Optimization_Report.pdf"
+                         />
+                         <button
+                            onClick={handleDownloadPdf}
+                            disabled={isDownloading}
+                            className="btn btn-secondary"
+                             title="Download PDF"
+                        >
+                            <DownloadIcon className={isDownloading ? 'animate-pulse' : ''} />
+                            <span className="hidden sm:inline">{isDownloading ? '...' : 'PDF'}</span>
+                        </button>
+                        <button onClick={() => onApply(result.suggestedTrades)} className="btn btn-success">
+                            Apply Suggestions to Portfolio
+                        </button>
                     </div>
                 </div>
-                
-                <div className="glass-panel p-4">
-                     <h4 className="font-semibold text-gray-200 mb-2">AI Summary</h4>
-                    <p className="text-sm text-gray-300">{result.summary}</p>
-                </div>
-
-                <div className="mt-4 flex justify-end">
-                    <button onClick={() => onApply(result.suggestedTrades)} className="neuro-button bg-accent-green text-black font-bold py-2 px-4">
-                        Apply Suggestions to Portfolio
-                    </button>
-                </div>
-            </div>
+             </div>
         )
     };
+    
+    const modalContainerClasses = isFullScreen
+        ? 'fixed inset-0 w-screen h-screen max-w-none max-h-none rounded-none z-50 flex flex-col'
+        : 'glass-panel w-full max-w-4xl max-h-[90vh] flex flex-col';
+
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="glass-panel w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={!isFullScreen ? onClose : undefined}>
+            <div className={modalContainerClasses} onClick={e => e.stopPropagation()}>
                 <div className="bg-white/5 p-4 border-b border-white/10 flex justify-between items-center flex-shrink-0">
                     <h2 className="text-xl font-bold text-gray-100 flex items-center gap-2">
                         <OptimizeIcon />
                         PDCI AI Quantitative Strategist
                     </h2>
-                    <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10">
-                        <CloseIcon />
-                    </button>
+                    <div className="flex items-center gap-2">
+                         <button onClick={() => setIsFullScreen(!isFullScreen)} className="btn btn-ghost rounded-full" title={isFullScreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
+                            {isFullScreen ? <CompressIcon /> : <ExpandIcon />}
+                        </button>
+                        <button onClick={onClose} className="btn btn-ghost rounded-full">
+                            <CloseIcon />
+                        </button>
+                    </div>
                 </div>
                 <div className="overflow-y-auto">
                     {isLoading ? renderLoadingScreen() : result ? renderResultsScreen() : renderSelectionScreen()}

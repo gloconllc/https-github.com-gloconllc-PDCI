@@ -1,3 +1,10 @@
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
 import React, { useMemo } from 'react';
 import { Company } from '../types';
 
@@ -85,7 +92,8 @@ const FactorCorrelationMatrix: React.FC<{ companies: Company[] }> = ({ companies
 
     return (
         <div className="glass-panel p-4">
-            <h2 className="text-lg font-semibold mb-4 text-gray-200">Factor Correlation Matrix</h2>
+            <h2 className="text-lg font-semibold text-gray-200">Factor Correlation Matrix</h2>
+            <p className="text-sm text-gray-500 mb-4">Shows the Pearson correlation between key factors. High positive values (green) suggest factors move together, while high negative values (red) suggest they move opposite to each other.</p>
             <div className="overflow-x-auto">
                 <table className="min-w-full text-xs text-center border-collapse">
                     <thead>
@@ -109,7 +117,7 @@ const FactorCorrelationMatrix: React.FC<{ companies: Company[] }> = ({ companies
                                     return (
                                         <td
                                             key={`${rowFactor}-${colFactor}`}
-                                            className={`p-1.5 border border-white/10 font-mono font-semibold transition-transform duration-200 hover:scale-110 hover:shadow-lg ${value !== null ? getColorForCorrelation(value) : 'bg-black/20 text-gray-500'}`}
+                                            className={`p-1.5 border border-white/10 font-mono font-semibold transition-all duration-200 hover:scale-110 hover:shadow-lg hover:ring-2 hover:ring-accent-blue/80 z-10 relative ${value !== null ? getColorForCorrelation(value) : 'bg-black/20 text-gray-500'}`}
                                             title={value !== null ? `${factorLabels[rowFactor]} / ${factorLabels[colFactor]}: ${value.toFixed(3)}` : 'N/A'}
                                         >
                                             {value !== null ? value.toFixed(2) : '-'}
@@ -120,6 +128,11 @@ const FactorCorrelationMatrix: React.FC<{ companies: Company[] }> = ({ companies
                         ))}
                     </tbody>
                 </table>
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-4 text-xs">
+                <span className="text-red-400 font-bold">-1.0 (Negative)</span>
+                <div className="w-full h-3 rounded-full bg-gradient-to-r from-accent-red via-white/10 to-accent-green"></div>
+                <span className="text-green-400 font-bold">+1.0 (Positive)</span>
             </div>
         </div>
     );

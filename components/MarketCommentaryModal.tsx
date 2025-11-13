@@ -1,9 +1,22 @@
-
-import React, { useMemo } from 'react';
-import { CloseIcon, SparkleIcon, NewsIcon } from './icons/Icons';
+/*
+ * PDCI: Institutional-Grade Data Center Supply Chain Intelligence
+ *
+ * Core logic and intellectual property by Wilton John Picou, III, Co-Founder of GloCon Solutions, LLLC.
+ *
+ * This software is for institutional use only. All rights reserved.
+ */
+import React, { useMemo, useRef, useState } from 'react';
+import { CloseIcon, SparkleIcon, NewsIcon, DownloadIcon, ExpandIcon, CompressIcon } from './icons/Icons';
 import { Company } from '../types';
 import { NewsItem } from '../lib/gemini';
+import ShareDropdown from './ShareDropdown';
 
+declare global {
+    interface Window {
+        html2canvas: any;
+        jspdf: any;
+    }
+}
 interface MarketCommentaryModalProps {
     onClose: () => void;
     isLoading: boolean;
@@ -108,51 +121,118 @@ const SectorPerformance: React.FC<{ companies: Company[] }> = ({ companies }) =>
 };
 
 const MarketCommentaryModal: React.FC<MarketCommentaryModalProps> = ({ onClose, isLoading, commentary, allCompanies, newsItems }) => {
+    const reportRef = useRef<HTMLDivElement>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false);
+
+    const generatePdfBlob = async (): Promise<Blob | null> => {
+        if (!reportRef.current) return null;
+        if (typeof window.html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+            alert('PDF generation library not loaded yet. Please wait a moment and try again.');
+            return null;
+        }
+        const canvas = await window.html2canvas(reportRef.current, { backgroundColor: '#0A0E27', scale: 2, useCORS: true });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        return pdf.output('blob');
+    };
+
+    const handleDownloadPdf = async () => {
+        if (isDownloading) return;
+        setIsDownloading(true);
+        try {
+            const blob = await generatePdfBlob();
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'PDCI_Market_Briefing.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error("Failed to generate PDF:", error);
+            alert("Sorry, there was an error creating the PDF report.");
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    const modalContainerClasses = isFullScreen
+        ? 'fixed inset-0 w-screen h-screen max-w-none max-h-none rounded-none z-50 flex flex-col'
+        : 'glass-panel w-full max-w-4xl max-h-[90vh] flex flex-col';
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="glass-panel w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={!isFullScreen ? onClose : undefined} role="dialog" aria-modal="true" aria-labelledby="commentary-modal-title">
+            <div className={modalContainerClasses} onClick={e => e.stopPropagation()}>
                 <div className="bg-white/5 p-4 border-b border-white/10 flex justify-between items-center flex-shrink-0">
-                    <h2 className="text-xl font-bold text-gray-100 flex items-center gap-2">
+                    <h2 id="commentary-modal-title" className="text-xl font-bold text-gray-100 flex items-center gap-2">
                         <SparkleIcon />
                         PDCI Daily Market Briefing
                     </h2>
-                    <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10">
-                        <CloseIcon />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <ShareDropdown
+                            generatePdfBlob={generatePdfBlob}
+                            title="PDCI Daily Market Briefing"
+                            text="Check out this market briefing from the PDCI Dashboard."
+                            fileName="PDCI_Market_Briefing.pdf"
+                        />
+                        <button
+                            onClick={handleDownloadPdf}
+                            disabled={isLoading || isDownloading || !commentary}
+                            className="btn btn-secondary"
+                            title="Download PDF"
+                        >
+                            <DownloadIcon className={isDownloading ? 'animate-pulse' : ''} />
+                            <span className="hidden sm:inline">{isDownloading ? '...' : 'PDF'}</span>
+                        </button>
+                        <button onClick={() => setIsFullScreen(!isFullScreen)} className="btn btn-ghost rounded-full" title={isFullScreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
+                            {isFullScreen ? <CompressIcon /> : <ExpandIcon />}
+                        </button>
+                        <button onClick={onClose} className="btn btn-ghost rounded-full" aria-label="Close market commentary modal">
+                            <CloseIcon />
+                        </button>
+                    </div>
                 </div>
-                <div className="p-6 overflow-y-auto">
-                    {isLoading ? (
-                        <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
-                            <SparkleIcon />
-                            <p className="text-gray-300 text-lg animate-pulse mt-4">Generating market briefing...</p>
-                            <p className="text-gray-500 mt-2">Synthesizing real-time news and internal data.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                            <div className="lg:col-span-3 space-y-6">
-                                {commentary && <MarkdownRenderer content={commentary} />}
+                <div className="overflow-y-auto">
+                    <div ref={reportRef} className="p-6 bg-gray-900">
+                        {isLoading ? (
+                            <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center">
+                                <SparkleIcon />
+                                <p className="text-gray-300 text-lg animate-pulse mt-4">Generating market briefing...</p>
+                                <p className="text-gray-500 mt-2">Synthesizing real-time news and internal data.</p>
                             </div>
-                            <div className="lg:col-span-2 space-y-6">
-                                 <div className="glass-panel p-4">
-                                    <MarketMovers companies={allCompanies} />
-                                 </div>
-                                 <div className="glass-panel p-4">
-                                     <SectorPerformance companies={allCompanies} />
-                                 </div>
-                                 <div className="glass-panel p-4">
-                                     <h3 className="font-semibold text-gray-200 mb-2 flex items-center gap-2"><NewsIcon /> Key News</h3>
-                                     <div className="space-y-2">
-                                        {newsItems.map((item, index) => (
-                                             <a key={index} href={item.url} target="_blank" rel="noopener noreferrer" className="block text-xs bg-black/20 p-2 rounded-md hover:bg-white/10">
-                                                <span className="font-bold text-accent-green mr-1">[{item.ticker}]</span>
-                                                <span className="text-gray-300">{item.headline}</span>
-                                            </a>
-                                        ))}
-                                     </div>
-                                 </div>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                                <div className="lg:col-span-3 space-y-6">
+                                    {commentary ? <MarkdownRenderer content={commentary} /> : <p className="text-gray-500">Could not load commentary.</p>}
+                                </div>
+                                <div className="lg:col-span-2 space-y-6">
+                                    <div className="glass-panel p-4">
+                                        <MarketMovers companies={allCompanies} />
+                                    </div>
+                                    <div className="glass-panel p-4">
+                                        <SectorPerformance companies={allCompanies} />
+                                    </div>
+                                    <div className="glass-panel p-4">
+                                        <h3 className="font-semibold text-gray-200 mb-2 flex items-center gap-2"><NewsIcon /> Key News</h3>
+                                        <div className="space-y-2">
+                                            {newsItems.map((item, index) => (
+                                                <a key={index} href={item.url} target="_blank" rel="noopener noreferrer" className="block text-xs bg-black/20 p-2 rounded-md hover:bg-white/10">
+                                                    <span className="font-bold text-accent-green mr-1">[{item.ticker}]</span>
+                                                    <span className="text-gray-300">{item.headline}</span>
+                                                </a>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
