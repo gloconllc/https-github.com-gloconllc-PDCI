@@ -2,12 +2,9 @@
 
 import React, { useState, useRef } from 'react';
 import { CloseIcon, OptimizeIcon, SparkleIcon, PlusIcon, MinusIcon, DownloadIcon, ExpandIcon, CompressIcon } from './icons/Icons';
-// FIX: Correct import path
 import { PortfolioOptimizationResult, SuggestedTrade } from '../lib/gemini';
 import ShareDropdown from './ShareDropdown';
 
-// FIX: Removed declare global block to prevent type conflicts.
-// Global types are now centralized in `types.ts`.
 interface PortfolioOptimizerModalProps {
     onClose: () => void;
     onRunOptimization: (strategy: string) => void;
@@ -211,10 +208,10 @@ const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClo
                         PDCI AI Quantitative Strategist
                     </h2>
                     <div className="flex items-center gap-2">
-                         <button onClick={() => setIsFullScreen(!isFullScreen)} className="btn btn-ghost rounded-full" title={isFullScreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
+                         <button onClick={() => setIsFullScreen(!isFullScreen)} className="btn btn-ghost" title={isFullScreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
                             {isFullScreen ? <CompressIcon /> : <ExpandIcon />}
                         </button>
-                        <button onClick={onClose} className="btn btn-ghost rounded-full">
+                        <button onClick={onClose} className="btn btn-ghost">
                             <CloseIcon />
                         </button>
                     </div>

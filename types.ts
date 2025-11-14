@@ -144,13 +144,43 @@ export interface GoalPlannerResult {
     disclaimer: string;
 }
 
-// FIX: To resolve TypeScript errors like "All declarations of 'aistudio' must have identical modifiers", an `AIStudio` interface is defined and used for the `window.aistudio` property. This aligns the declaration with other potential declarations of the same global property, satisfying TypeScript's requirement for type consistency.
-interface AIStudio {
-    hasSelectedApiKey: () => Promise<boolean>;
-    openSelectKey: () => Promise<void>;
+export interface PortfolioAnalysisResult {
+    summary: string;
+    healthScore: number;
+    strengths: string;
+    weaknesses: string;
+    riskAnalysis: string;
+    recommendations: string;
+    composition: {
+        byCategory: { label: string; value: number }[];
+        byRisk: { label: string; value: number }[];
+        byTier: { label: string; value: number }[];
+    };
 }
 
+export interface SuggestedTrade {
+    action: 'Add' | 'Remove';
+    ticker: string;
+    companyName: string;
+    reasoning: string;
+    detailedReasoning: string;
+}
+
+export interface PortfolioOptimizationResult {
+    strategy: string;
+    summary: string;
+    strategyRationale: string;
+    riskConsiderations: string;
+    suggestedTrades: SuggestedTrade[];
+}
+
+// FIX: To resolve TypeScript errors like "All declarations of 'aistudio' must have identical modifiers", the `AIStudio` interface is moved inside the `declare global` block. This makes it a true global type and prevents conflicts with other potential declarations of the same global property.
 declare global {
+    interface AIStudio {
+        hasSelectedApiKey: () => Promise<boolean>;
+        openSelectKey: () => Promise<void>;
+    }
+
     interface Window {
         aistudio: AIStudio;
         html2canvas: any;

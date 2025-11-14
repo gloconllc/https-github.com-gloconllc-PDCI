@@ -15,6 +15,9 @@ interface FilterSidebarProps {
         risks: Set<RiskLevel>;
         geoRisks: Set<GeopoliticalRiskLevel>;
         category: Set<string>;
+        subCategory: Set<string>;
+        supplyChainRole: Set<string>;
+        growthDriver: string;
         maxPE: string;
         minGrowth: string;
         minCriticality: string;
@@ -25,9 +28,11 @@ interface FilterSidebarProps {
     };
     onFilterChange: (filters: FilterSidebarProps['filters']) => void;
     categories: string[];
+    subCategories: string[];
+    supplyChainRoles: string[];
 }
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, categories }) => {
+const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, categories, subCategories, supplyChainRoles }) => {
 
     const handleTierChange = useCallback((tier: InvestmentTier) => {
         const newTiers = new Set(filters.tiers);
@@ -67,6 +72,26 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             newCategories.add(category);
         }
         onFilterChange({ ...filters, category: newCategories });
+    }, [filters, onFilterChange]);
+
+    const handleSubCategoryChange = useCallback((subCategory: string) => {
+        const newSubCategories = new Set(filters.subCategory);
+        if (newSubCategories.has(subCategory)) {
+            newSubCategories.delete(subCategory);
+        } else {
+            newSubCategories.add(subCategory);
+        }
+        onFilterChange({ ...filters, subCategory: newSubCategories });
+    }, [filters, onFilterChange]);
+
+    const handleSupplyChainRoleChange = useCallback((role: string) => {
+        const newRoles = new Set(filters.supplyChainRole);
+        if (newRoles.has(role)) {
+            newRoles.delete(role);
+        } else {
+            newRoles.add(role);
+        }
+        onFilterChange({ ...filters, supplyChainRole: newRoles });
     }, [filters, onFilterChange]);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -127,7 +152,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             </div>
 
              <div className="mb-6">
-                <h3 className="font-semibold text-gray-300 mb-2">Quantitative Filters</h3>
+                <h3 className="font-semibold text-gray-300 mb-2">Advanced Filters</h3>
                 <div className="space-y-3">
                     <div>
                         <label htmlFor="minUnivScore" className="block text-sm font-medium text-gray-400">Min Universal Score</label>
@@ -204,6 +229,18 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                             className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
                         />
                     </div>
+                    <div>
+                        <label htmlFor="growthDriver" className="block text-sm font-medium text-gray-400">Growth Driver Keyword</label>
+                        <input
+                            type="text"
+                            id="growthDriver"
+                            name="growthDriver"
+                            value={filters.growthDriver}
+                            onChange={handleInputChange}
+                            placeholder="e.g., liquid cooling"
+                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -226,6 +263,60 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                                 type="checkbox"
                                 checked={filters.category.has(value)}
                                 onChange={() => handleCategoryChange(value)}
+                                className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-accent-green focus:ring-accent-green"
+                            />
+                            <span className="text-gray-300 text-sm">{value}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-gray-300">Sub Category</h3>
+                    {filters.subCategory.size > 0 && (
+                        <button
+                            onClick={() => onFilterChange({ ...filters, subCategory: new Set() })}
+                            className="text-xs text-accent-blue hover:underline"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
+                <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
+                    {subCategories.map((value) => (
+                        <label key={value} className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={filters.subCategory.has(value)}
+                                onChange={() => handleSubCategoryChange(value)}
+                                className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-accent-green focus:ring-accent-green"
+                            />
+                            <span className="text-gray-300 text-sm">{value}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+             <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-gray-300">Supply Chain Role</h3>
+                    {filters.supplyChainRole.size > 0 && (
+                        <button
+                            onClick={() => onFilterChange({ ...filters, supplyChainRole: new Set() })}
+                            className="text-xs text-accent-blue hover:underline"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
+                <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
+                    {supplyChainRoles.map((value) => (
+                        <label key={value} className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={filters.supplyChainRole.has(value)}
+                                onChange={() => handleSupplyChainRoleChange(value)}
                                 className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-accent-green focus:ring-accent-green"
                             />
                             <span className="text-gray-300 text-sm">{value}</span>

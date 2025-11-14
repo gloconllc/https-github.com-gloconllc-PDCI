@@ -40,6 +40,9 @@ const App: React.FC = () => {
         risks: new Set<RiskLevel>(),
         geoRisks: new Set<GeopoliticalRiskLevel>(),
         category: new Set<string>(),
+        subCategory: new Set<string>(),
+        supplyChainRole: new Set<string>(),
+        growthDriver: '',
         maxPE: '',
         minGrowth: '',
         minCriticality: '',
@@ -244,6 +247,8 @@ const App: React.FC = () => {
 
     // Memoized Calculations
     const categories = useMemo(() => [...new Set(companiesData.map(c => c.Category))], []);
+    const subCategories = useMemo(() => [...new Set(companiesData.map(c => c.Sub_Category))].sort(), []);
+    const supplyChainRoles = useMemo(() => [...new Set(companiesData.map(c => c.Supply_Chain_Role))].sort(), []);
 
     const filteredAndSortedCompanies = useMemo(() => {
         let filtered = [...companies];
@@ -259,6 +264,12 @@ const App: React.FC = () => {
         if (filters.risks.size > 0) filtered = filtered.filter(c => c.Risk_Level && filters.risks.has(c.Risk_Level));
         if (filters.geoRisks.size > 0) filtered = filtered.filter(c => c.Geopolitical_Risk && filters.geoRisks.has(c.Geopolitical_Risk));
         if (filters.category.size > 0) filtered = filtered.filter(c => filters.category.has(c.Category));
+        if (filters.subCategory.size > 0) filtered = filtered.filter(c => filters.subCategory.has(c.Sub_Category));
+        if (filters.supplyChainRole.size > 0) filtered = filtered.filter(c => filters.supplyChainRole.has(c.Supply_Chain_Role));
+        if (filters.growthDriver) {
+            const driverTerm = filters.growthDriver.toLowerCase();
+            filtered = filtered.filter(c => c.Growth_Driver.toLowerCase().includes(driverTerm));
+        }
         if (!filters.showBlueChips) filtered = filtered.filter(c => !c.isBlueChip);
         if (filters.maxPE) filtered = filtered.filter(c => c.PE_Ratio <= parseFloat(filters.maxPE));
         if (filters.minGrowth) filtered = filtered.filter(c => c.Revenue_Growth_YoY >= parseFloat(filters.minGrowth));
@@ -318,6 +329,8 @@ const App: React.FC = () => {
                             filters={filters}
                             onFilterChange={setFilters}
                             categories={categories}
+                            subCategories={subCategories}
+                            supplyChainRoles={supplyChainRoles}
                         />
                     </div>
 
@@ -393,6 +406,8 @@ const App: React.FC = () => {
                             filters={filters}
                             onFilterChange={setFilters}
                             categories={categories}
+                            subCategories={subCategories}
+                            supplyChainRoles={supplyChainRoles}
                         />
                     </div>
                 </div>

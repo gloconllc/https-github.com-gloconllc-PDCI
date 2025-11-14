@@ -81,7 +81,9 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
     };
     
     const handleApplyTrades = (trades: SuggestedTrade[]) => {
+        // This is a placeholder for a future feature to modify the portfolio state.
         console.log("Applying trades:", trades);
+        alert("Trade application is a future feature. See console for trade details.");
         setIsOptimizerModalOpen(false);
     };
 

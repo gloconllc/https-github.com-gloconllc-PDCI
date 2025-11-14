@@ -7,13 +7,8 @@
  */
 import React, { useRef, useState } from 'react';
 import { CloseIcon, SparkleIcon, DownloadIcon, ThumbsUpIcon, WarningIcon, LightbulbIcon, ShieldIcon, ExpandIcon, CompressIcon } from './icons/Icons';
-// FIX: Correct import path
 import { PortfolioAnalysisResult } from '../lib/gemini';
 import ShareDropdown from './ShareDropdown';
-
-// Add jsPDF and html2canvas types for window object
-// FIX: Removed declare global block to prevent type conflicts.
-// Global types are now centralized in `types.ts`.
 
 // --- Embedded Components ---
 
@@ -303,16 +298,16 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose, isAnal
                          <button
                             onClick={handleDownloadPdf}
                             disabled={isAnalyzing || !analysis || isDownloading || (analysis && analysis.summary.startsWith("Error:"))}
-                            className="neuro-button flex items-center gap-2 text-white font-semibold py-2 px-4 disabled:opacity-50"
+                            className="btn btn-secondary"
                             title="Download PDF"
                         >
                             <DownloadIcon className={isDownloading ? 'animate-pulse' : ''} />
                             <span className="hidden sm:inline">{isDownloading ? '...' : 'PDF'}</span>
                         </button>
-                        <button onClick={() => setIsFullScreen(!isFullScreen)} className="p-2 rounded-full text-gray-400 hover:bg-white/10" title={isFullScreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
+                        <button onClick={() => setIsFullScreen(!isFullScreen)} className="btn btn-ghost" title={isFullScreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
                             {isFullScreen ? <CompressIcon /> : <ExpandIcon />}
                         </button>
-                        <button onClick={onClose} className="p-2 rounded-full text-gray-400 hover:bg-white/10" aria-label="Close analysis modal">
+                        <button onClick={onClose} className="btn btn-ghost" aria-label="Close analysis modal">
                             <CloseIcon />
                         </button>
                     </div>
