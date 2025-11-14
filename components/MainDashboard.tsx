@@ -21,6 +21,7 @@ interface MainDashboardProps {
     filteredAndSortedCompanies: Company[];
     onViewDetails: (company: Company) => void;
     onAddToPortfolio: (company: Company) => void;
+    onAddToWatchlist: (company: Company) => void;
     onSort: (key: keyof Company) => void;
     sortConfig: SortConfig | null;
     predictions: Record<string, StockPrediction>;
@@ -85,6 +86,7 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
     filteredAndSortedCompanies,
     onViewDetails,
     onAddToPortfolio,
+    onAddToWatchlist,
     onSort,
     sortConfig,
     predictions,
@@ -134,6 +136,7 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
                             companies={filteredAndSortedCompanies}
                             onViewDetails={onViewDetails}
                             onAddToPortfolio={onAddToPortfolio}
+                            onAddToWatchlist={onAddToWatchlist}
                             onSort={onSort}
                             sortConfig={sortConfig}
                             predictions={predictions}

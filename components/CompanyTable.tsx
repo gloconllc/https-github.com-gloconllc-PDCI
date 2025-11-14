@@ -7,13 +7,14 @@
  */
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Company, SortConfig, InvestmentTier, StockPrediction } from '../types';
-import { SortIcon, PlusIcon, BrainCircuitIcon } from './icons/Icons';
+import { SortIcon, PlusIcon, BrainCircuitIcon, BookmarkIcon } from './icons/Icons';
 import Sparkline from './Sparkline';
 
 interface CompanyTableProps {
     companies: Company[];
     onViewDetails: (company: Company) => void;
     onAddToPortfolio: (company: Company) => void;
+    onAddToWatchlist: (company: Company) => void;
     onSort: (key: keyof Company) => void;
     sortConfig: SortConfig | null;
     predictions: Record<string, StockPrediction>;
@@ -75,7 +76,7 @@ const Th: React.FC<{ children: React.ReactNode; sortKey: keyof Company; onSort: 
 const ROW_HEIGHT = 68; // Corresponds to h-17, adjust if row padding/content changes
 const OVERSCAN = 5; // Number of rows to render above and below the viewport
 
-const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, onAddToPortfolio, onSort, sortConfig, predictions, predictionsLoading, fetchPrediction, visibleColumns }) => {
+const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, onAddToPortfolio, onAddToWatchlist, onSort, sortConfig, predictions, predictionsLoading, fetchPrediction, visibleColumns }) => {
     const [priceChanges, setPriceChanges] = useState<Record<string, 'up' | 'down'>>({});
     const prevPricesRef = useRef<Record<string, number>>({});
     
@@ -166,7 +167,7 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                             <Th sortKey="Geopolitical_Risk_Score" onSort={onSort} sortConfig={sortConfig} className="hidden sm:table-cell">Geo Risk</Th>
                             <Th sortKey="ESG_Score" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">ESG</Th>
                             <Th sortKey="YTD_Performance" onSort={onSort} sortConfig={sortConfig} className="hidden md:table-cell">YTD %</Th>
-                            <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Add</th>
+                            <th className="p-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/10 relative">
@@ -247,14 +248,25 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                                             {company.YTD_Performance >= 0 ? '+' : ''}{company.YTD_Performance.toFixed(1)}%
                                         </span>
                                     </td>
-                                    <td className="p-3 whitespace-nowrap">
-                                        <button
-                                            onClick={() => onAddToPortfolio(company)}
-                                            className="btn btn-ghost-success rounded-full"
-                                            aria-label={`Add ${company.Company} to portfolio`}
-                                        >
-                                            <PlusIcon />
-                                        </button>
+                                    <td className="p-3 whitespace-nowrap text-center">
+                                        <div className="flex justify-center items-center gap-1">
+                                            <button
+                                                onClick={() => onAddToPortfolio(company)}
+                                                className="btn btn-ghost-success rounded-full"
+                                                aria-label={`Add ${company.Company} to portfolio`}
+                                                title="Add to Portfolio"
+                                            >
+                                                <PlusIcon />
+                                            </button>
+                                            <button
+                                                onClick={() => onAddToWatchlist(company)}
+                                                className="btn btn-ghost rounded-full"
+                                                aria-label={`Add ${company.Company} to watchlist`}
+                                                title="Add to Watchlist"
+                                            >
+                                                <BookmarkIcon />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             )

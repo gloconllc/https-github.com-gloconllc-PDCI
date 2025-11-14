@@ -7,7 +7,7 @@
  */
 import React, { useRef, useState, useEffect } from 'react';
 import { Company, FinancialHealthAnalysis, PredictiveAnalysis, GeopoliticalRiskLevel, StockPrediction } from '../types';
-import { CloseIcon, PlusIcon, DownloadIcon, DocumentTextIcon, CalculatorIcon, SparkleIcon, ExpandIcon, CompressIcon, GlobeIcon, BrainCircuitIcon } from './icons/Icons';
+import { CloseIcon, PlusIcon, DownloadIcon, DocumentTextIcon, CalculatorIcon, SparkleIcon, ExpandIcon, CompressIcon, GlobeIcon, BrainCircuitIcon, BookmarkIcon } from './icons/Icons';
 import { companiesData } from '../constants';
 import { supplyChainData } from '../lib/supplyChainData';
 import SupplyChainVisualizer from './SupplyChainVisualizer';
@@ -24,6 +24,7 @@ interface CompanyModalProps {
     company: Company;
     onClose: () => void;
     onAddToPortfolio: (company: Company) => void;
+    onAddToWatchlist: (company: Company) => void;
     viewCompanyDetails: (company: Company) => void;
 }
 
@@ -66,7 +67,7 @@ const ScoreStat: React.FC<{ label: string; value: string | number | undefined; t
 };
 
 
-const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPortfolio, viewCompanyDetails }) => {
+const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPortfolio, onAddToWatchlist, viewCompanyDetails }) => {
     const reportRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
@@ -80,16 +81,20 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
     useEffect(() => {
         const fetchAnalysis = async () => {
             setIsLoadingAnalysis(true);
+            setFinancialAnalysis(null);
+            setPredictiveAnalysis(null);
+            setStockPrediction(null);
             try {
-                const [finHealth, predAnalysis, stockPred] = await Promise.all([
-                    getFinancialHealthAnalysis(company),
-                    getPredictiveAnalysis(company),
-                    // FIX: Corrected function name from getPDCIStockPrediction to getAIStockPrediction.
-                    getAIStockPrediction(company)
-                ]);
+                // Run analysis sequentially to avoid rate-limiting
+                const finHealth = await getFinancialHealthAnalysis(company);
                 setFinancialAnalysis(finHealth);
+
+                const predAnalysis = await getPredictiveAnalysis(company);
                 setPredictiveAnalysis(predAnalysis);
+
+                const stockPred = await getAIStockPrediction(company);
                 setStockPrediction(stockPred);
+
             } catch (error) {
                 console.error("Failed to fetch company analysis:", error);
             } finally {
@@ -218,6 +223,13 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                             <span className="hidden sm:inline">{isDownloading ? '...' : 'PDF'}</span>
                         </button>
                          <button
+                            onClick={() => onAddToWatchlist(company)}
+                            className="btn btn-secondary"
+                            aria-label={`Add ${company.Company} to watchlist`}
+                        >
+                            <BookmarkIcon /> <span className="hidden lg:inline">Watchlist</span>
+                        </button>
+                         <button
                             onClick={() => onAddToPortfolio(company)}
                             className="btn btn-success"
                             aria-label={`Add ${company.Company} to portfolio`}
@@ -246,7 +258,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="glass-panel p-4">
                                         <h3 className="font-semibold text-gray-200 mb-3 flex items-center gap-2"><DocumentTextIcon /> PDCI Financial Analysis</h3>
-                                        {isLoadingAnalysis ? <AnalysisLoader message="Running financial health check..."/> : financialAnalysis ? (
+                                        {isLoadingAnalysis && !financialAnalysis ? <AnalysisLoader message="Running financial health check..."/> : financialAnalysis ? (
                                             <div className="space-y-3 text-sm">
                                                 <p><strong className="text-gray-300">Valuation:</strong> {financialAnalysis.valuation}</p>
                                                 <p><strong className="text-gray-300">Health:</strong> {financialAnalysis.financialHealth}</p>
@@ -257,7 +269,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                     </div>
                                      <div className="glass-panel p-4">
                                         <h3 className="font-semibold text-gray-200 mb-3 flex items-center gap-2"><CalculatorIcon /> PDCI Quantitative Outlook</h3>
-                                        {isLoadingAnalysis ? <AnalysisLoader message="Calculating predictive factors..."/> : predictiveAnalysis ? (
+                                        {isLoadingAnalysis && !predictiveAnalysis ? <AnalysisLoader message="Calculating predictive factors..."/> : predictiveAnalysis ? (
                                             <div className="space-y-3 text-sm">
                                                 <div>
                                                     <strong className="text-gray-300">Key Predictors:</strong>
@@ -273,7 +285,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                 </div>
                                  <div className="glass-panel p-4">
                                     <h3 className="font-semibold text-gray-200 mb-3 flex items-center gap-2"><BrainCircuitIcon /> PDCI Prediction</h3>
-                                    {isLoadingAnalysis ? <AnalysisLoader message="Generating stock prediction..."/> : stockPrediction ? (
+                                    {isLoadingAnalysis && !stockPrediction ? <AnalysisLoader message="Generating stock prediction..."/> : stockPrediction ? (
                                         <div className="space-y-3 text-sm">
                                             <div className="flex justify-between items-baseline">
                                                 <span className="text-gray-400">Outlook ({stockPrediction.timescale})</span>

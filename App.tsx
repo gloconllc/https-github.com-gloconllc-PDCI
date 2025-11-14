@@ -54,6 +54,7 @@ const App: React.FC = () => {
     const [lastUpdated, setLastUpdated] = useState(new Date());
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
     const [portfolio, setPortfolio] = useState<Company[]>(companiesData.slice(0, 5)); // Initial portfolio
+    const [watchlist, setWatchlist] = useState<Company[]>(companiesData.filter(c => ['CRDO', 'MP', 'NXT'].includes(c.Ticker))); // Initial watchlist
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
     // Modal States
@@ -74,6 +75,10 @@ const App: React.FC = () => {
     const [isCommentaryLoading, setIsCommentaryLoading] = useState(false);
     const [predictions, setPredictions] = useState<Record<string, StockPrediction>>({});
     const [predictionsLoading, setPredictionsLoading] = useState<Record<string, boolean>>({});
+
+    // Prediction Queue State
+    const [predictionQueue, setPredictionQueue] = useState<Company[]>([]);
+    const [isProcessingQueue, setIsProcessingQueue] = useState(false);
 
     // Geolocation State
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -112,6 +117,16 @@ const App: React.FC = () => {
         setPortfolio(prev => prev.filter(c => c.Ticker !== ticker));
     }, []);
 
+    const handleAddToWatchlist = useCallback((company: Company) => {
+        if (!watchlist.find(w => w.Ticker === company.Ticker)) {
+            setWatchlist(prev => [...prev, company]);
+        }
+    }, [watchlist]);
+
+    const handleRemoveFromWatchlist = useCallback((ticker: string) => {
+        setWatchlist(prev => prev.filter(c => c.Ticker !== ticker));
+    }, []);
+
     const fetchNews = useCallback(async () => {
         setIsNewsLoading(true);
         try {
@@ -140,21 +155,46 @@ const App: React.FC = () => {
         }
     }, [marketCommentary, userLocation]);
 
-     const fetchPrediction = useCallback(async (company: Company) => {
-        if (predictions[company.Ticker] || predictionsLoading[company.Ticker]) {
+    const queuePredictionFetch = useCallback((company: Company) => {
+        // Don't add if it's already predicted, loading, or in the queue
+        if (predictions[company.Ticker] || predictionsLoading[company.Ticker] || predictionQueue.some(c => c.Ticker === company.Ticker)) {
             return;
         }
-        setPredictionsLoading(prev => ({ ...prev, [company.Ticker]: true }));
-        try {
-            // FIX: Corrected function name from getPDCIStockPrediction to getAIStockPrediction.
-            const prediction = await getAIStockPrediction(company);
-            setPredictions(prev => ({ ...prev, [company.Ticker]: prediction }));
-        } catch (e) {
-            console.error(`Failed to fetch prediction for ${company.Ticker}`, e);
-        } finally {
-            setPredictionsLoading(prev => ({ ...prev, [company.Ticker]: false }));
+        setPredictionQueue(prev => [...prev, company]);
+    }, [predictions, predictionsLoading, predictionQueue]);
+
+    // Effect to process the prediction queue serially to avoid rate limiting
+    useEffect(() => {
+        if (isProcessingQueue || predictionQueue.length === 0) {
+            return;
         }
-    }, [predictions, predictionsLoading]);
+
+        const processQueue = async () => {
+            setIsProcessingQueue(true);
+            const companyToFetch = predictionQueue[0];
+
+            if (companyToFetch) {
+                 setPredictionsLoading(prev => ({ ...prev, [companyToFetch.Ticker]: true }));
+
+                try {
+                    const prediction = await getAIStockPrediction(companyToFetch);
+                    setPredictions(prev => ({ ...prev, [companyToFetch.Ticker]: prediction }));
+                } catch (e) {
+                    console.error(`Failed to fetch prediction for ${companyToFetch.Ticker}`, e);
+                } finally {
+                    setPredictionsLoading(prev => ({ ...prev, [companyToFetch.Ticker]: false }));
+                    setPredictionQueue(prev => prev.slice(1));
+                    await new Promise(resolve => setTimeout(resolve, 250)); // 250ms delay, ~4 req/sec
+                    setIsProcessingQueue(false);
+                }
+            } else {
+                 setIsProcessingQueue(false);
+            }
+        };
+
+        processQueue();
+    }, [predictionQueue, isProcessingQueue]);
+
 
     useEffect(() => {
         if (navigator.geolocation) {
@@ -287,11 +327,12 @@ const App: React.FC = () => {
                             filteredAndSortedCompanies={filteredAndSortedCompanies}
                             onViewDetails={setSelectedCompany}
                             onAddToPortfolio={handleAddToPortfolio}
+                            onAddToWatchlist={handleAddToWatchlist}
                             onSort={handleSort}
                             sortConfig={sortConfig}
                             predictions={predictions}
                             predictionsLoading={predictionsLoading}
-                            fetchPrediction={fetchPrediction}
+                            fetchPrediction={queuePredictionFetch}
                         />
                     </div>
 
@@ -299,6 +340,8 @@ const App: React.FC = () => {
                          <RightSidebar
                             portfolio={portfolio}
                             onRemoveFromPortfolio={handleRemoveFromPortfolio}
+                            watchlist={watchlist}
+                            onRemoveFromWatchlist={handleRemoveFromWatchlist}
                             onViewDetails={setSelectedCompany}
                             allCompanies={companies}
                          />
@@ -313,6 +356,7 @@ const App: React.FC = () => {
                     company={selectedCompany}
                     onClose={() => setSelectedCompany(null)}
                     onAddToPortfolio={handleAddToPortfolio}
+                    onAddToWatchlist={handleAddToWatchlist}
                     viewCompanyDetails={setSelectedCompany}
                 />
             )}

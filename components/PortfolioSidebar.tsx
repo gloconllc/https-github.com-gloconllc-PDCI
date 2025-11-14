@@ -87,7 +87,7 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
 
     return (
         <div className="h-full flex flex-col">
-            <h2 className="text-lg font-semibold mb-4 text-gray-200">My Portfolio ({portfolio.length})</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-200">Hypothetical Portfolio ({portfolio.length})</h2>
 
             <div className="grid grid-cols-3 gap-3 text-center mb-4">
                 <div className="bg-black/20 p-2 rounded-md">

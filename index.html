@@ -217,6 +217,20 @@
         background-color: rgba(255, 0, 128, 0.1);
         color: #FF0080;
       }
+      .watchlist-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem;
+        background: rgba(0,0,0,0.2);
+        border-radius: 0.375rem;
+        cursor: pointer;
+        position: relative;
+        transition: background-color 0.2s ease-in-out;
+      }
+      .watchlist-item:hover {
+        background: rgba(255,255,255,0.1);
+      }
        /* For Webkit browsers like Chrome, Safari */
       ::-webkit-scrollbar {
         width: 8px;

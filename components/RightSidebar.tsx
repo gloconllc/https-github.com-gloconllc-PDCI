@@ -9,22 +9,26 @@ import React, { useState } from 'react';
 import { Company } from '../types';
 import PortfolioSidebar from './PortfolioSidebar';
 import PDCIChat from './AIChat';
-import { ClipboardCheckIcon, ChatBubbleIcon } from './icons/Icons';
+import Watchlist from './Watchlist';
+import { ClipboardCheckIcon, ChatBubbleIcon, BookmarkIcon } from './icons/Icons';
 
 interface RightSidebarProps {
     portfolio: Company[];
     onRemoveFromPortfolio: (ticker: string) => void;
+    watchlist: Company[];
+    onRemoveFromWatchlist: (ticker: string) => void;
     onViewDetails: (company: Company) => void;
     allCompanies: Company[];
 }
 
-type ActiveTab = 'portfolio' | 'chat';
+type ActiveTab = 'portfolio' | 'watchlist' | 'chat';
 
-const RightSidebar: React.FC<RightSidebarProps> = ({ portfolio, onRemoveFromPortfolio, onViewDetails, allCompanies }) => {
+const RightSidebar: React.FC<RightSidebarProps> = ({ portfolio, onRemoveFromPortfolio, watchlist, onRemoveFromWatchlist, onViewDetails, allCompanies }) => {
     const [activeTab, setActiveTab] = useState<ActiveTab>('portfolio');
 
     const tabs = [
-        { id: 'portfolio', label: 'My Portfolio', icon: <ClipboardCheckIcon className="w-5 h-5" /> },
+        { id: 'portfolio', label: 'Portfolio', icon: <ClipboardCheckIcon className="w-5 h-5" /> },
+        { id: 'watchlist', label: 'Watchlist', icon: <BookmarkIcon className="w-5 h-5" /> },
         { id: 'chat', label: 'PDCI Chat', icon: <ChatBubbleIcon className="w-5 h-5" /> },
     ];
 
@@ -36,7 +40,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ portfolio, onRemoveFromPort
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as ActiveTab)}
-                            className={`w-1/2 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${
+                            className={`w-1/3 py-2 text-sm font-semibold rounded-md flex items-center justify-center gap-2 transition-colors ${
                                 activeTab === tab.id ? 'bg-accent-blue text-white shadow' : 'text-gray-400 hover:bg-white/10'
                             }`}
                         >
@@ -54,6 +58,13 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ portfolio, onRemoveFromPort
                         onRemove={onRemoveFromPortfolio}
                         onViewDetails={onViewDetails}
                         allCompanies={allCompanies}
+                    />
+                )}
+                {activeTab === 'watchlist' && (
+                     <Watchlist
+                        watchlist={watchlist}
+                        onRemove={onRemoveFromWatchlist}
+                        onViewDetails={onViewDetails}
                     />
                 )}
                 {activeTab === 'chat' && (

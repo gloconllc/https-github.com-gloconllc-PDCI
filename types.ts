@@ -144,8 +144,8 @@ export interface GoalPlannerResult {
     disclaimer: string;
 }
 
-// FIX: To resolve TypeScript errors like "All declarations of 'aistudio' must have identical modifiers", the `AIStudio` interface is defined and exported within the module scope. The `declare global` block is then used solely to augment the global `Window` interface, referencing the module-scoped `AIStudio` type. This avoids potential conflicts with other global type declarations.
-export interface AIStudio {
+// FIX: To resolve TypeScript errors like "All declarations of 'aistudio' must have identical modifiers", an `AIStudio` interface is defined and used for the `window.aistudio` property. This aligns the declaration with other potential declarations of the same global property, satisfying TypeScript's requirement for type consistency.
+interface AIStudio {
     hasSelectedApiKey: () => Promise<boolean>;
     openSelectKey: () => Promise<void>;
 }
