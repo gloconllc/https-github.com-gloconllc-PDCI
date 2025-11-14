@@ -15,6 +15,13 @@ interface PeerComparisonProps {
     onViewDetails: (company: Company) => void;
 }
 
+const getGeoRiskColor = (score: number): string => {
+    if (score <= 30) return 'text-accent-green';
+    if (score <= 65) return 'text-yellow-400';
+    if (score <= 80) return 'text-orange-500';
+    return 'text-accent-red';
+};
+
 const PeerComparison: React.FC<PeerComparisonProps> = ({ company, allCompanies, onViewDetails }) => {
     const peers = (supplyChainData[company.Ticker]?.competitors || [])
         .map(ticker => allCompanies.find(c => c.Ticker === ticker))
@@ -38,6 +45,8 @@ const PeerComparison: React.FC<PeerComparisonProps> = ({ company, allCompanies, 
                             <th className="p-1.5 text-right">Score</th>
                             <th className="p-1.5 text-right">P/E</th>
                             <th className="p-1.5 text-right">Growth</th>
+                            <th className="p-1.5 text-right">YTD %</th>
+                            <th className="p-1.5 text-right">Geo Risk</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,6 +61,12 @@ const PeerComparison: React.FC<PeerComparisonProps> = ({ company, allCompanies, 
                                 <td className="p-1.5 text-right font-mono">{p.PE_Ratio.toFixed(1)}</td>
                                 <td className={`p-1.5 text-right font-mono ${p.Revenue_Growth_YoY >= 0 ? 'text-accent-green' : 'text-accent-red'}`}>
                                     {p.Revenue_Growth_YoY.toFixed(1)}%
+                                </td>
+                                <td className={`p-1.5 text-right font-mono ${p.YTD_Performance >= 0 ? 'text-accent-green' : 'text-accent-red'}`}>
+                                    {p.YTD_Performance >= 0 ? '+' : ''}{p.YTD_Performance.toFixed(1)}%
+                                </td>
+                                <td className={`p-1.5 text-right font-mono font-bold ${getGeoRiskColor(p.Geopolitical_Risk_Score)}`}>
+                                    {p.Geopolitical_Risk_Score}
                                 </td>
                             </tr>
                         ))}

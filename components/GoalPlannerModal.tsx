@@ -6,7 +6,7 @@
  * This software is for institutional use only. All rights reserved.
  */
 import React, { useState } from 'react';
-import { Company, GoalPlannerResult, RiskLevel } from '../types';
+import { Company, GoalPlannerResult, RiskLevel, UserGoal } from '../types';
 import { CloseIcon, SparkleIcon, WarningIcon, LinkIcon } from './icons/Icons';
 import { getGoalBasedPlan } from '../lib/gemini';
 import LineChart from './LineChart';
@@ -14,9 +14,10 @@ import LineChart from './LineChart';
 interface GoalPlannerModalProps {
     onClose: () => void;
     contextCompanies: Company[];
+    onSetGoal: (goal: UserGoal) => void;
 }
 
-const GoalPlannerModal: React.FC<GoalPlannerModalProps> = ({ onClose, contextCompanies }) => {
+const GoalPlannerModal: React.FC<GoalPlannerModalProps> = ({ onClose, contextCompanies, onSetGoal }) => {
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<GoalPlannerResult | null>(null);
@@ -32,14 +33,21 @@ const GoalPlannerModal: React.FC<GoalPlannerModalProps> = ({ onClose, contextCom
         setError(null);
         setStep(2);
 
+        const goal: UserGoal = {
+            initialInvestment: parseFloat(initialInvestment),
+            targetAmount: parseFloat(targetAmount),
+            horizon: parseInt(horizon, 10),
+        };
+
         try {
             const plan = await getGoalBasedPlan({
-                initial: parseFloat(initialInvestment),
-                target: parseFloat(targetAmount),
-                horizon: parseInt(horizon, 10),
+                initial: goal.initialInvestment,
+                target: goal.targetAmount,
+                horizon: goal.horizon,
                 risk: riskProfile,
             }, contextCompanies);
             setResult(plan);
+            onSetGoal(goal); // Set the goal in the main app state
         } catch (e) {
             console.error("Failed to generate goal plan:", e);
             setError("The AI model could not generate a plan based on the inputs. Please adjust your goals or try again later.");

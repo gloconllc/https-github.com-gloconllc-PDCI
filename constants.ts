@@ -50,7 +50,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 95,
     Geopolitical_Risk: GeopoliticalRiskLevel.VeryHigh,
     Geopolitical_Risk_Score: 95,
-    Geopolitical_Notes: "Primary operations and HQs in Taiwan face significant geopolitical tensions with China, posing a major supply chain risk."
+    Geopolitical_Notes: "Primary operations and HQs in Taiwan face significant geopolitical tensions with China, posing a major supply chain risk.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 200.10,
+    '52_Week_Low': 105.45,
+    'Avg_Volume': 15.5,
+    'EPS': 5.72,
+    'Dividend_Yield': 0.9,
+    'Beta': 1.2
   },
   {
     Company: "ASML Holding",
@@ -92,7 +99,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 96,
     Geopolitical_Risk: GeopoliticalRiskLevel.High,
     Geopolitical_Risk_Score: 80,
-    Geopolitical_Notes: "Subject to Western government (US, Netherlands) export controls to China, which impacts a major growth market."
+    Geopolitical_Notes: "Subject to Western government (US, Netherlands) export controls to China, which impacts a major growth market.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 1050.50,
+    '52_Week_Low': 650.75,
+    'Avg_Volume': 1.5,
+    'EPS': 19.39,
+    'Dividend_Yield': 0.6,
+    'Beta': 1.4
   },
   {
     Company: "SK Hynix",
@@ -134,7 +148,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 93,
     Geopolitical_Risk: GeopoliticalRiskLevel.High,
     Geopolitical_Risk_Score: 75,
-    Geopolitical_Notes: "Operations in South Korea face latent risk from North Korean instability. Also has manufacturing presence in China."
+    Geopolitical_Notes: "Operations in South Korea face latent risk from North Korean instability. Also has manufacturing presence in China.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 155.00,
+    '52_Week_Low': 80.00,
+    'Avg_Volume': 5.0,
+    'EPS': -7.22,
+    'Dividend_Yield': 0.0,
+    'Beta': 1.3
   },
   {
     Company: "Freeport-McMoRan",
@@ -176,7 +197,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 88,
     Geopolitical_Risk: GeopoliticalRiskLevel.High,
     Geopolitical_Risk_Score: 70,
-    Geopolitical_Notes: "Significant mining operations in Indonesia (Grasberg mine) and Peru, regions with potential for political instability and resource nationalism."
+    Geopolitical_Notes: "Significant mining operations in Indonesia (Grasberg mine) and Peru, regions with potential for political instability and resource nationalism.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 55.24,
+    '52_Week_Low': 34.20,
+    'Avg_Volume': 17.8,
+    'EPS': 1.98,
+    'Dividend_Yield': 1.37,
+    'Beta': 1.6
   },
   {
     Company: "Nucor",
@@ -218,7 +246,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 85,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 10,
-    Geopolitical_Notes: "Operations are almost entirely within North America, providing insulation from most global geopolitical conflicts."
+    Geopolitical_Notes: "Operations are almost entirely within North America, providing insulation from most global geopolitical conflicts.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 185.11,
+    '52_Week_Low': 125.80,
+    'Avg_Volume': 2.1,
+    'EPS': 15.08,
+    'Dividend_Yield': 1.3,
+    'Beta': 1.4
   },
    {
     Company: "Southern Copper",
@@ -260,7 +295,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 87,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 60,
-    Geopolitical_Notes: "Primary mines in Peru and Mexico, countries that have experienced periods of political and social unrest affecting mining operations."
+    Geopolitical_Notes: "Primary mines in Peru and Mexico, countries that have experienced periods of political and social unrest affecting mining operations.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 112.50,
+    '52_Week_Low': 65.20,
+    'Avg_Volume': 1.8,
+    'EPS': 3.08,
+    'Dividend_Yield': 3.4,
+    'Beta': 0.8
   },
   {
     Company: "MP Materials",
@@ -302,7 +344,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 78,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 50,
-    Geopolitical_Notes: "Operates in a sector dominated by China. While a US asset, its pricing and market are heavily influenced by Chinese policy."
+    Geopolitical_Notes: "Operates in a sector dominated by China. While a US asset, its pricing and market are heavily influenced by Chinese policy.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 35.10,
+    '52_Week_Low': 12.80,
+    'Avg_Volume': 4.5,
+    'EPS': 0.52,
+    'Dividend_Yield': 0.0,
+    'Beta': 2.1
   },
   {
     Company: "Broadcom",
@@ -344,7 +393,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 91,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 40,
-    Geopolitical_Notes: "As a fabless company, it relies on foundries like TSMC in Taiwan, inheriting some of their geopolitical risk."
+    Geopolitical_Notes: "As a fabless company, it relies on foundries like TSMC in Taiwan, inheriting some of their geopolitical risk.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 173.5,
+    '52_Week_Low': 80.6,
+    'Avg_Volume': 35.0,
+    'EPS': 2.88,
+    'Dividend_Yield': 1.2,
+    'Beta': 1.2
   },
   {
     Company: "Amphenol",
@@ -386,7 +442,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 90,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 20,
-    Geopolitical_Notes: "Highly diversified global manufacturing footprint mitigates single-region geopolitical risks."
+    Geopolitical_Notes: "Highly diversified global manufacturing footprint mitigates single-region geopolitical risks.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 140.2,
+    '52_Week_Low': 80.1,
+    'Avg_Volume': 3.1,
+    'EPS': 4.53,
+    'Dividend_Yield': 0.6,
+    'Beta': 1.1
   },
   {
     Company: "Vertiv",
@@ -428,7 +491,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 89,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 25,
-    Geopolitical_Notes: "Global manufacturing presence provides resilience. Moderate risk from general supply chain disruptions."
+    Geopolitical_Notes: "Global manufacturing presence provides resilience. Moderate risk from general supply chain disruptions.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 125.0,
+    '52_Week_Low': 30.5,
+    'Avg_Volume': 5.2,
+    'EPS': 2.25,
+    'Dividend_Yield': 0.1,
+    'Beta': 1.8
   },
     {
     Company: "Prysmian",
@@ -470,7 +540,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 86,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 35,
-    Geopolitical_Notes: "European base provides stability, but global operations are exposed to various regional risks and tariffs."
+    Geopolitical_Notes: "European base provides stability, but global operations are exposed to various regional risks and tariffs.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 100.0,
+    '52_Week_Low': 65.0,
+    'Avg_Volume': 0.5,
+    'EPS': 5.28,
+    'Dividend_Yield': 2.5,
+    'Beta': 0.9
   },
   {
     Company: "Arista Networks",
@@ -512,7 +589,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 89,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 45,
-    Geopolitical_Notes: "Relies on overseas manufacturing and components from Asia, exposing it to supply chain and tariff risks."
+    Geopolitical_Notes: "Relies on overseas manufacturing and components from Asia, exposing it to supply chain and tariff risks.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 410.0,
+    '52_Week_Low': 250.0,
+    'Avg_Volume': 2.8,
+    'EPS': 8.84,
+    'Dividend_Yield': 0.0,
+    'Beta': 1.1
   },
   {
     Company: "Super Micro",
@@ -554,7 +638,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 75,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 55,
-    Geopolitical_Notes: "Heavy reliance on manufacturing in Taiwan and components from the APAC region creates significant geopolitical risk exposure."
+    Geopolitical_Notes: "Heavy reliance on manufacturing in Taiwan and components from the APAC region creates significant geopolitical risk exposure.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 1229.0,
+    '52_Week_Low': 213.0,
+    'Avg_Volume': 6.5,
+    'EPS': 18.57,
+    'Dividend_Yield': 0.0,
+    'Beta': 3.2
   },
   {
     Company: "GlobalWafers",
@@ -596,7 +687,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 84,
     Geopolitical_Risk: GeopoliticalRiskLevel.VeryHigh,
     Geopolitical_Risk_Score: 90,
-    Geopolitical_Notes: "Taiwanese headquarters and significant operations create the same high level of geopolitical risk as TSMC."
+    Geopolitical_Notes: "Taiwanese headquarters and significant operations create the same high level of geopolitical risk as TSMC.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 22.5,
+    '52_Week_Low': 15.0,
+    'Avg_Volume': 1.2,
+    'EPS': 1.49,
+    'Dividend_Yield': 4.5,
+    'Beta': 1.0
   },
   {
     Company: "SUMCO",
@@ -638,7 +736,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 85,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 30,
-    Geopolitical_Notes: "Japanese base offers stability, but proximity to regional tensions in Asia poses a moderate risk."
+    Geopolitical_Notes: "Japanese base offers stability, but proximity to regional tensions in Asia poses a moderate risk.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 14.0,
+    '52_Week_Low': 9.8,
+    'Avg_Volume': 3.3,
+    'EPS': 0.86,
+    'Dividend_Yield': 3.1,
+    'Beta': 0.9
   },
   {
     Company: "Eaton",
@@ -680,7 +785,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 88,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 15,
-    Geopolitical_Notes: "Irish domicile and diversified global footprint provide significant resilience against single-point geopolitical failures."
+    Geopolitical_Notes: "Irish domicile and diversified global footprint provide significant resilience against single-point geopolitical failures.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 350.0,
+    '52_Week_Low': 220.0,
+    'Avg_Volume': 1.9,
+    'EPS': 9.37,
+    'Dividend_Yield': 1.1,
+    'Beta': 1.2
   },
   {
     Company: "Murata",
@@ -722,7 +834,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 82,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 30,
-    Geopolitical_Notes: "Stable Japanese base, but high concentration of manufacturing in Asia exposes it to regional supply chain risks."
+    Geopolitical_Notes: "Stable Japanese base, but high concentration of manufacturing in Asia exposes it to regional supply chain risks.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 21.5,
+    '52_Week_Low': 14.0,
+    'Avg_Volume': 4.1,
+    'EPS': 1.06,
+    'Dividend_Yield': 2.3,
+    'Beta': 0.8
   },
     {
     Company: "TE Connectivity",
@@ -764,7 +883,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 87,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 15,
-    Geopolitical_Notes: "Swiss domicile and broad global manufacturing base reduce exposure to any single point of geopolitical failure."
+    Geopolitical_Notes: "Swiss domicile and broad global manufacturing base reduce exposure to any single point of geopolitical failure.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 150.0,
+    '52_Week_Low': 120.0,
+    'Avg_Volume': 1.4,
+    'EPS': 6.62,
+    'Dividend_Yield': 1.7,
+    'Beta': 1.0
   },
     {
     Company: "NVIDIA",
@@ -806,7 +932,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 94,
     Geopolitical_Risk: GeopoliticalRiskLevel.VeryHigh,
     Geopolitical_Risk_Score: 90,
-    Geopolitical_Notes: "Complete dependency on TSMC for manufacturing its advanced GPUs creates a severe single-point-of-failure risk tied to Taiwan."
+    Geopolitical_Notes: "Complete dependency on TSMC for manufacturing its advanced GPUs creates a severe single-point-of-failure risk tied to Taiwan.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 140.76,
+    '52_Week_Low': 40.38,
+    'Avg_Volume': 450.0,
+    'EPS': 1.71,
+    'Dividend_Yield': 0.03,
+    'Beta': 1.7
   },
   {
     Company: "Parker-Hannifin",
@@ -848,7 +981,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 83,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 20,
-    Geopolitical_Notes: "Diversified industrial with a strong US base and global footprint, making it resilient to specific regional issues."
+    Geopolitical_Notes: "Diversified industrial with a strong US base and global footprint, making it resilient to specific regional issues.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 580.0,
+    '52_Week_Low': 400.0,
+    'Avg_Volume': 0.8,
+    'EPS': 21.58,
+    'Dividend_Yield': 1.2,
+    'Beta': 1.3
   },
   {
     Company: "Kingspan Group",
@@ -890,7 +1030,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 80,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 15,
-    Geopolitical_Notes: "Irish base and focus on EU/US markets provide a stable operating environment."
+    Geopolitical_Notes: "Irish base and focus on EU/US markets provide a stable operating environment.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 105.0,
+    '52_Week_Low': 70.0,
+    'Avg_Volume': 0.3,
+    'EPS': 3.82,
+    'Dividend_Yield': 1.0,
+    'Beta': 1.1
   },
   {
     Company: "Nextracker",
@@ -932,16 +1079,23 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 79,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 25,
-    Geopolitical_Notes: "US-based, but relies on global supply chains for components, which can be affected by tariffs and trade disputes."
+    Geopolitical_Notes: "US-based, but relies on global supply chains for components, which can be affected by tariffs and trade disputes.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 60.0,
+    '52_Week_Low': 35.0,
+    'Avg_Volume': 2.5,
+    'EPS': 1.96,
+    'Dividend_Yield': 0.0,
+    'Beta': 1.9
   },
-  { Company: "Siemens", Ticker: "SIEGY", Exchange: "OTC", Current_Price_USD: 180.1, Market_Cap_B: 145, YTD_Performance: 12.5, logoUrl: "https://logo.clearbit.com/siemens.com", Country: "Germany", isBlueChip: false, Shares_Outstanding_M: 805, Float_Percent: 99, Category: "Power & Cooling", Sub_Category: "UPS, Switchgear", Product_Component: "Industrial Automation, Switchgear", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Industrial Conglomerate", Risk_Level: RiskLevel.Conservative, Competitive_Position: "Market Leader", Supply_Chain_Role: "Critical Infrastructure", Universal_Score: 88, Criticality: 8, Substitutability: "Moderate", Substitutability_Score: 50, Supply_Chain_Depth_Score: 40, SCSI: 150, PE_Ratio: 15.6, Forward_PE: 14.1, Revenue_Growth_YoY: 5.2, Debt_to_Equity: 0.55, Graham_Score: 7, ESG_Score: 83, Psych_Score: 68, Buy_Rank: 24, Probability_Of_Success: 85, Geopolitical_Risk: GeopoliticalRiskLevel.Medium, Geopolitical_Risk_Score: 35, Geopolitical_Notes: "Exposed to European energy policy and economic conditions. Global operations can be affected by trade disputes." },
-  { Company: "Atkore", Ticker: "ATKR", Exchange: "NYSE", Current_Price_USD: 140.5, Market_Cap_B: 4.8, YTD_Performance: -8.2, logoUrl: "https://logo.clearbit.com/atkore.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 34, Float_Percent: 98, Category: "Construction", Sub_Category: "Physical Infrastructure", Product_Component: "Cable Trays, Conduits", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "North America", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Data Center Construction", Risk_Level: RiskLevel.Moderate, Competitive_Position: "Market Leader", Supply_Chain_Role: "Structural Material", Universal_Score: 84, Criticality: 7, Substitutability: "Moderate", Substitutability_Score: 60, Supply_Chain_Depth_Score: 70, SCSI: 110, PE_Ratio: 8.5, Forward_PE: 8, Revenue_Growth_YoY: -10.1, Debt_to_Equity: 0.9, Graham_Score: 8, ESG_Score: 60, Psych_Score: 62, Buy_Rank: 25, Probability_Of_Success: 77, Geopolitical_Risk: GeopoliticalRiskLevel.Low, Geopolitical_Risk_Score: 10, Geopolitical_Notes: "Primarily North American focus insulates it from direct international geopolitical events." },
-  { Company: "nVent Electric", Ticker: "NVT", Exchange: "NYSE", Current_Price_USD: 78.9, Market_Cap_B: 13, YTD_Performance: 25.1, logoUrl: "https://logo.clearbit.com/nvent.com", Country: "UK", isBlueChip: false, Shares_Outstanding_M: 165, Float_Percent: 99, Category: "Power & Cooling", Sub_Category: "Enclosures & Racks", Product_Component: "Enclosures, Racks, Cooling", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Liquid Cooling Adoption", Risk_Level: RiskLevel.Moderate, Competitive_Position: "Established Player", Supply_Chain_Role: "Critical Infrastructure", Universal_Score: 87, Criticality: 8, Substitutability: "Moderate", Substitutability_Score: 55, Supply_Chain_Depth_Score: 40, SCSI: 140, PE_Ratio: 23.5, Forward_PE: 20.1, Revenue_Growth_YoY: 10.3, Debt_to_Equity: 0.4, Graham_Score: 6, ESG_Score: 75, Psych_Score: 70, Buy_Rank: 26, Probability_Of_Success: 81, Geopolitical_Risk: GeopoliticalRiskLevel.Low, Geopolitical_Risk_Score: 20, Geopolitical_Notes: "UK-domiciled but operates globally, providing a diversified manufacturing and sales base." },
-  { Company: "Credo Technology", Ticker: "CRDO", Exchange: "NASDAQ", Current_Price_USD: 28.61, Market_Cap_B: 4.8, YTD_Performance: 110.4, logoUrl: "https://logo.clearbit.com/credosemi.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 168, Float_Percent: 75, Category: "Interconnects", Sub_Category: "Active Electrical Cables", Product_Component: "AECs, SerDes Chiplets", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "xAI Memphis contract", Growth_Driver: "AI Cluster Interconnects", Risk_Level: RiskLevel.Aggressive, Competitive_Position: "Niche Leader", Supply_Chain_Role: "Component Supplier", Universal_Score: 92, Criticality: 8, Substitutability: "Difficult", Substitutability_Score: 35, Supply_Chain_Depth_Score: 70, SCSI: 180, PE_Ratio: 120.5, Forward_PE: 55.2, Revenue_Growth_YoY: 85.6, Debt_to_Equity: 0.05, Graham_Score: 2, ESG_Score: 58, Psych_Score: 93, Buy_Rank: 5, Probability_Of_Success: 76, Geopolitical_Risk: GeopoliticalRiskLevel.Medium, Geopolitical_Risk_Score: 45, Geopolitical_Notes: "Fabless model means dependence on Asian foundries, creating supply chain risk related to geopolitical events." },
-  { Company: "Seagate", Ticker: "STX", Exchange: "NASDAQ", Current_Price_USD: 105.2, Market_Cap_B: 21, YTD_Performance: 21.5, logoUrl: "https://logo.clearbit.com/seagate.com", Country: "Ireland", isBlueChip: false, Shares_Outstanding_M: 200, Float_Percent: 99, Category: "Hardware", Sub_Category: "Storage", Product_Component: "HDDs, SSDs", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Cold Storage for AI Data", Risk_Level: RiskLevel.Moderate, Competitive_Position: "Oligopoly", Supply_Chain_Role: "System Integrator", Universal_Score: 80, Criticality: 7, Substitutability: "Moderate", Substitutability_Score: 60, Supply_Chain_Depth_Score: 40, SCSI: 90, PE_Ratio: -50.1, Forward_PE: 15.3, Revenue_Growth_YoY: -11.4, Debt_to_Equity: 5.5, Graham_Score: 3, ESG_Score: 79, Psych_Score: 60, Buy_Rank: 27, Probability_Of_Success: 70, Geopolitical_Risk: GeopoliticalRiskLevel.Medium, Geopolitical_Risk_Score: 40, Geopolitical_Notes: "Manufacturing facilities in Asia (e.g., Thailand) are subject to regional stability and supply chain disruptions." },
-  { Company: "Western Digital", Ticker: "WDC", Exchange: "NASDAQ", Current_Price_USD: 82.4, Market_Cap_B: 25, YTD_Performance: 68.9, logoUrl: "https://logo.clearbit.com/westerndigital.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 303, Float_Percent: 98, Category: "Hardware", Sub_Category: "Storage", Product_Component: "HDDs, SSDs, NAND Flash", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "AI Data Storage", Risk_Level: RiskLevel.Moderate, Competitive_Position: "Oligopoly", Supply_Chain_Role: "System Integrator", Universal_Score: 81, Criticality: 7, Substitutability: "Moderate", Substitutability_Score: 60, Supply_Chain_Depth_Score: 40, SCSI: 95, PE_Ratio: -10.2, Forward_PE: 12.1, Revenue_Growth_YoY: -2.3, Debt_to_Equity: 1.2, Graham_Score: 4, ESG_Score: 77, Psych_Score: 65, Buy_Rank: 28, Probability_Of_Success: 72, Geopolitical_Risk: GeopoliticalRiskLevel.Medium, Geopolitical_Risk_Score: 40, Geopolitical_Notes: "Significant operations in Asia make it susceptible to regional supply chain issues and geopolitical trade tensions." },
-  { Company: "Caterpillar", Ticker: "CAT", Exchange: "NYSE", Current_Price_USD: 329.2, Market_Cap_B: 165, YTD_Performance: 11.2, logoUrl: "https://logo.clearbit.com/caterpillar.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 500, Float_Percent: 99, Category: "Power & Cooling", Sub_Category: "Backup Generators", Product_Component: "Diesel Generators", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Data Center Power Redundancy", Risk_Level: RiskLevel.Conservative, Competitive_Position: "Market Leader", Supply_Chain_Role: "Critical Infrastructure", Universal_Score: 85, Criticality: 8, Substitutability: "Difficult", Substitutability_Score: 30, Supply_Chain_Depth_Score: 40, SCSI: 170, PE_Ratio: 15.3, Forward_PE: 14.8, Revenue_Growth_YoY: 0.8, Debt_to_Equity: 1.8, Graham_Score: 7, ESG_Score: 70, Psych_Score: 66, Buy_Rank: 29, Probability_Of_Success: 84, Geopolitical_Risk: GeopoliticalRiskLevel.Low, Geopolitical_Risk_Score: 20, Geopolitical_Notes: "Iconic US brand with a diverse global sales network, reducing dependency on any single market." },
-  { Company: "Cummins", Ticker: "CMI", Exchange: "NYSE", Current_Price_USD: 272.4, Market_Cap_B: 37, YTD_Performance: 13.3, logoUrl: "https://logo.clearbit.com/cummins.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 136, Float_Percent: 99, Category: "Power & Cooling", Sub_Category: "Backup Generators", Product_Component: "Diesel Generators", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Hyperscale Backup Power", Risk_Level: RiskLevel.Conservative, Competitive_Position: "Market Leader", Supply_Chain_Role: "Critical Infrastructure", Universal_Score: 84, Criticality: 8, Substitutability: "Difficult", Substitutability_Score: 30, Supply_Chain_Depth_Score: 40, SCSI: 160, PE_Ratio: 14.1, Forward_PE: 13.5, Revenue_Growth_YoY: 7.5, Debt_to_Equity: 0.41, Graham_Score: 8, ESG_Score: 72, Psych_Score: 65, Buy_Rank: 30, Probability_Of_Success: 83, Geopolitical_Risk: GeopoliticalRiskLevel.Low, Geopolitical_Risk_Score: 25, Geopolitical_Notes: "US-based with significant international sales; somewhat exposed to global economic cycles and trade policies." },
+  { Company: "Siemens", Ticker: "SIEGY", Exchange: "OTC", Current_Price_USD: 180.1, Market_Cap_B: 145, YTD_Performance: 12.5, logoUrl: "https://logo.clearbit.com/siemens.com", Country: "Germany", isBlueChip: false, Shares_Outstanding_M: 805, Float_Percent: 99, Category: "Power & Cooling", Sub_Category: "UPS, Switchgear", Product_Component: "Industrial Automation, Switchgear", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Industrial Conglomerate", Risk_Level: RiskLevel.Conservative, Competitive_Position: "Market Leader", Supply_Chain_Role: "Critical Infrastructure", Universal_Score: 88, Criticality: 8, Substitutability: "Moderate", Substitutability_Score: 50, Supply_Chain_Depth_Score: 40, SCSI: 150, PE_Ratio: 15.6, Forward_PE: 14.1, Revenue_Growth_YoY: 5.2, Debt_to_Equity: 0.55, Graham_Score: 7, ESG_Score: 83, Psych_Score: 68, Buy_Rank: 24, Probability_Of_Success: 85, Geopolitical_Risk: GeopoliticalRiskLevel.Medium, Geopolitical_Risk_Score: 35, Geopolitical_Notes: "Exposed to European energy policy and economic conditions. Global operations can be affected by trade disputes.", '52_Week_High': 190.0, '52_Week_Low': 150.0, 'Avg_Volume': 0.4, 'EPS': 11.54, 'Dividend_Yield': 2.6, 'Beta': 1.1 },
+  { Company: "Atkore", Ticker: "ATKR", Exchange: "NYSE", Current_Price_USD: 140.5, Market_Cap_B: 4.8, YTD_Performance: -8.2, logoUrl: "https://logo.clearbit.com/atkore.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 34, Float_Percent: 98, Category: "Construction", Sub_Category: "Physical Infrastructure", Product_Component: "Cable Trays, Conduits", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "North America", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Data Center Construction", Risk_Level: RiskLevel.Moderate, Competitive_Position: "Market Leader", Supply_Chain_Role: "Structural Material", Universal_Score: 84, Criticality: 7, Substitutability: "Moderate", Substitutability_Score: 60, Supply_Chain_Depth_Score: 70, SCSI: 110, PE_Ratio: 8.5, Forward_PE: 8, Revenue_Growth_YoY: -10.1, Debt_to_Equity: 0.9, Graham_Score: 8, ESG_Score: 60, Psych_Score: 62, Buy_Rank: 25, Probability_Of_Success: 77, Geopolitical_Risk: GeopoliticalRiskLevel.Low, Geopolitical_Risk_Score: 10, Geopolitical_Notes: "Primarily North American focus insulates it from direct international geopolitical events.", '52_Week_High': 180.0, '52_Week_Low': 130.0, 'Avg_Volume': 0.5, 'EPS': 16.53, 'Dividend_Yield': 0.0, 'Beta': 1.5 },
+  { Company: "nVent Electric", Ticker: "NVT", Exchange: "NYSE", Current_Price_USD: 78.9, Market_Cap_B: 13, YTD_Performance: 25.1, logoUrl: "https://logo.clearbit.com/nvent.com", Country: "UK", isBlueChip: false, Shares_Outstanding_M: 165, Float_Percent: 99, Category: "Power & Cooling", Sub_Category: "Enclosures & Racks", Product_Component: "Enclosures, Racks, Cooling", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Liquid Cooling Adoption", Risk_Level: RiskLevel.Moderate, Competitive_Position: "Established Player", Supply_Chain_Role: "Critical Infrastructure", Universal_Score: 87, Criticality: 8, Substitutability: "Moderate", Substitutability_Score: 55, Supply_Chain_Depth_Score: 40, SCSI: 140, PE_Ratio: 23.5, Forward_PE: 20.1, Revenue_Growth_YoY: 10.3, Debt_to_Equity: 0.4, Graham_Score: 6, ESG_Score: 75, Psych_Score: 70, Buy_Rank: 26, Probability_Of_Success: 81, Geopolitical_Risk: GeopoliticalRiskLevel.Low, Geopolitical_Risk_Score: 20, Geopolitical_Notes: "UK-domiciled but operates globally, providing a diversified manufacturing and sales base.", '52_Week_High': 85.0, '52_Week_Low': 55.0, 'Avg_Volume': 1.1, 'EPS': 3.36, 'Dividend_Yield': 0.9, 'Beta': 1.4 },
+  { Company: "Credo Technology", Ticker: "CRDO", Exchange: "NASDAQ", Current_Price_USD: 28.61, Market_Cap_B: 4.8, YTD_Performance: 110.4, logoUrl: "https://logo.clearbit.com/credosemi.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 168, Float_Percent: 75, Category: "Interconnects", Sub_Category: "Active Electrical Cables", Product_Component: "AECs, SerDes Chiplets", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "xAI Memphis contract", Growth_Driver: "AI Cluster Interconnects", Risk_Level: RiskLevel.Aggressive, Competitive_Position: "Niche Leader", Supply_Chain_Role: "Component Supplier", Universal_Score: 92, Criticality: 8, Substitutability: "Difficult", Substitutability_Score: 35, Supply_Chain_Depth_Score: 70, SCSI: 180, PE_Ratio: 120.5, Forward_PE: 55.2, Revenue_Growth_YoY: 85.6, Debt_to_Equity: 0.05, Graham_Score: 2, ESG_Score: 58, Psych_Score: 93, Buy_Rank: 5, Probability_Of_Success: 76, Geopolitical_Risk: GeopoliticalRiskLevel.Medium, Geopolitical_Risk_Score: 45, Geopolitical_Notes: "Fabless model means dependence on Asian foundries, creating supply chain risk related to geopolitical events.", '52_Week_High': 30.0, '52_Week_Low': 12.0, 'Avg_Volume': 3.0, 'EPS': 0.24, 'Dividend_Yield': 0.0, 'Beta': 2.5 },
+  { Company: "Seagate", Ticker: "STX", Exchange: "NASDAQ", Current_Price_USD: 105.2, Market_Cap_B: 21, YTD_Performance: 21.5, logoUrl: "https://logo.clearbit.com/seagate.com", Country: "Ireland", isBlueChip: false, Shares_Outstanding_M: 200, Float_Percent: 99, Category: "Hardware", Sub_Category: "Storage", Product_Component: "HDDs, SSDs", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Cold Storage for AI Data", Risk_Level: RiskLevel.Moderate, Competitive_Position: "Oligopoly", Supply_Chain_Role: "System Integrator", Universal_Score: 80, Criticality: 7, Substitutability: "Moderate", Substitutability_Score: 60, Supply_Chain_Depth_Score: 40, SCSI: 90, PE_Ratio: -50.1, Forward_PE: 15.3, Revenue_Growth_YoY: -11.4, Debt_to_Equity: 5.5, Graham_Score: 3, ESG_Score: 79, Psych_Score: 60, Buy_Rank: 27, Probability_Of_Success: 70, Geopolitical_Risk: GeopoliticalRiskLevel.Medium, Geopolitical_Risk_Score: 40, Geopolitical_Notes: "Manufacturing facilities in Asia (e.g., Thailand) are subject to regional stability and supply chain disruptions.", '52_Week_High': 110.0, '52_Week_Low': 75.0, 'Avg_Volume': 2.2, 'EPS': -2.10, 'Dividend_Yield': 2.7, 'Beta': 1.2 },
+  { Company: "Western Digital", Ticker: "WDC", Exchange: "NASDAQ", Current_Price_USD: 82.4, Market_Cap_B: 25, YTD_Performance: 68.9, logoUrl: "https://logo.clearbit.com/westerndigital.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 303, Float_Percent: 98, Category: "Hardware", Sub_Category: "Storage", Product_Component: "HDDs, SSDs, NAND Flash", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "AI Data Storage", Risk_Level: RiskLevel.Moderate, Competitive_Position: "Oligopoly", Supply_Chain_Role: "System Integrator", Universal_Score: 81, Criticality: 7, Substitutability: "Moderate", Substitutability_Score: 60, Supply_Chain_Depth_Score: 40, SCSI: 95, PE_Ratio: -10.2, Forward_PE: 12.1, Revenue_Growth_YoY: -2.3, Debt_to_Equity: 1.2, Graham_Score: 4, ESG_Score: 77, Psych_Score: 65, Buy_Rank: 28, Probability_Of_Success: 72, Geopolitical_Risk: GeopoliticalRiskLevel.Medium, Geopolitical_Risk_Score: 40, Geopolitical_Notes: "Significant operations in Asia make it susceptible to regional supply chain issues and geopolitical trade tensions.", '52_Week_High': 85.0, '52_Week_Low': 40.0, 'Avg_Volume': 4.3, 'EPS': -8.08, 'Dividend_Yield': 0.0, 'Beta': 1.6 },
+  { Company: "Caterpillar", Ticker: "CAT", Exchange: "NYSE", Current_Price_USD: 329.2, Market_Cap_B: 165, YTD_Performance: 11.2, logoUrl: "https://logo.clearbit.com/caterpillar.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 500, Float_Percent: 99, Category: "Power & Cooling", Sub_Category: "Backup Generators", Product_Component: "Diesel Generators", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Data Center Power Redundancy", Risk_Level: RiskLevel.Conservative, Competitive_Position: "Market Leader", Supply_Chain_Role: "Critical Infrastructure", Universal_Score: 85, Criticality: 8, Substitutability: "Difficult", Substitutability_Score: 30, Supply_Chain_Depth_Score: 40, SCSI: 170, PE_Ratio: 15.3, Forward_PE: 14.8, Revenue_Growth_YoY: 0.8, Debt_to_Equity: 1.8, Graham_Score: 7, ESG_Score: 70, Psych_Score: 66, Buy_Rank: 29, Probability_Of_Success: 84, Geopolitical_Risk: GeopoliticalRiskLevel.Low, Geopolitical_Risk_Score: 20, Geopolitical_Notes: "Iconic US brand with a diverse global sales network, reducing dependency on any single market.", '52_Week_High': 380.0, '52_Week_Low': 280.0, 'Avg_Volume': 3.5, 'EPS': 21.52, 'Dividend_Yield': 1.6, 'Beta': 1.0 },
+  { Company: "Cummins", Ticker: "CMI", Exchange: "NYSE", Current_Price_USD: 272.4, Market_Cap_B: 37, YTD_Performance: 13.3, logoUrl: "https://logo.clearbit.com/cummins.com", Country: "USA", isBlueChip: false, Shares_Outstanding_M: 136, Float_Percent: 99, Category: "Power & Cooling", Sub_Category: "Backup Generators", Product_Component: "Diesel Generators", Universal_Presence: "Yes", Investment_Tier: InvestmentTier.OnRadar, Geographic_Presence: "Global", Recent_Contracts_2024_2025: "N/A", Growth_Driver: "Hyperscale Backup Power", Risk_Level: RiskLevel.Conservative, Competitive_Position: "Market Leader", Supply_Chain_Role: "Critical Infrastructure", Universal_Score: 84, Criticality: 8, Substitutability: "Difficult", Substitutability_Score: 30, Supply_Chain_Depth_Score: 40, SCSI: 160, PE_Ratio: 14.1, Forward_PE: 13.5, Revenue_Growth_YoY: 7.5, Debt_to_Equity: 0.41, Graham_Score: 8, ESG_Score: 72, Psych_Score: 65, Buy_Rank: 30, Probability_Of_Success: 83, Geopolitical_Risk: GeopoliticalRiskLevel.Low, Geopolitical_Risk_Score: 25, Geopolitical_Notes: "US-based with significant international sales; somewhat exposed to global economic cycles and trade policies.", '52_Week_High': 300.0, '52_Week_Low': 220.0, 'Avg_Volume': 1.0, 'EPS': 19.32, 'Dividend_Yield': 2.4, 'Beta': 1.1 },
   {
     Company: "Cadence Design Systems",
     Ticker: "CDNS",
@@ -982,7 +1136,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 92,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 10,
-    Geopolitical_Notes: "Software is less susceptible to physical supply chain disruptions. Some risk from operating in China."
+    Geopolitical_Notes: "Software is less susceptible to physical supply chain disruptions. Some risk from operating in China.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 325.0,
+    '52_Week_Low': 240.0,
+    'Avg_Volume': 1.3,
+    'EPS': 4.12,
+    'Dividend_Yield': 0.0,
+    'Beta': 1.0
   },
   {
     Company: "Synopsys",
@@ -1024,7 +1185,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 91,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 10,
-    Geopolitical_Notes: "As a software provider, insulated from direct manufacturing risks. Faces some regulatory risk regarding China."
+    Geopolitical_Notes: "As a software provider, insulated from direct manufacturing risks. Faces some regulatory risk regarding China.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 610.0,
+    '52_Week_Low': 450.0,
+    'Avg_Volume': 1.0,
+    'EPS': 8.68,
+    'Dividend_Yield': 0.0,
+    'Beta': 1.1
   },
   {
     Company: "Applied Materials",
@@ -1066,7 +1234,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 88,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 50,
-    Geopolitical_Notes: "Subject to US export controls and has significant exposure to customers in geopolitical hotspots like Taiwan and China."
+    Geopolitical_Notes: "Subject to US export controls and has significant exposure to customers in geopolitical hotspots like Taiwan and China.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 240.0,
+    '52_Week_Low': 150.0,
+    'Avg_Volume': 5.5,
+    'EPS': 8.35,
+    'Dividend_Yield': 0.6,
+    'Beta': 1.3
   },
   {
     Company: "Lam Research",
@@ -1108,7 +1283,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 87,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 50,
-    Geopolitical_Notes: "Faces similar risks to AMAT regarding export controls and customer concentration in politically sensitive regions."
+    Geopolitical_Notes: "Faces similar risks to AMAT regarding export controls and customer concentration in politically sensitive regions.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 1100.0,
+    '52_Week_Low': 700.0,
+    'Avg_Volume': 0.9,
+    'EPS': 31.35,
+    'Dividend_Yield': 0.7,
+    'Beta': 1.4
   },
   {
     Company: "Corning",
@@ -1150,7 +1332,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 80,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 20,
-    Geopolitical_Notes: "Well-diversified, mature US company with global reach but less concentration in high-risk geopolitical zones."
+    Geopolitical_Notes: "Well-diversified, mature US company with global reach but less concentration in high-risk geopolitical zones.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 40.0,
+    '52_Week_Low': 28.0,
+    'Avg_Volume': 6.0,
+    'EPS': 1.12,
+    'Dividend_Yield': 2.8,
+    'Beta': 1.0
   },
   {
     Company: "Marvell Technology",
@@ -1192,7 +1381,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 78,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 45,
-    Geopolitical_Notes: "Fabless model creates dependency on Asian foundries like TSMC, inheriting their geopolitical risks."
+    Geopolitical_Notes: "Fabless model creates dependency on Asian foundries like TSMC, inheriting their geopolitical risks.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 80.0,
+    '52_Week_Low': 50.0,
+    'Avg_Volume': 10.0,
+    'EPS': -0.48,
+    'Dividend_Yield': 0.3,
+    'Beta': 1.7
   },
   {
     Company: "Delta Electronics",
@@ -1234,7 +1430,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 86,
     Geopolitical_Risk: GeopoliticalRiskLevel.VeryHigh,
     Geopolitical_Risk_Score: 85,
-    Geopolitical_Notes: "Taiwanese base of operations exposes the company to significant cross-strait geopolitical risks."
+    Geopolitical_Notes: "Taiwanese base of operations exposes the company to significant cross-strait geopolitical risks.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 12.5,
+    '52_Week_Low': 8.0,
+    'Avg_Volume': 5.0,
+    'EPS': 0.45,
+    'Dividend_Yield': 3.5,
+    'Beta': 0.9
   },
   {
     Company: "Schneider Electric",
@@ -1276,7 +1479,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 89,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 15,
-    Geopolitical_Notes: "French multinational with a diversified global presence, limiting exposure to single-country risk."
+    Geopolitical_Notes: "French multinational with a diversified global presence, limiting exposure to single-country risk.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 250.0,
+    '52_Week_Low': 180.0,
+    'Avg_Volume': 1.0,
+    'EPS': 9.32,
+    'Dividend_Yield': 1.5,
+    'Beta': 1.0
   },
   {
     Company: "Generac",
@@ -1318,7 +1528,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 71,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 10,
-    Geopolitical_Notes: "Primarily focused on the North American market, providing strong insulation from international geopolitical events."
+    Geopolitical_Notes: "Primarily focused on the North American market, providing strong insulation from international geopolitical events.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 150.0,
+    '52_Week_Low': 110.0,
+    'Avg_Volume': 1.2,
+    'EPS': 3.25,
+    'Dividend_Yield': 0.0,
+    'Beta': 2.2
   },
   {
     Company: "Shin-Etsu Chemical",
@@ -1360,7 +1577,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 85,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 30,
-    Geopolitical_Notes: "Japanese base provides stability, but proximity to regional tensions in Asia poses a moderate risk."
+    Geopolitical_Notes: "Japanese base provides stability, but proximity to regional tensions in Asia poses a moderate risk.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 42.0,
+    '52_Week_Low': 30.0,
+    'Avg_Volume': 2.5,
+    'EPS': 1.91,
+    'Dividend_Yield': 1.8,
+    'Beta': 0.8
   },
   {
     Company: "Entegris",
@@ -1402,7 +1626,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 82,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 25,
-    Geopolitical_Notes: "US-based specialty provider, but sales are global and can be impacted by customer-side geopolitical issues (e.g., fabs in Taiwan)."
+    Geopolitical_Notes: "US-based specialty provider, but sales are global and can be impacted by customer-side geopolitical issues (e.g., fabs in Taiwan).",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 140.0,
+    '52_Week_Low': 95.0,
+    'Avg_Volume': 1.1,
+    'EPS': 1.92,
+    'Dividend_Yield': 0.3,
+    'Beta': 1.5
   },
   {
     Company: "DuPont",
@@ -1444,7 +1675,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 79,
     Geopolitical_Risk: GeopoliticalRiskLevel.Low,
     Geopolitical_Risk_Score: 20,
-    Geopolitical_Notes: "A diversified US chemical giant with a global footprint that provides resilience against regional disruptions."
+    Geopolitical_Notes: "A diversified US chemical giant with a global footprint that provides resilience against regional disruptions.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 85.0,
+    '52_Week_Low': 68.0,
+    'Avg_Volume': 2.8,
+    'EPS': 6.62,
+    'Dividend_Yield': 1.8,
+    'Beta': 1.1
   },
   {
     Company: "Dell Technologies",
@@ -1486,7 +1724,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 80,
     Geopolitical_Risk: GeopoliticalRiskLevel.Medium,
     Geopolitical_Risk_Score: 40,
-    Geopolitical_Notes: "Relies on a complex global supply chain, with significant manufacturing and component sourcing in Asia."
+    Geopolitical_Notes: "Relies on a complex global supply chain, with significant manufacturing and component sourcing in Asia.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 150.0,
+    '52_Week_Low': 70.0,
+    'Avg_Volume': 12.0,
+    'EPS': 4.67,
+    'Dividend_Yield': 1.1,
+    'Beta': 1.4
   },
   {
     Company: "Quanta Computer",
@@ -1528,7 +1773,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 76,
     Geopolitical_Risk: GeopoliticalRiskLevel.VeryHigh,
     Geopolitical_Risk_Score: 85,
-    Geopolitical_Notes: "As a Taiwan-based ODM, it faces direct geopolitical risks and supply chain concentration issues."
+    Geopolitical_Notes: "As a Taiwan-based ODM, it faces direct geopolitical risks and supply chain concentration issues.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 10.0,
+    '52_Week_Low': 6.0,
+    'Avg_Volume': 20.0,
+    'EPS': 0.41,
+    'Dividend_Yield': 3.2,
+    'Beta': 1.0
   },
   {
     Company: "Wiwynn",
@@ -1570,7 +1822,14 @@ export const companiesData: Company[] = [
     Probability_Of_Success: 77,
     Geopolitical_Risk: GeopoliticalRiskLevel.VeryHigh,
     Geopolitical_Risk_Score: 85,
-    Geopolitical_Notes: "A spin-off of Wistron, this Taiwan-based ODM carries the same high level of geopolitical risk."
+    Geopolitical_Notes: "A spin-off of Wistron, this Taiwan-based ODM carries the same high level of geopolitical risk.",
+    // FIX: Add missing financial metric fields
+    '52_Week_High': 90.0,
+    '52_Week_Low': 50.0,
+    'Avg_Volume': 2.0,
+    'EPS': 3.40,
+    'Dividend_Yield': 1.5,
+    'Beta': 1.3
   }
 ];
 

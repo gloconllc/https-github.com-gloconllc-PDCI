@@ -164,6 +164,18 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                             {visibleColumns.has('Growth_Driver') && (
                                 <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Growth Driver</th>
                             )}
+                             {visibleColumns.has('52_Week_High') && (
+                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">52W High</th>
+                            )}
+                            {visibleColumns.has('EPS') && (
+                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">EPS</th>
+                            )}
+                            {visibleColumns.has('Dividend_Yield') && (
+                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Div Yield</th>
+                            )}
+                            {visibleColumns.has('Beta') && (
+                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Beta</th>
+                            )}
                             <Th sortKey="Geopolitical_Risk_Score" onSort={onSort} sortConfig={sortConfig} className="hidden sm:table-cell">Geo Risk</Th>
                             <Th sortKey="ESG_Score" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">ESG</Th>
                             <Th sortKey="YTD_Performance" onSort={onSort} sortConfig={sortConfig} className="hidden md:table-cell">YTD %</Th>
@@ -228,6 +240,18 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                                     )}
                                     {visibleColumns.has('Growth_Driver') && (
                                         <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell" title={company.Growth_Driver}>{company.Growth_Driver}</td>
+                                    )}
+                                    {visibleColumns.has('52_Week_High') && (
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell font-mono">${company['52_Week_High'].toFixed(2)}</td>
+                                    )}
+                                    {visibleColumns.has('EPS') && (
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell font-mono">{company.EPS.toFixed(2)}</td>
+                                    )}
+                                    {visibleColumns.has('Dividend_Yield') && (
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell font-mono">{company.Dividend_Yield.toFixed(2)}%</td>
+                                    )}
+                                    {visibleColumns.has('Beta') && (
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell font-mono">{company.Beta.toFixed(2)}</td>
                                     )}
                                     <td className="p-3 whitespace-nowrap text-center font-mono hidden sm:table-cell cursor-pointer" onClick={() => onViewDetails(company)}>
                                         <span className={`font-bold ${getGeoRiskColor(company.Geopolitical_Risk_Score)}`}>

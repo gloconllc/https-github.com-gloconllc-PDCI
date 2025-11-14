@@ -127,14 +127,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-gray-300">PDCI Tier</h3>
-                    {filters.tiers.size > 0 && (
-                        <button 
-                            onClick={() => onFilterChange({ ...filters, tiers: new Set() })}
-                            className="text-xs text-accent-blue hover:underline"
-                        >
-                            Clear
-                        </button>
-                    )}
+                    <div className="flex items-center text-xs gap-2">
+                        <button onClick={() => onFilterChange({ ...filters, tiers: new Set(Object.values(InvestmentTier)) })} className="text-accent-blue hover:underline">Select All</button>
+                        {filters.tiers.size > 0 && (
+                             <button onClick={() => onFilterChange({ ...filters, tiers: new Set() })} className="text-accent-blue hover:underline">Clear</button>
+                        )}
+                    </div>
                 </div>
                 <div className="space-y-2">
                     {tierOptions.map((value) => (
@@ -247,14 +245,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-gray-300">Category</h3>
-                     {filters.category.size > 0 && (
-                        <button 
-                            onClick={() => onFilterChange({ ...filters, category: new Set() })}
-                            className="text-xs text-accent-blue hover:underline"
-                        >
-                            Clear
-                        </button>
-                    )}
+                     <div className="flex items-center text-xs gap-2">
+                        <button onClick={() => onFilterChange({ ...filters, category: new Set(categories) })} className="text-accent-blue hover:underline">Select All</button>
+                        {filters.category.size > 0 && (
+                            <button onClick={() => onFilterChange({ ...filters, category: new Set() })} className="text-accent-blue hover:underline">Clear</button>
+                        )}
+                    </div>
                 </div>
                 <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
                     {categories.map((value) => (
@@ -274,14 +270,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-gray-300">Sub Category</h3>
-                    {filters.subCategory.size > 0 && (
-                        <button
-                            onClick={() => onFilterChange({ ...filters, subCategory: new Set() })}
-                            className="text-xs text-accent-blue hover:underline"
-                        >
-                            Clear
-                        </button>
-                    )}
+                    <div className="flex items-center text-xs gap-2">
+                        <button onClick={() => onFilterChange({ ...filters, subCategory: new Set(subCategories) })} className="text-accent-blue hover:underline">Select All</button>
+                        {filters.subCategory.size > 0 && (
+                            <button onClick={() => onFilterChange({ ...filters, subCategory: new Set() })} className="text-accent-blue hover:underline">Clear</button>
+                        )}
+                    </div>
                 </div>
                 <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
                     {subCategories.map((value) => (
@@ -301,14 +295,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
              <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-gray-300">Supply Chain Role</h3>
-                    {filters.supplyChainRole.size > 0 && (
-                        <button
-                            onClick={() => onFilterChange({ ...filters, supplyChainRole: new Set() })}
-                            className="text-xs text-accent-blue hover:underline"
-                        >
-                            Clear
-                        </button>
-                    )}
+                    <div className="flex items-center text-xs gap-2">
+                        <button onClick={() => onFilterChange({ ...filters, supplyChainRole: new Set(supplyChainRoles) })} className="text-accent-blue hover:underline">Select All</button>
+                        {filters.supplyChainRole.size > 0 && (
+                            <button onClick={() => onFilterChange({ ...filters, supplyChainRole: new Set() })} className="text-accent-blue hover:underline">Clear</button>
+                        )}
+                    </div>
                 </div>
                 <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
                     {supplyChainRoles.map((value) => (
@@ -328,14 +320,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
              <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-gray-300">Geopolitical Risk</h3>
-                     {filters.geoRisks.size > 0 && (
-                        <button 
-                            onClick={() => onFilterChange({ ...filters, geoRisks: new Set() })}
-                            className="text-xs text-accent-blue hover:underline"
-                        >
-                            Clear
-                        </button>
-                    )}
+                     <div className="flex items-center text-xs gap-2">
+                        <button onClick={() => onFilterChange({ ...filters, geoRisks: new Set(Object.values(GeopoliticalRiskLevel)) })} className="text-accent-blue hover:underline">Select All</button>
+                        {filters.geoRisks.size > 0 && (
+                            <button onClick={() => onFilterChange({ ...filters, geoRisks: new Set() })} className="text-accent-blue hover:underline">Clear</button>
+                        )}
+                    </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                     {geoRiskOptions.map(risk => (
@@ -355,14 +345,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             <div>
                 <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-gray-300">Financial Risk</h3>
-                    {filters.risks.size > 0 && (
-                        <button 
-                            onClick={() => onFilterChange({ ...filters, risks: new Set() })}
-                            className="text-xs text-accent-blue hover:underline"
-                        >
-                            Clear
-                        </button>
-                    )}
+                    <div className="flex items-center text-xs gap-2">
+                        <button onClick={() => onFilterChange({ ...filters, risks: new Set(Object.values(RiskLevel)) })} className="text-accent-blue hover:underline">Select All</button>
+                        {filters.risks.size > 0 && (
+                            <button onClick={() => onFilterChange({ ...filters, risks: new Set() })} className="text-accent-blue hover:underline">Clear</button>
+                        )}
+                    </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                     {riskOptions.map(risk => (

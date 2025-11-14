@@ -1,6 +1,6 @@
 {
   "name": "PDCI Data Center Investment Dashboard",
-  "description": "Institutional-grade intelligence for the AI data center supply chain. Uncover non-obvious opportunities with the proprietary PDCI engine.",
+  "description": "Institutional-grade intelligence platform for identifying alpha opportunities and critical outliers in the global AI infrastructure ecosystem.",
   "requestFramePermissions": [
     "geolocation"
   ]

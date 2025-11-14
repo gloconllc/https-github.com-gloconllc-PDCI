@@ -33,6 +33,10 @@ const TOGGLEABLE_COLUMNS: { key: keyof Company; label: string }[] = [
     { key: 'Sub_Category', label: 'Sub Category' },
     { key: 'Supply_Chain_Role', label: 'Supply Chain Role' },
     { key: 'Growth_Driver', label: 'Growth Driver' },
+    { key: '52_Week_High', label: '52-Wk High' },
+    { key: 'EPS', label: 'EPS' },
+    { key: 'Dividend_Yield', label: 'Div. Yield' },
+    { key: 'Beta', label: 'Beta' },
 ];
 
 const ColumnToggleDropdown: React.FC<{
@@ -59,7 +63,7 @@ const ColumnToggleDropdown: React.FC<{
                 className="btn btn-secondary"
             >
                 <ToolsIcon />
-                <span className="hidden sm:inline">Columns</span>
+                <span className="hidden sm:inline">View Options</span>
             </button>
             {isOpen && (
                 <div className="absolute right-0 mt-2 w-56 glass-panel p-2 z-20">

@@ -7,13 +7,12 @@
  */
 import React, { useRef, useState, useEffect } from 'react';
 import { Company, FinancialHealthAnalysis, PredictiveAnalysis, GeopoliticalRiskLevel, StockPrediction } from '../types';
-import { CloseIcon, PlusIcon, DownloadIcon, DocumentTextIcon, CalculatorIcon, SparkleIcon, ExpandIcon, CompressIcon, GlobeIcon, BrainCircuitIcon, BookmarkIcon } from './icons/Icons';
+import { CloseIcon, PlusIcon, DownloadIcon, DocumentTextIcon, CalculatorIcon, SparkleIcon, ExpandIcon, CompressIcon, GlobeIcon, BrainCircuitIcon, BookmarkIcon, AcademicIcon, ThumbsUpIcon, ShieldIcon, PipelineIcon, CriticalityIcon } from './icons/Icons';
 import { companiesData } from '../constants';
 import { supplyChainData } from '../lib/supplyChainData';
 import SupplyChainVisualizer from './SupplyChainVisualizer';
 import StockChart from './StockChart';
 import PeerComparison from './PeerComparison';
-// FIX: Corrected function name from getPDCIStockPrediction to getAIStockPrediction.
 import { getFinancialHealthAnalysis, getPredictiveAnalysis, getAIStockPrediction } from '../lib/gemini';
 import DataContextVisualizer from './DataContextVisualizer';
 import ShareDropdown from './ShareDropdown';
@@ -38,13 +37,24 @@ const Stat: React.FC<{ label: string; value: string | number; subValue?: string;
 
 const findTerm = (term: string) => glossaryTerms.find(t => t.term === term)?.definition || 'No definition available.';
 
-const ScoreStat: React.FC<{ label: string; value: string | number | undefined; termKey: string; suffix?: string; maxValue?: number }> = ({ label, value, termKey, suffix = '', maxValue }) => {
+const ScoreStat: React.FC<{
+    label: string;
+    value: string | number | undefined;
+    termKey: string;
+    suffix?: string;
+    maxValue?: number;
+    icon?: React.ReactNode;
+    invertScale?: boolean;
+}> = ({ label, value, termKey, suffix = '', maxValue, icon, invertScale = false }) => {
     if (value === undefined || value === null) {
         return null;
     }
     
     const getBarColor = (val: number, max: number) => {
-        const pct = (val / max) * 100;
+        let pct = (val / max) * 100;
+        if (invertScale) {
+            pct = 100 - Math.min(100, Math.max(0, pct)); // Clamp and invert
+        }
         if (pct >= 80) return 'bg-accent-green';
         if (pct >= 60) return 'bg-accent-blue';
         if (pct >= 40) return 'bg-yellow-400';
@@ -54,7 +64,10 @@ const ScoreStat: React.FC<{ label: string; value: string | number | undefined; t
     return (
         <div className="bg-black/20 p-2 rounded-md" title={findTerm(termKey)}>
             <div className="flex justify-between items-baseline">
-                <h4 className="text-xs text-gray-400 uppercase tracking-wider">{label}</h4>
+                <div className="flex items-center gap-1.5">
+                    {icon && <span className="text-gray-500">{icon}</span>}
+                    <h4 className="text-xs text-gray-400 uppercase tracking-wider">{label}</h4>
+                </div>
                 <p className="text-lg font-bold text-gray-100">{value}{suffix}</p>
             </div>
             {maxValue && typeof value === 'number' && (
@@ -345,14 +358,15 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                 <div className="glass-panel p-4">
                                     <h3 className="font-semibold text-gray-200 mb-3 flex items-center gap-2"><BrainCircuitIcon /> PDCI Proprietary Intelligence</h3>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <ScoreStat label="Universal Score" value={company.Universal_Score} termKey="Universal Score" maxValue={100} />
-                                        <ScoreStat label="Buy Rank" value={company.Buy_Rank} termKey="Buy Rank" />
-                                        <ScoreStat label="Criticality" value={company.Criticality} termKey="Criticality" maxValue={10} />
-                                        <ScoreStat label="Geo Risk Score" value={company.Geopolitical_Risk_Score} termKey="Geopolitical_Risk_Score" maxValue={100} />
-                                        <ScoreStat label="SCSI" value={company.SCSI} termKey="SCSI" maxValue={500} />
-                                        <ScoreStat label="Graham Score" value={company.Graham_Score} termKey="Graham Score" maxValue={10} />
-                                        <ScoreStat label="Psych Score" value={company.Psych_Score} termKey="Psych Score" maxValue={100} />
-                                        <ScoreStat label="Success Prob." value={company.Probability_Of_Success} termKey="Probability_Of_Success" suffix="%" maxValue={100} />
+                                        <ScoreStat icon={<SparkleIcon className="w-4 h-4"/>} label="Universal Score" value={company.Universal_Score} termKey="Universal Score" maxValue={100} />
+                                        <ScoreStat icon={<div className="font-bold text-gray-500 w-4 h-4 text-center text-sm">#</div>} label="Buy Rank" value={company.Buy_Rank} termKey="Buy Rank" invertScale={true} maxValue={companiesData.length} />
+                                        <ScoreStat icon={<CriticalityIcon className="w-4 h-4" />} label="Criticality" value={company.Criticality} termKey="Criticality" maxValue={10} />
+                                        <ScoreStat icon={<GlobeIcon className="w-4 h-4" />} label="Geo Risk Score" value={company.Geopolitical_Risk_Score} termKey="Geopolitical_Risk_Score" maxValue={100} invertScale={true} />
+                                        <ScoreStat icon={<ShieldIcon className="w-4 h-4" />} label="Substitutability" value={company.Substitutability_Score} termKey="Substitutability Score" maxValue={100} invertScale={true} />
+                                        <ScoreStat icon={<PipelineIcon className="w-4 h-4" />} label="SCSI" value={company.SCSI} termKey="SCSI" maxValue={500} />
+                                        <ScoreStat icon={<AcademicIcon className="w-4 h-4" />} label="Graham Score" value={company.Graham_Score} termKey="Graham Score" maxValue={10} />
+                                        <ScoreStat icon={<BrainCircuitIcon className="w-4 h-4" />} label="Psych Score" value={company.Psych_Score} termKey="Psych Score" maxValue={100} />
+                                        <ScoreStat icon={<ThumbsUpIcon className="w-4 h-4" />} label="Success Prob." value={company.Probability_Of_Success} termKey="Probability_Of_Success" suffix="%" maxValue={100} />
                                     </div>
                                 </div>
                                 <div className="glass-panel p-4">
@@ -360,8 +374,13 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                     <div className="grid grid-cols-2 gap-3">
                                         <Stat label="P/E Ratio" value={company.PE_Ratio.toFixed(1)} subValue={`Fwd: ${company.Forward_PE.toFixed(1)}`} />
                                         <Stat label="Rev Growth (YoY)" value={`${company.Revenue_Growth_YoY.toFixed(1)}%`} className={growthColor} />
-                                        <Stat label="Debt-to-Equity" value={company.Debt_to_Equity.toFixed(2)} />
                                         <Stat label="Market Cap (B)" value={`$${company.Market_Cap_B.toFixed(1)}`} />
+                                        <Stat label="EPS" value={company.EPS.toFixed(2)} />
+                                        <Stat label="52-Wk Range" value={`${company['52_Week_Low'].toFixed(2)} - ${company['52_Week_High'].toFixed(2)}`} />
+                                        <Stat label="Avg Volume (M)" value={company.Avg_Volume.toFixed(2)} />
+                                        <Stat label="Div Yield" value={`${company.Dividend_Yield.toFixed(2)}%`} />
+                                        <Stat label="Beta" value={company.Beta.toFixed(2)} />
+                                        <Stat label="Debt-to-Equity" value={company.Debt_to_Equity.toFixed(2)} />
                                     </div>
                                 </div>
                                 <PeerComparison company={company} allCompanies={companiesData} onViewDetails={viewCompanyDetails} />

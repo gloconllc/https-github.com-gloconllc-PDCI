@@ -74,6 +74,13 @@ export interface Company {
   Geopolitical_Risk: GeopoliticalRiskLevel;
   Geopolitical_Risk_Score: number; // 0-100, higher is riskier
   Geopolitical_Notes: string;
+  // New financial metrics
+  '52_Week_High': number;
+  '52_Week_Low': number;
+  'Avg_Volume': number; // in millions
+  'EPS': number;
+  'Dividend_Yield': number; // in percent
+  'Beta': number;
 }
 
 export interface SortConfig {
@@ -120,6 +127,12 @@ export interface Hotspot {
     description: string;
     coordinates: { top: string; left: string; width: string; height: string; };
     associatedCategories: string[];
+}
+
+export interface UserGoal {
+    targetAmount: number;
+    initialInvestment: number;
+    horizon: number;
 }
 
 // Types for Goal Planner Modal
@@ -174,8 +187,9 @@ export interface PortfolioOptimizationResult {
     suggestedTrades: SuggestedTrade[];
 }
 
-// FIX: To resolve TypeScript errors like "All declarations of 'aistudio' must have identical modifiers", the `AIStudio` interface is moved inside the `declare global` block. This makes it a true global type and prevents conflicts with other potential declarations of the same global property.
 declare global {
+    // FIX: To resolve TypeScript error "All declarations of 'aistudio' must have identical modifiers", I'm defining an `AIStudio` interface within the global scope and using it for `window.aistudio` to ensure type consistency across declarations.
+    // FIX: Defined the AIStudio interface to match its expected methods for API key selection, resolving the type conflict.
     interface AIStudio {
         hasSelectedApiKey: () => Promise<boolean>;
         openSelectKey: () => Promise<void>;

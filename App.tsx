@@ -6,7 +6,7 @@
  * This software is for institutional use only. All rights reserved.
  */
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Company, SortConfig, InvestmentTier, RiskLevel, GeopoliticalRiskLevel, StockPrediction } from './types';
+import { Company, SortConfig, InvestmentTier, RiskLevel, GeopoliticalRiskLevel, StockPrediction, UserGoal } from './types';
 import { companiesData } from './constants';
 import Header from './components/Header';
 import FilterSidebar from './components/FilterSidebar';
@@ -14,7 +14,6 @@ import CompanyModal from './components/CompanyModal';
 import GlossaryModal from './components/GlossaryModal';
 import UpdateModal from './components/UpdateModal';
 import NewsTicker from './components/NewsTicker';
-// FIX: Corrected function name from getPDCIStockPrediction to getAIStockPrediction.
 import { getMarketNews, NewsItem, getAIStockPrediction } from './lib/gemini';
 import PDCISyncModal from './components/AISyncModal';
 import HistoricalBacktestModal from './components/HistoricalBacktestModal';
@@ -29,36 +28,67 @@ import RightSidebar from './components/RightSidebar';
 import GoalPlannerModal from './components/GoalPlannerModal';
 import ScenarioAnalysisModal from './components/ScenarioAnalysisModal';
 
+const initialFilters = {
+    search: '',
+    tiers: new Set<InvestmentTier>(),
+    risks: new Set<RiskLevel>(),
+    geoRisks: new Set<GeopoliticalRiskLevel>(),
+    category: new Set<string>(),
+    subCategory: new Set<string>(),
+    supplyChainRole: new Set<string>(),
+    growthDriver: '',
+    maxPE: '',
+    minGrowth: '',
+    minCriticality: '',
+    minUnivScore: '',
+    showBlueChips: true,
+    minESG: '',
+    buyRank: '',
+};
+
+// Helper to load state once from localStorage
+const loadInitialState = () => {
+    try {
+        const savedStateJSON = localStorage.getItem('pdci_state');
+        if (savedStateJSON) {
+            const savedState = JSON.parse(savedStateJSON);
+            return {
+                filters: savedState.filters ? { ...initialFilters, ...savedState.filters, tiers: new Set(savedState.filters.tiers), risks: new Set(savedState.filters.risks), geoRisks: new Set(savedState.filters.geoRisks), category: new Set(savedState.filters.category), subCategory: new Set(savedState.filters.subCategory), supplyChainRole: new Set(savedState.filters.supplyChainRole) } : initialFilters,
+                portfolio: savedState.portfolioTickers ? companiesData.filter(c => savedState.portfolioTickers.includes(c.Ticker)) : companiesData.slice(0, 5),
+                watchlist: savedState.watchlistTickers ? companiesData.filter(c => savedState.watchlistTickers.includes(c.Ticker)) : companiesData.filter(c => ['CRDO', 'MP', 'NXT'].includes(c.Ticker)),
+                userGoal: savedState.userGoal || null,
+            };
+        }
+    } catch (e) {
+        console.error("Failed to load state from localStorage", e);
+    }
+    // Default state for first-time users
+    return {
+        filters: initialFilters,
+        portfolio: companiesData.slice(0, 5),
+        watchlist: companiesData.filter(c => ['CRDO', 'MP', 'NXT'].includes(c.Ticker)),
+        userGoal: null,
+    };
+};
+
 
 const App: React.FC = () => {
+    // Load initial state once
+    const { filters: initialLoadedFilters, portfolio: initialPortfolio, watchlist: initialWatchlist, userGoal: initialUserGoal } = useMemo(loadInitialState, []);
+
     // Data and Filtering State
     const [companies, setCompanies] = useState<Company[]>(companiesData);
     const [sortConfig, setSortConfig] = useState<SortConfig | null>({ key: 'Universal_Score', direction: 'descending' });
-    const [filters, setFilters] = useState({
-        search: '',
-        tiers: new Set<InvestmentTier>(),
-        risks: new Set<RiskLevel>(),
-        geoRisks: new Set<GeopoliticalRiskLevel>(),
-        category: new Set<string>(),
-        subCategory: new Set<string>(),
-        supplyChainRole: new Set<string>(),
-        growthDriver: '',
-        maxPE: '',
-        minGrowth: '',
-        minCriticality: '',
-        minUnivScore: '',
-        showBlueChips: true,
-        minESG: '',
-        buyRank: '',
-    });
+    const [filters, setFilters] = useState(initialLoadedFilters);
 
     // UI State
     const [isUpdating, setIsUpdating] = useState(false);
     const [lastUpdated, setLastUpdated] = useState(new Date());
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-    const [portfolio, setPortfolio] = useState<Company[]>(companiesData.slice(0, 5)); // Initial portfolio
-    const [watchlist, setWatchlist] = useState<Company[]>(companiesData.filter(c => ['CRDO', 'MP', 'NXT'].includes(c.Ticker))); // Initial watchlist
+    const [portfolio, setPortfolio] = useState<Company[]>(initialPortfolio);
+    const [watchlist, setWatchlist] = useState<Company[]>(initialWatchlist);
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+    const [userGoal, setUserGoal] = useState<UserGoal | null>(initialUserGoal);
 
     // Modal States
     const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
@@ -87,6 +117,17 @@ const App: React.FC = () => {
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const [locationStatus, setLocationStatus] = useState<string>('Initializing...');
 
+    // State Persistence
+    useEffect(() => {
+        const stateToSave = {
+            filters: { ...filters, tiers: [...filters.tiers], risks: [...filters.risks], geoRisks: [...filters.geoRisks], category: [...filters.category], subCategory: [...filters.subCategory], supplyChainRole: [...filters.supplyChainRole] },
+            portfolioTickers: portfolio.map(c => c.Ticker),
+            watchlistTickers: watchlist.map(c => c.Ticker),
+            userGoal,
+        };
+        localStorage.setItem('pdci_state', JSON.stringify(stateToSave));
+    }, [filters, portfolio, watchlist, userGoal]);
+
     // Handlers
     const handleUpdate = () => {
         setIsUpdating(true);
@@ -94,6 +135,8 @@ const App: React.FC = () => {
             const updatedCompanies = companies.map(c => ({
                 ...c,
                 Current_Price_USD: c.Current_Price_USD * (1 + (Math.random() - 0.45) * 0.1),
+                '52_Week_High': Math.max(c['52_Week_High'], c.Current_Price_USD * (1 + Math.random() * 0.05)),
+                 Avg_Volume: c.Avg_Volume * (1 + (Math.random() - 0.5) * 0.2),
             }));
             setCompanies(updatedCompanies);
             setLastUpdated(new Date());
@@ -293,7 +336,6 @@ const App: React.FC = () => {
         return filtered;
     }, [companies, filters, sortConfig]);
 
-
     return (
         <div className="min-h-screen bg-gray-900 text-gray-100 font-sans flex flex-col">
             <Header
@@ -341,6 +383,7 @@ const App: React.FC = () => {
                             onViewDetails={setSelectedCompany}
                             onAddToPortfolio={handleAddToPortfolio}
                             onAddToWatchlist={handleAddToWatchlist}
+                            // FIX: Changed onSort to handleSort to match the defined handler function.
                             onSort={handleSort}
                             sortConfig={sortConfig}
                             predictions={predictions}
@@ -357,6 +400,7 @@ const App: React.FC = () => {
                             onRemoveFromWatchlist={handleRemoveFromWatchlist}
                             onViewDetails={setSelectedCompany}
                             allCompanies={companies}
+                            userGoal={userGoal}
                          />
                     </div>
                 </div>
@@ -381,7 +425,7 @@ const App: React.FC = () => {
             {isBacktestOpen && <HistoricalBacktestModal onClose={() => setIsBacktestOpen(false)} portfolio={portfolio} allCompanies={companies} />}
             {isCommentaryOpen && <MarketCommentaryModal onClose={() => setIsCommentaryOpen(false)} isLoading={isCommentaryLoading} commentary={marketCommentary} allCompanies={companies} newsItems={newsItems.slice(0, 3)} />}
             {isOpportunityPipelineOpen && <OpportunityPipelineModal onClose={() => setIsOpportunityPipelineOpen(false)} allCompanies={companies} portfolio={portfolio} />}
-            {isGoalPlannerOpen && <GoalPlannerModal onClose={() => setIsGoalPlannerOpen(false)} contextCompanies={filteredAndSortedCompanies} />}
+            {isGoalPlannerOpen && <GoalPlannerModal onClose={() => setIsGoalPlannerOpen(false)} contextCompanies={filteredAndSortedCompanies} onSetGoal={setUserGoal} />}
             {isScenarioAnalysisOpen && <ScenarioAnalysisModal onClose={() => setIsScenarioAnalysisOpen(false)} portfolio={portfolio} />}
 
 

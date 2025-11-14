@@ -6,7 +6,7 @@
  * This software is for institutional use only. All rights reserved.
  */
 import React, { useState } from 'react';
-import { Company } from '../types';
+import { Company, UserGoal } from '../types';
 import PortfolioSidebar from './PortfolioSidebar';
 import PDCIChat from './AIChat';
 import Watchlist from './Watchlist';
@@ -19,11 +19,12 @@ interface RightSidebarProps {
     onRemoveFromWatchlist: (ticker: string) => void;
     onViewDetails: (company: Company) => void;
     allCompanies: Company[];
+    userGoal: UserGoal | null;
 }
 
 type ActiveTab = 'portfolio' | 'watchlist' | 'chat';
 
-const RightSidebar: React.FC<RightSidebarProps> = ({ portfolio, onRemoveFromPortfolio, watchlist, onRemoveFromWatchlist, onViewDetails, allCompanies }) => {
+const RightSidebar: React.FC<RightSidebarProps> = ({ portfolio, onRemoveFromPortfolio, watchlist, onRemoveFromWatchlist, onViewDetails, allCompanies, userGoal }) => {
     const [activeTab, setActiveTab] = useState<ActiveTab>('portfolio');
 
     const tabs = [
@@ -58,6 +59,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ portfolio, onRemoveFromPort
                         onRemove={onRemoveFromPortfolio}
                         onViewDetails={onViewDetails}
                         allCompanies={allCompanies}
+                        userGoal={userGoal}
                     />
                 )}
                 {activeTab === 'watchlist' && (
