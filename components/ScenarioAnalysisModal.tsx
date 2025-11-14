@@ -9,6 +9,7 @@ import React, { useState, useCallback } from 'react';
 import { Company } from '../types';
 import { CloseIcon, SparkleIcon, WarningIcon, ThumbsUpIcon } from './icons/Icons';
 import { getChatResponse } from '../lib/gemini'; // Re-using for simplicity
+import MarkdownRenderer from './MarkdownRenderer';
 
 interface ScenarioAnalysisModalProps {
     onClose: () => void;
@@ -72,7 +73,7 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
             1. Provide a brief (2-3 sentences) overview of the immediate impact of this scenario on the AI data center supply chain.
             2. Identify the **most impacted companies** (both positive and negative) in the portfolio and explain why in a bulleted list.
             3. Suggest **1-2 strategic considerations** for the portfolio owner in light of this scenario.
-            Use markdown for formatting.
+            Use markdown for formatting, with headers and bold text.
         `;
 
         try {
@@ -86,22 +87,6 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
         }
 
     }, [portfolio]);
-
-    const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
-        const lines = content.split('\n');
-        return (
-            <div className="prose prose-invert prose-sm max-w-none text-gray-300">
-                {lines.map((line, i) => {
-                    if (line.startsWith('### ')) return <h3 key={i} className="text-lg font-semibold mt-4 mb-2 text-gray-100">{line.replace('### ', '')}</h3>;
-                    if (line.match(/^\s*(\*|-)\s/)) {
-                        return <li key={i} className="my-1 ml-4 list-disc">{line.replace(/^\s*(\*|-)\s/, '')}</li>;
-                    }
-                    if (line.trim() === '') return <br key={i} />;
-                    return <p key={i} className="my-2">{line}</p>;
-                })}
-            </div>
-        );
-    };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose}>

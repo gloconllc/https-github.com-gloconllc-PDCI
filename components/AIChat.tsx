@@ -9,6 +9,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { getChatResponse, getDeepAnalysisResponse, GeminiResponse } from '../lib/gemini';
 import { Company } from '../types';
 import { SendIcon, SparkleIcon, CloseIcon, LinkIcon } from './icons/Icons';
+import MarkdownRenderer from './MarkdownRenderer';
 
 // FIX: Removed declare global block to prevent type conflicts.
 // Global types are now centralized in `types.ts`.
@@ -97,7 +98,7 @@ const PDCIChat: React.FC<PDCIChatProps> = ({ companies }) => {
                     <div key={index}>
                         <div className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`rounded-lg p-3 max-w-xs md:max-w-sm break-words ${msg.type === 'user' ? 'bg-accent-blue text-white' : 'bg-gray-800 text-gray-200'}`}>
-                                <pre className="whitespace-pre-wrap font-sans text-sm">{msg.text}</pre>
+                                {msg.type === 'ai' ? <MarkdownRenderer content={msg.text} /> : <p className="whitespace-pre-wrap font-sans text-sm">{msg.text}</p>}
                             </div>
                         </div>
                         {msg.type === 'ai' && msg.groundingMetadata?.groundingChunks?.length > 0 && (

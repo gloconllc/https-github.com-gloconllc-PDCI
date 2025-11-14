@@ -95,23 +95,24 @@ const PortfolioSidebar: React.FC<PortfolioSidebarProps> = ({ portfolio, onRemove
         const totalMarketCap = portfolio.reduce((sum, c) => sum + c.Market_Cap_B, 0);
         if (totalMarketCap === 0) return { avgPE: 0, avgGrowth: 0, avgGeoRisk: 0, compositionByCategory: [], compositionByRisk: [] };
 
-        const avgPE = portfolio.reduce((sum, c) => sum + (c.PE_Ratio * c.Market_Cap_B), 0) / totalMarketCap;
-        const avgGrowth = portfolio.reduce((sum, c) => sum + (c.Revenue_Growth_YoY * c.Market_Cap_B), 0) / totalMarketCap;
-        const avgGeoRisk = portfolio.reduce((sum, c) => sum + (c.Geopolitical_Risk_Score * c.Market_Cap_B), 0) / totalMarketCap;
+        // FIX: Explicitly typed reduce callback parameters to resolve arithmetic operation errors.
+        const avgPE = portfolio.reduce((sum: number, c: Company) => sum + (c.PE_Ratio * c.Market_Cap_B), 0) / totalMarketCap;
+        const avgGrowth = portfolio.reduce((sum: number, c: Company) => sum + (c.Revenue_Growth_YoY * c.Market_Cap_B), 0) / totalMarketCap;
+        const avgGeoRisk = portfolio.reduce((sum: number, c: Company) => sum + (c.Geopolitical_Risk_Score * c.Market_Cap_B), 0) / totalMarketCap;
 
-        // FIX: Explicitly typed the accumulator for the reduce function using a generic to prevent type inference errors on arithmetic operations.
-        const byCategory = portfolio.reduce<Record<string, number>>((acc, company) => {
+        // FIX: To resolve "Untyped function calls may not accept type arguments", removed the generic from the `reduce` call and instead typed the accumulator argument and cast the initial value.
+        const byCategory = portfolio.reduce((acc: Record<string, number>, company) => {
             const weight = (company.Market_Cap_B / totalMarketCap) * 100;
             acc[company.Category] = (acc[company.Category] || 0) + weight;
             return acc;
-        }, {});
+        }, {} as Record<string, number>);
 
-        // FIX: Explicitly typed the accumulator for the reduce function using a generic to prevent type inference errors on arithmetic operations.
-        const byRisk = portfolio.reduce<Record<string, number>>((acc, company) => {
+        // FIX: To resolve "Untyped function calls may not accept type arguments", removed the generic from the `reduce` call and instead typed the accumulator argument and cast the initial value.
+        const byRisk = portfolio.reduce((acc: Record<string, number>, company) => {
             const weight = (company.Market_Cap_B / totalMarketCap) * 100;
             acc[company.Risk_Level] = (acc[company.Risk_Level] || 0) + weight;
             return acc;
-        }, {});
+        }, {} as Record<string, number>);
 
         const compositionByCategory = Object.entries(byCategory).map(([label, value]) => ({ label, value })).sort((a,b) => b.value - a.value);
         const compositionByRisk = Object.entries(byRisk).map(([label, value]) => ({ label, value })).sort((a,b) => b.value - a.value);

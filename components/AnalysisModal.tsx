@@ -9,6 +9,7 @@ import React, { useRef, useState } from 'react';
 import { CloseIcon, SparkleIcon, DownloadIcon, ThumbsUpIcon, WarningIcon, LightbulbIcon, ShieldIcon, ExpandIcon, CompressIcon } from './icons/Icons';
 import { PortfolioAnalysisResult } from '../lib/gemini';
 import ShareDropdown from './ShareDropdown';
+import MarkdownRenderer from './MarkdownRenderer';
 
 // --- Embedded Components ---
 
@@ -95,48 +96,6 @@ const BarChart: React.FC<BarChartProps> = ({ data, title }) => {
     );
 };
 
-// Markdown Renderer
-const MarkdownRenderer: React.FC<{ content: string | null }> = ({ content }) => {
-    if (!content) return null;
-
-    const renderLine = (line: string, key: number) => {
-        if (line.trim().startsWith('###')) {
-            return <h3 key={key} className="text-lg font-semibold text-gray-200 mt-4 mb-2">{line.replace('###', '').trim()}</h3>;
-        }
-        if (line.trim().startsWith('**') && line.trim().endsWith('**')) {
-             return <p key={key}><strong className="font-semibold text-gray-100">{line.slice(2, -2)}</strong></p>;
-        }
-        if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-            const cleanLine = line.trim().substring(line.trim().indexOf(' ') + 1);
-            const parts = cleanLine.split(/(\*\*.*?\*\*)/g).map((part, i) =>
-                part.startsWith('**') && part.endsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part
-            );
-            return <li key={key} className="flex items-start"><span className="mr-2 mt-1 text-accent-blue">•</span><span>{parts}</span></li>;
-        }
-        if (line.trim() === '') {
-            return <br key={key} />;
-        }
-        return <p key={key} className="text-gray-300 my-2">{line}</p>;
-    };
-
-    const lines = content.split('\n');
-    const listItems = lines.filter(line => line.trim().startsWith('- ') || line.trim().startsWith('* '));
-    const nonListItems = lines.filter(line => !line.trim().startsWith('- ') && !line.trim().startsWith('* '));
-
-    if (listItems.length > 0) {
-        return (
-            <>
-                {nonListItems.map(renderLine)}
-                <ul className="space-y-2 mt-2">
-                    {listItems.map(renderLine)}
-                </ul>
-            </>
-        )
-    }
-
-    return <>{lines.map(renderLine)}</>;
-};
-
 // Analysis Card
 const AnalysisCard: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
     <div className="glass-panel p-6 h-full">
@@ -164,7 +123,8 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose, isAnal
 
     const generatePdfBlob = async (): Promise<Blob | null> => {
         if (!reportRef.current) return null;
-        if (typeof window.html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+        // Correctly access jsPDF from the window object
+        if (typeof window.html2canvas === 'undefined' || typeof window.jspdf?.jsPDF === 'undefined') {
             alert('PDF generation library not loaded yet. Please wait a moment and try again.');
             return null;
         }
@@ -174,8 +134,7 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose, isAnal
             useCORS: true
         });
         const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
+        const pdf = new window.jspdf.jsPDF({
             orientation: 'portrait',
             unit: 'px',
             format: [canvas.width, canvas.height]

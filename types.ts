@@ -188,8 +188,7 @@ export interface PortfolioOptimizationResult {
 }
 
 declare global {
-    // FIX: To resolve TypeScript error "All declarations of 'aistudio' must have identical modifiers", I'm defining an `AIStudio` interface within the global scope and using it for `window.aistudio` to ensure type consistency across declarations.
-    // FIX: Defined the AIStudio interface to match its expected methods for API key selection, resolving the type conflict.
+    // FIX: To resolve "All declarations of 'aistudio' must have identical modifiers", global types are consolidated here.
     interface AIStudio {
         hasSelectedApiKey: () => Promise<boolean>;
         openSelectKey: () => Promise<void>;

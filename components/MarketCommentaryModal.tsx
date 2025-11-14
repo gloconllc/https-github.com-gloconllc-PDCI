@@ -10,6 +10,7 @@ import { CloseIcon, SparkleIcon, NewsIcon, DownloadIcon, ExpandIcon, CompressIco
 import { Company } from '../types';
 import { NewsItem } from '../lib/gemini';
 import ShareDropdown from './ShareDropdown';
+import MarkdownRenderer from './MarkdownRenderer';
 
 // FIX: Removed declare global block to prevent type conflicts.
 // Global types are now centralized in `types.ts`.
@@ -20,26 +21,6 @@ interface MarketCommentaryModalProps {
     allCompanies: Company[];
     newsItems: NewsItem[];
 }
-
-const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
-    const renderLine = (line: string, key: number) => {
-        if (line.startsWith('### ')) {
-            return <h3 key={key} className="text-lg font-semibold text-gray-200 mt-4 mb-2">{line.replace('### ', '')}</h3>;
-        }
-        if (line.startsWith('## ')) {
-            return <h2 key={key} className="text-xl font-bold text-gray-100 mt-5 mb-2 border-b border-white/10 pb-1">{line.replace('## ', '')}</h2>;
-        }
-        if (line.startsWith('* ')) {
-            return <li key={key} className="text-gray-300 my-1 ml-4 list-disc">{line.replace('* ', '')}</li>;
-        }
-        if (line.trim() === '') {
-            return <br key={key} />;
-        }
-        return <p key={key} className="text-gray-300 my-2">{line}</p>;
-    };
-
-    return <>{content.split('\n').map(renderLine)}</>;
-};
 
 const MarketMovers: React.FC<{ companies: Company[] }> = ({ companies }) => {
     const movers = useMemo(() => {
@@ -123,14 +104,18 @@ const MarketCommentaryModal: React.FC<MarketCommentaryModalProps> = ({ onClose, 
 
     const generatePdfBlob = async (): Promise<Blob | null> => {
         if (!reportRef.current) return null;
-        if (typeof window.html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+        // Correctly access jsPDF from the window object
+        if (typeof window.html2canvas === 'undefined' || typeof window.jspdf?.jsPDF === 'undefined') {
             alert('PDF generation library not loaded yet. Please wait a moment and try again.');
             return null;
         }
         const canvas = await window.html2canvas(reportRef.current, { backgroundColor: '#0A0E27', scale: 2, useCORS: true });
         const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
+        const pdf = new window.jspdf.jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
         return pdf.output('blob');
     };
@@ -205,7 +190,7 @@ const MarketCommentaryModal: React.FC<MarketCommentaryModalProps> = ({ onClose, 
                         ) : (
                             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                                 <div className="lg:col-span-3 space-y-6">
-                                    {commentary ? <MarkdownRenderer content={commentary} /> : <p className="text-gray-500">Could not load commentary.</p>}
+                                    <MarkdownRenderer content={commentary} />
                                 </div>
                                 <div className="lg:col-span-2 space-y-6">
                                     <div className="glass-panel p-4">
