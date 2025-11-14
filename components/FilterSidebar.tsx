@@ -14,13 +14,14 @@ interface FilterSidebarProps {
         tiers: Set<InvestmentTier>;
         risks: Set<RiskLevel>;
         geoRisks: Set<GeopoliticalRiskLevel>;
-        category: string;
+        category: Set<string>;
         maxPE: string;
         minGrowth: string;
         minCriticality: string;
         minUnivScore: string;
         showBlueChips: boolean;
         minESG: string;
+        buyRank: string;
     };
     onFilterChange: (filters: FilterSidebarProps['filters']) => void;
     categories: string[];
@@ -58,6 +59,16 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
         onFilterChange({ ...filters, geoRisks: newGeoRisks });
     }, [filters, onFilterChange]);
 
+    const handleCategoryChange = useCallback((category: string) => {
+        const newCategories = new Set(filters.category);
+        if (newCategories.has(category)) {
+            newCategories.delete(category);
+        } else {
+            newCategories.add(category);
+        }
+        onFilterChange({ ...filters, category: newCategories });
+    }, [filters, onFilterChange]);
+
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         onFilterChange({ ...filters, [e.target.name]: e.target.value });
     }, [filters, onFilterChange]);
@@ -89,7 +100,17 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             </div>
             
             <div className="mb-6">
-                <h3 className="font-semibold text-gray-300 mb-2">PDCI Tier</h3>
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-gray-300">PDCI Tier</h3>
+                    {filters.tiers.size > 0 && (
+                        <button 
+                            onClick={() => onFilterChange({ ...filters, tiers: new Set() })}
+                            className="text-xs text-accent-blue hover:underline"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
                 <div className="space-y-2">
                     {tierOptions.map((value) => (
                         <label key={value} className="flex items-center space-x-2 cursor-pointer">
@@ -135,6 +156,18 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                             <option value="10">10</option>
                         </select>
                     </div>
+                     <div>
+                        <label htmlFor="buyRank" className="block text-sm font-medium text-gray-400">Max Buy Rank</label>
+                        <input
+                            type="number"
+                            id="buyRank"
+                            name="buyRank"
+                            value={filters.buyRank}
+                            onChange={handleInputChange}
+                            placeholder="e.g., 20"
+                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                        />
+                    </div>
                     <div>
                         <label htmlFor="maxPE" className="block text-sm font-medium text-gray-400">Max P/E Ratio</label>
                         <input
@@ -175,22 +208,44 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             </div>
 
             <div className="mb-6">
-                <h3 className="font-semibold text-gray-300 mb-2">Category</h3>
-                <select
-                    name="category"
-                    value={filters.category}
-                    onChange={handleInputChange}
-                    className="w-full bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                >
-                    <option value="All">All Categories</option>
-                    {categories.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-gray-300">Category</h3>
+                     {filters.category.size > 0 && (
+                        <button 
+                            onClick={() => onFilterChange({ ...filters, category: new Set() })}
+                            className="text-xs text-accent-blue hover:underline"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
+                <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
+                    {categories.map((value) => (
+                        <label key={value} className="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={filters.category.has(value)}
+                                onChange={() => handleCategoryChange(value)}
+                                className="h-4 w-4 rounded bg-gray-700 border-gray-600 text-accent-green focus:ring-accent-green"
+                            />
+                            <span className="text-gray-300 text-sm">{value}</span>
+                        </label>
                     ))}
-                </select>
+                </div>
             </div>
 
              <div className="mb-6">
-                <h3 className="font-semibold text-gray-300 mb-2">Geopolitical Risk</h3>
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-gray-300">Geopolitical Risk</h3>
+                     {filters.geoRisks.size > 0 && (
+                        <button 
+                            onClick={() => onFilterChange({ ...filters, geoRisks: new Set() })}
+                            className="text-xs text-accent-blue hover:underline"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                     {geoRiskOptions.map(risk => (
                         <label key={risk} className="flex items-center space-x-2 cursor-pointer text-sm">
@@ -207,7 +262,17 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             </div>
 
             <div>
-                <h3 className="font-semibold text-gray-300 mb-2">Financial Risk</h3>
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-gray-300">Financial Risk</h3>
+                    {filters.risks.size > 0 && (
+                        <button 
+                            onClick={() => onFilterChange({ ...filters, risks: new Set() })}
+                            className="text-xs text-accent-blue hover:underline"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                     {riskOptions.map(risk => (
                         <label key={risk} className="flex items-center space-x-2 cursor-pointer text-sm">

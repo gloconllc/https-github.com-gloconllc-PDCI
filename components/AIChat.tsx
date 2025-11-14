@@ -5,15 +5,14 @@
  *
  * This software is for institutional use only. All rights reserved.
  */
-import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { getChatResponse, getDeepAnalysisResponse, GeminiResponse } from '../lib/gemini';
 import { Company } from '../types';
 import { SendIcon, SparkleIcon, CloseIcon, LinkIcon } from './icons/Icons';
-import { ApiKeyContext } from '../context';
 
 // FIX: Removed declare global block to prevent type conflicts.
 // Global types are now centralized in `types.ts`.
-interface AIChatProps {
+interface PDCIChatProps {
     companies: Company[];
 }
 
@@ -23,8 +22,7 @@ interface Message {
     groundingMetadata?: any;
 }
 
-const AIChat: React.FC<AIChatProps> = ({ companies }) => {
-    const { setIsKeyReady } = useContext(ApiKeyContext);
+const PDCIChat: React.FC<PDCIChatProps> = ({ companies }) => {
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -52,14 +50,11 @@ const AIChat: React.FC<AIChatProps> = ({ companies }) => {
             setMessages(prev => [...prev, { type: 'ai', text: result.text, groundingMetadata: result.groundingMetadata }]);
         } catch (error) {
             console.error(error);
-            if (error instanceof Error && error.message.includes("Requested entity was not found.")) {
-                setIsKeyReady(false);
-            }
             setMessages(prev => [...prev, { type: 'ai', text: 'An error occurred. Please try again.' }]);
         } finally {
             setIsLoading(false);
         }
-    }, [query, companies, isLoading, isDeepAnalysis, setIsKeyReady]);
+    }, [query, companies, isLoading, isDeepAnalysis]);
 
     return (
         <div className="h-full flex flex-col">
@@ -150,4 +145,4 @@ const AIChat: React.FC<AIChatProps> = ({ companies }) => {
     );
 };
 
-export default AIChat;
+export default PDCIChat;

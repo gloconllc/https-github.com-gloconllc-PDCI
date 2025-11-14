@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { Company } from '../types';
 import PortfolioSidebar from './PortfolioSidebar';
-import AIChat from './AIChat';
+import PDCIChat from './AIChat';
 import { ClipboardCheckIcon, ChatBubbleIcon } from './icons/Icons';
 
 interface RightSidebarProps {
@@ -57,7 +57,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ portfolio, onRemoveFromPort
                     />
                 )}
                 {activeTab === 'chat' && (
-                    <AIChat companies={allCompanies} />
+                    <PDCIChat companies={allCompanies} />
                 )}
             </div>
         </div>

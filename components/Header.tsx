@@ -15,7 +15,7 @@ interface HeaderProps {
     searchValue: string;
     onSearchChange: (value: string) => void;
     onOpenGlossary: () => void;
-    onSyncAI: () => void;
+    onSyncPDCI: () => void;
     onOpenBacktest: () => void;
     onOpenCommentary: () => void;
     onOpenOpportunityPipeline: () => void;
@@ -24,7 +24,7 @@ interface HeaderProps {
 }
 
 const AnalysisToolsDropdown: React.FC<Omit<HeaderProps, 'onUpdate' | 'lastUpdated' | 'isUpdating' | 'searchValue' | 'onSearchChange' | 'locationStatus'>> = 
-({ onOpenGlossary, onOpenBacktest, onOpenOpportunityPipeline, onSyncAI, onOpenCommentary, onOpenGoalPlanner }) => {
+({ onOpenGlossary, onOpenBacktest, onOpenOpportunityPipeline, onSyncPDCI, onOpenCommentary, onOpenGoalPlanner }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -39,12 +39,11 @@ const AnalysisToolsDropdown: React.FC<Omit<HeaderProps, 'onUpdate' | 'lastUpdate
     }, []);
     
     const menuItems = [
-        { label: "AI Goal Planner", icon: <GoalIcon />, action: onOpenGoalPlanner },
-        { label: "Market Commentary", icon: <CommentaryIcon />, action: onOpenCommentary },
+        { label: "PDCI Goal Planner", icon: <GoalIcon />, action: onOpenGoalPlanner },
         { label: "Market Backtest", icon: <HistoryIcon />, action: onOpenBacktest },
         { label: "Opportunity Pipeline", icon: <PipelineIcon />, action: onOpenOpportunityPipeline },
         { label: "PDCI Metrics Glossary", icon: <GlossaryIcon />, action: onOpenGlossary },
-        { label: "Sync PDCI Models", icon: <BrainCircuitIcon />, action: onSyncAI },
+        { label: "Sync PDCI Models", icon: <BrainCircuitIcon />, action: onSyncPDCI },
     ];
 
     return (
@@ -123,6 +122,13 @@ const Header: React.FC<HeaderProps> = (props) => {
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <button
+                        onClick={props.onOpenCommentary}
+                        className="btn btn-secondary"
+                    >
+                        <CommentaryIcon />
+                        <span className="hidden lg:inline">Commentary</span>
+                    </button>
                     <AnalysisToolsDropdown {...props} />
                     <div className="flex flex-col items-end">
                         <button

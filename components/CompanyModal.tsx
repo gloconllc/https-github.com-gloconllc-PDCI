@@ -5,21 +5,20 @@
  *
  * This software is for institutional use only. All rights reserved.
  */
-import React, { useRef, useState, useEffect, useContext } from 'react';
-import { Company, FinancialHealthAnalysis, PredictiveAnalysis, GeopoliticalRiskLevel } from '../types';
+import React, { useRef, useState, useEffect } from 'react';
+import { Company, FinancialHealthAnalysis, PredictiveAnalysis, GeopoliticalRiskLevel, StockPrediction } from '../types';
 import { CloseIcon, PlusIcon, DownloadIcon, DocumentTextIcon, CalculatorIcon, SparkleIcon, ExpandIcon, CompressIcon, GlobeIcon, BrainCircuitIcon } from './icons/Icons';
 import { companiesData } from '../constants';
 import { supplyChainData } from '../lib/supplyChainData';
 import SupplyChainVisualizer from './SupplyChainVisualizer';
 import StockChart from './StockChart';
 import PeerComparison from './PeerComparison';
-import { getFinancialHealthAnalysis, getPredictiveAnalysis } from '../lib/gemini';
+// FIX: Corrected function name from getPDCIStockPrediction to getAIStockPrediction.
+import { getFinancialHealthAnalysis, getPredictiveAnalysis, getAIStockPrediction } from '../lib/gemini';
 import DataContextVisualizer from './DataContextVisualizer';
 import ShareDropdown from './ShareDropdown';
 import { terms as glossaryTerms } from './GlossaryModal';
-import { ApiKeyContext } from '../context';
 
-// FIX: Removed declare global block to prevent type conflicts.
 // Global types are now centralized in `types.ts`.
 interface CompanyModalProps {
     company: Company;
@@ -68,37 +67,37 @@ const ScoreStat: React.FC<{ label: string; value: string | number | undefined; t
 
 
 const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPortfolio, viewCompanyDetails }) => {
-    const { setIsKeyReady } = useContext(ApiKeyContext);
     const reportRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
     
-    // State for AI-generated analysis
+    // State for PDCI-generated analysis
     const [financialAnalysis, setFinancialAnalysis] = useState<FinancialHealthAnalysis | null>(null);
     const [predictiveAnalysis, setPredictiveAnalysis] = useState<PredictiveAnalysis | null>(null);
+    const [stockPrediction, setStockPrediction] = useState<StockPrediction | null>(null);
     const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(true);
 
     useEffect(() => {
         const fetchAnalysis = async () => {
             setIsLoadingAnalysis(true);
             try {
-                const [finHealth, predAnalysis] = await Promise.all([
+                const [finHealth, predAnalysis, stockPred] = await Promise.all([
                     getFinancialHealthAnalysis(company),
-                    getPredictiveAnalysis(company)
+                    getPredictiveAnalysis(company),
+                    // FIX: Corrected function name from getPDCIStockPrediction to getAIStockPrediction.
+                    getAIStockPrediction(company)
                 ]);
                 setFinancialAnalysis(finHealth);
                 setPredictiveAnalysis(predAnalysis);
+                setStockPrediction(stockPred);
             } catch (error) {
                 console.error("Failed to fetch company analysis:", error);
-                if (error instanceof Error && error.message.includes("Requested entity was not found.")) {
-                    setIsKeyReady(false);
-                }
             } finally {
                 setIsLoadingAnalysis(false);
             }
         };
         fetchAnalysis();
-    }, [company, setIsKeyReady]);
+    }, [company]);
 
     const generatePdfBlob = async (): Promise<Blob | null> => {
         if (!reportRef.current) return null;
@@ -160,6 +159,19 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
         [GeopoliticalRiskLevel.Medium]: 'bg-yellow-400/5',
         [GeopoliticalRiskLevel.High]: 'bg-orange-500/10',
         [GeopoliticalRiskLevel.VeryHigh]: 'bg-accent-red/10',
+    };
+
+    const getPredictionColor = (prediction: StockPrediction['prediction']) => {
+        switch (prediction) {
+            case 'Bullish':
+            case 'Outperform':
+                return 'text-accent-green';
+            case 'Bearish':
+            case 'Underperform':
+                return 'text-accent-red';
+            default:
+                return 'text-gray-300';
+        }
     };
 
     const AnalysisLoader: React.FC = () => (
@@ -253,6 +265,33 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                             </div>
                                         ) : <p className="text-sm text-gray-500">Outlook could not be generated.</p>}
                                     </div>
+                                </div>
+                                 <div className="glass-panel p-4">
+                                    <h3 className="font-semibold text-gray-200 mb-3 flex items-center gap-2"><BrainCircuitIcon /> PDCI Prediction</h3>
+                                    {isLoadingAnalysis ? <AnalysisLoader /> : stockPrediction ? (
+                                        <div className="space-y-3 text-sm">
+                                            <div className="flex justify-between items-baseline">
+                                                <span className="text-gray-400">Outlook ({stockPrediction.timescale})</span>
+                                                <span className={`text-xl font-bold ${getPredictionColor(stockPrediction.prediction)}`}>{stockPrediction.prediction}</span>
+                                            </div>
+                                            {stockPrediction.priceTarget && (
+                                                <div className="flex justify-between items-baseline">
+                                                    <span className="text-gray-400">Price Target</span>
+                                                    <span className="font-mono text-lg text-gray-200">${stockPrediction.priceTarget.toFixed(2)}</span>
+                                                </div>
+                                            )}
+                                            <div>
+                                                <span className="text-gray-400">Confidence</span>
+                                                <div className="w-full bg-gray-700 rounded-full h-2.5 mt-1">
+                                                    <div className="bg-accent-blue h-2.5 rounded-full" style={{ width: `${stockPrediction.confidence}%` }}></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-gray-300">Rationale:</p>
+                                                <p className="text-gray-400 italic">{stockPrediction.rationale}</p>
+                                            </div>
+                                        </div>
+                                    ) : <p className="text-sm text-gray-500">Prediction could not be generated.</p>}
                                 </div>
                                 <div className="glass-panel p-4">
                                     <h3 className="text-xl font-semibold text-gray-200 mb-3">Supply Chain Position</h3>

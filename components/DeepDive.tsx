@@ -87,20 +87,21 @@ const checkStrategyFit = (company: Company, strategy: Strategy | null): boolean 
 
 const getRoleIcon = (role: string) => {
     const lowerRole = role.toLowerCase();
+    // FIX: Removed invalid `title` prop from SVG icon components.
     if (lowerRole.includes('material') || lowerRole.includes('mining')) {
-        return <RawMaterialIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+        return <RawMaterialIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" />;
     }
     if (lowerRole.includes('component') || lowerRole.includes('specialty')) {
-        return <ComponentIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+        return <ComponentIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" />;
     }
     if (lowerRole.includes('integrator')) {
-        return <SystemIntegratorIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+        return <SystemIntegratorIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" />;
     }
     if (lowerRole.includes('software')) {
-        return <SoftwareIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+        return <SoftwareIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" />;
     }
     if (lowerRole.includes('infrastructure') || lowerRole.includes('bottleneck') || lowerRole.includes('equipment') || lowerRole.includes('power') || lowerRole.includes('distribution')) {
-        return <InfrastructureIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" title={role} />;
+        return <InfrastructureIcon className="w-4 h-4 text-gray-500 group-hover:text-gray-400" />;
     }
     return null;
 };
@@ -133,10 +134,12 @@ const CompanyCard: React.FC<{ company: Company; onViewDetails: (c: Company) => v
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                         <p className="font-semibold text-gray-200 text-sm truncate">{company.Company}</p>
-                        {isHighCriticality && <CriticalityIcon className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" title={`Criticality Score: ${company.Criticality}`} />}
+                        {/* FIX: Wrapped icon in a span with a title attribute for tooltip. */}
+                        {isHighCriticality && <span title={`Criticality Score: ${company.Criticality}`}><CriticalityIcon className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" /></span>}
                     </div>
                     <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
-                        {roleIcon}
+                        {/* FIX: Wrapped icon in a span with a title attribute for tooltip. */}
+                        {roleIcon && <span title={company.Supply_Chain_Role}>{roleIcon}</span>}
                         <span>{company.Ticker}</span>
                     </div>
                 </div>

@@ -6,7 +6,7 @@
  * This software is for institutional use only. All rights reserved.
  */
 import { GoogleGenAI, GenerateContentResponse, Type } from "@google/genai";
-import { Company, FinancialHealthAnalysis, PredictiveAnalysis, GoalPlannerResult } from "../types";
+import { Company, FinancialHealthAnalysis, PredictiveAnalysis, GoalPlannerResult, StockPrediction } from "../types";
 import { UpcomingProject } from "./upcomingProjects";
 
 // Types for AI responses
@@ -547,5 +547,44 @@ export const getPredictiveAnalysis = async (company: Company): Promise<Predictiv
             },
         },
     });
+    return JSON.parse(response.text.trim());
+};
+
+export const getAIStockPrediction = async (company: Company): Promise<StockPrediction> => {
+    const ai = getAiClient();
+    const prompt = `
+        System: ${systemInstruction}
+        Task: Perform a stock prediction analysis for the following company based *only* on the data provided. Act as a quantitative analyst. Your prediction should be grounded in the metrics given.
+
+        Company Data:
+        ${formatCompanyDataForPrompt([company])}
+
+        Generate a JSON object with your prediction.
+        - **prediction**: Your overall outlook. Choose one: 'Bullish', 'Neutral', 'Bearish', 'Outperform', 'Underperform'.
+        - **priceTarget**: An optional estimated price target. Base this on Forward P/E and growth, or state if not enough data.
+        - **confidence**: Your confidence in this prediction (0-100), based on data quality and clarity of signals.
+        - **rationale**: A concise, data-driven rationale (2-3 sentences max) explaining your prediction, referencing specific metrics like P/E, growth, SCSI, etc.
+        - **timescale**: The expected timescale for this prediction (e.g., "6-12 months").
+    `;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-pro',
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    prediction: { type: Type.STRING },
+                    priceTarget: { type: Type.NUMBER },
+                    confidence: { type: Type.NUMBER },
+                    rationale: { type: Type.STRING },
+                    timescale: { type: Type.STRING },
+                },
+                required: ["prediction", "confidence", "rationale", "timescale"]
+            },
+        },
+    });
+
     return JSON.parse(response.text.trim());
 };

@@ -105,6 +105,14 @@ export interface PredictiveAnalysis {
     outlook: string;
 }
 
+export interface StockPrediction {
+    prediction: 'Bullish' | 'Neutral' | 'Bearish' | 'Outperform' | 'Underperform';
+    priceTarget?: number;
+    confidence: number; // 0-100
+    rationale: string;
+    timescale: string; // e.g., "6-12 months"
+}
+
 // Type for Data Context Visualizer
 export interface Hotspot {
     id: string;
@@ -135,15 +143,12 @@ export interface GoalPlannerResult {
     };
     disclaimer: string;
 }
-// FIX: Consolidate all global type declarations into a single location to resolve conflicts.
-// This defines the shape of the `aistudio` object on the window, as well as other
-// third-party libraries injected globally.
-export interface AIStudio {
-    hasSelectedApiKey: () => Promise<boolean>;
-    openSelectKey: () => Promise<void>;
-}
-
+// FIX: To resolve TypeScript errors "Subsequent property declarations must have the same type" and "All declarations of 'aistudio' must have identical modifiers" for `window.aistudio`, the `AIStudio` interface is moved inside the `declare global` block. This makes it a globally available type, preventing conflicts when augmenting the global `Window` interface from within a module context.
 declare global {
+    interface AIStudio {
+        hasSelectedApiKey: () => Promise<boolean>;
+        openSelectKey: () => Promise<void>;
+    }
     interface Window {
         aistudio: AIStudio;
         html2canvas: any;

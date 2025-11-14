@@ -5,9 +5,9 @@
  *
  * This software is for institutional use only. All rights reserved.
  */
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Company, SortConfig, InvestmentTier } from '../types';
-import { SortIcon, PlusIcon } from './icons/Icons';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { Company, SortConfig, InvestmentTier, StockPrediction } from '../types';
+import { SortIcon, PlusIcon, BrainCircuitIcon } from './icons/Icons';
 import Sparkline from './Sparkline';
 
 interface CompanyTableProps {
@@ -16,6 +16,10 @@ interface CompanyTableProps {
     onAddToPortfolio: (company: Company) => void;
     onSort: (key: keyof Company) => void;
     sortConfig: SortConfig | null;
+    predictions: Record<string, StockPrediction>;
+    predictionsLoading: Record<string, boolean>;
+    fetchPrediction: (company: Company) => void;
+    visibleColumns: Set<keyof Company>;
 }
 
 const tierColorMap: Record<InvestmentTier, string> = {
@@ -23,6 +27,33 @@ const tierColorMap: Record<InvestmentTier, string> = {
     [InvestmentTier.HighConviction]: 'border-l-4 border-accent-blue bg-high-conviction',
     [InvestmentTier.OnRadar]: 'border-l-4 border-gray-400 bg-on-radar'
 };
+
+const getGeoRiskColor = (score: number): string => {
+    if (score <= 30) return 'text-accent-green';
+    if (score <= 65) return 'text-yellow-400';
+    if (score <= 80) return 'text-orange-500';
+    return 'text-accent-red';
+};
+
+const getESGColor = (score: number): string => {
+    if (score >= 80) return 'text-accent-green';
+    if (score >= 65) return 'text-yellow-400';
+    return 'text-accent-red';
+};
+
+const getPredictionColorClass = (prediction: StockPrediction['prediction']) => {
+    switch (prediction) {
+        case 'Bullish':
+        case 'Outperform':
+            return 'bg-accent-green/20 text-accent-green';
+        case 'Bearish':
+        case 'Underperform':
+            return 'bg-accent-red/20 text-accent-red';
+        default:
+            return 'bg-gray-600/50 text-gray-300';
+    }
+};
+
 
 const Th: React.FC<{ children: React.ReactNode; sortKey: keyof Company; onSort: (key: keyof Company) => void; sortConfig: SortConfig | null; className?: string; }> = ({ children, sortKey, onSort, sortConfig, className }) => {
     const isSorted = sortConfig?.key === sortKey;
@@ -44,7 +75,7 @@ const Th: React.FC<{ children: React.ReactNode; sortKey: keyof Company; onSort: 
 const ROW_HEIGHT = 68; // Corresponds to h-17, adjust if row padding/content changes
 const OVERSCAN = 5; // Number of rows to render above and below the viewport
 
-const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, onAddToPortfolio, onSort, sortConfig }) => {
+const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, onAddToPortfolio, onSort, sortConfig, predictions, predictionsLoading, fetchPrediction, visibleColumns }) => {
     const [priceChanges, setPriceChanges] = useState<Record<string, 'up' | 'down'>>({});
     const prevPricesRef = useRef<Record<string, number>>({});
     
@@ -94,10 +125,19 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
     const visibleRowCount = containerHeight > 0 ? Math.ceil(containerHeight / ROW_HEIGHT) + 2 * OVERSCAN : 0;
     const endIndex = Math.min(companies.length, startIndex + visibleRowCount);
     
-    const visibleCompanies = companies.slice(startIndex, endIndex);
+    const visibleCompanies = useMemo(() => {
+        return companies.slice(startIndex, endIndex);
+    }, [companies, startIndex, endIndex]);
+
+    useEffect(() => {
+        visibleCompanies.forEach(company => {
+            fetchPrediction(company);
+        });
+    }, [visibleCompanies, fetchPrediction]);
 
     const paddingTop = startIndex * ROW_HEIGHT;
     const paddingBottom = (companies.length - endIndex) * ROW_HEIGHT;
+    const colSpan = 8 + visibleColumns.size;
 
     return (
         <div ref={scrollContainerRef} onScroll={handleScroll} className="glass-panel overflow-y-auto h-[calc(100vh-350px)]">
@@ -108,21 +148,38 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                             <Th sortKey="Company" onSort={onSort} sortConfig={sortConfig}>Company</Th>
                             <Th sortKey="Current_Price_USD" onSort={onSort} sortConfig={sortConfig}>Price</Th>
                             <Th sortKey="Universal_Score" onSort={onSort} sortConfig={sortConfig}>Score</Th>
-                            <Th sortKey="Buy_Rank" onSort={onSort} sortConfig={sortConfig}>Rank</Th>
+                            <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">
+                                <div className="flex items-center gap-1">
+                                    <BrainCircuitIcon className="w-4 h-4" />
+                                    <span>PDCI Outlook</span>
+                                </div>
+                            </th>
+                            {visibleColumns.has('Sub_Category') && (
+                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Sub Category</th>
+                            )}
+                            {visibleColumns.has('Supply_Chain_Role') && (
+                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Supply Chain Role</th>
+                            )}
+                            {visibleColumns.has('Growth_Driver') && (
+                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Growth Driver</th>
+                            )}
+                            <Th sortKey="Geopolitical_Risk_Score" onSort={onSort} sortConfig={sortConfig} className="hidden sm:table-cell">Geo Risk</Th>
+                            <Th sortKey="ESG_Score" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">ESG</Th>
                             <Th sortKey="YTD_Performance" onSort={onSort} sortConfig={sortConfig} className="hidden md:table-cell">YTD %</Th>
-                            <Th sortKey="Revenue_Growth_YoY" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">Growth</Th>
                             <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Add</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/10 relative">
                         {paddingTop > 0 && (
                             <tr>
-                                <td colSpan={8} />
+                                <td style={{ height: `${paddingTop}px` }} colSpan={12} />
                             </tr>
                         )}
                         {visibleCompanies.map(company => {
                             const change = priceChanges[company.Ticker];
                             const flashClass = change === 'up' ? 'flash-green' : change === 'down' ? 'flash-red' : '';
+                            const prediction = predictions[company.Ticker];
+                            const isLoadingPrediction = predictionsLoading[company.Ticker];
                             return (
                                 <tr key={company.Ticker} className={`${tierColorMap[company.Investment_Tier]} ${flashClass} ${company.isBlueChip ? 'opacity-80 hover:opacity-100 transition-opacity' : ''}`} style={{ height: `${ROW_HEIGHT}px` }}>
                                     <td className="p-3 whitespace-nowrap cursor-pointer" onClick={() => onViewDetails(company)}>
@@ -149,15 +206,45 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                                     <td className="p-3 whitespace-nowrap text-center cursor-pointer" onClick={() => onViewDetails(company)}>
                                         <span className="font-bold text-lg text-gray-200">{company.Universal_Score}</span>
                                     </td>
-                                    <td className="p-3 whitespace-nowrap text-center font-mono cursor-pointer" onClick={() => onViewDetails(company)}>{company.Buy_Rank || 'N/A'}</td>
+                                    <td className="p-3 whitespace-nowrap text-center hidden lg:table-cell">
+                                        {prediction ? (
+                                            <div title={`Confidence: ${prediction.confidence}%. Timescale: ${prediction.timescale}. Rationale: ${prediction.rationale}`}>
+                                                <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getPredictionColorClass(prediction.prediction)}`}>
+                                                    {prediction.prediction}
+                                                </span>
+                                            </div>
+                                        ) : isLoadingPrediction ? (
+                                            <div className="w-4 h-4 border-2 border-gray-600 border-t-accent-blue rounded-full animate-spin mx-auto"></div>
+                                        ) : (
+                                            <span className="text-gray-600">-</span>
+                                        )}
+                                    </td>
+                                    {visibleColumns.has('Sub_Category') && (
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell" title={company.Sub_Category}>{company.Sub_Category}</td>
+                                    )}
+                                    {visibleColumns.has('Supply_Chain_Role') && (
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell" title={company.Supply_Chain_Role}>{company.Supply_Chain_Role}</td>
+                                    )}
+                                    {visibleColumns.has('Growth_Driver') && (
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell" title={company.Growth_Driver}>{company.Growth_Driver}</td>
+                                    )}
+                                    <td className="p-3 whitespace-nowrap text-center font-mono hidden sm:table-cell cursor-pointer" onClick={() => onViewDetails(company)}>
+                                        <span className={`font-bold ${getGeoRiskColor(company.Geopolitical_Risk_Score)}`}>
+                                            {company.Geopolitical_Risk_Score}
+                                        </span>
+                                    </td>
+                                    <td className="p-3 whitespace-nowrap text-center font-mono hidden lg:table-cell cursor-pointer" onClick={() => onViewDetails(company)}>
+                                        {company.ESG_Score !== undefined && company.ESG_Score !== null ? (
+                                            <span className={`font-bold ${getESGColor(company.ESG_Score)}`}>
+                                                {company.ESG_Score}
+                                            </span>
+                                        ) : (
+                                            <span className="text-gray-500">N/A</span>
+                                        )}
+                                    </td>
                                     <td className="p-3 whitespace-nowrap text-center font-mono hidden md:table-cell cursor-pointer" onClick={() => onViewDetails(company)}>
                                        <span className={company.YTD_Performance >= 0 ? 'text-accent-green' : 'text-accent-red'}>
                                             {company.YTD_Performance >= 0 ? '+' : ''}{company.YTD_Performance.toFixed(1)}%
-                                        </span>
-                                    </td>
-                                    <td className="p-3 whitespace-nowrap hidden lg:table-cell cursor-pointer" onClick={() => onViewDetails(company)}>
-                                        <span className={`font-semibold ${company.Revenue_Growth_YoY >= 0 ? 'text-accent-green' : 'text-accent-red'}`}>
-                                            {company.Revenue_Growth_YoY >= 0 ? '+' : ''}{company.Revenue_Growth_YoY.toFixed(1)}%
                                         </span>
                                     </td>
                                     <td className="p-3 whitespace-nowrap">
@@ -174,7 +261,7 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                         })}
                         {paddingBottom > 0 && (
                             <tr>
-                                <td colSpan={8} />
+                                <td style={{ height: `${paddingBottom}px` }} colSpan={12} />
                             </tr>
                         )}
                     </tbody>

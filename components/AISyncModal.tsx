@@ -1,8 +1,9 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { CloseIcon, SparkleIcon, MarketDataIcon, NewsIcon, AcademicIcon, AlternativeDataIcon, BrainCircuitIcon } from './icons/Icons';
 
-interface AISyncModalProps {
+interface PDCISyncModalProps {
     onClose: () => void;
 }
 
@@ -39,7 +40,7 @@ const syncStages = [
     },
 ];
 
-const AISyncModal: React.FC<AISyncModalProps> = ({ onClose }) => {
+const PDCISyncModal: React.FC<PDCISyncModalProps> = ({ onClose }) => {
     const [currentStage, setCurrentStage] = useState(0);
     const [status, setStatus] = useState<'syncing' | 'complete'>('syncing');
 
@@ -119,4 +120,4 @@ const AISyncModal: React.FC<AISyncModalProps> = ({ onClose }) => {
     );
 };
 
-export default AISyncModal;
+export default PDCISyncModal;

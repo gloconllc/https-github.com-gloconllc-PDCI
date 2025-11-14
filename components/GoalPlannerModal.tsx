@@ -5,12 +5,11 @@
  *
  * This software is for institutional use only. All rights reserved.
  */
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Company, GoalPlannerResult, RiskLevel } from '../types';
 import { CloseIcon, SparkleIcon, WarningIcon, LinkIcon } from './icons/Icons';
 import { getGoalBasedPlan } from '../lib/gemini';
 import LineChart from './LineChart';
-import { ApiKeyContext } from '../context';
 
 interface GoalPlannerModalProps {
     onClose: () => void;
@@ -18,7 +17,6 @@ interface GoalPlannerModalProps {
 }
 
 const GoalPlannerModal: React.FC<GoalPlannerModalProps> = ({ onClose, contextCompanies }) => {
-    const { setIsKeyReady } = useContext(ApiKeyContext);
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<GoalPlannerResult | null>(null);
@@ -44,9 +42,6 @@ const GoalPlannerModal: React.FC<GoalPlannerModalProps> = ({ onClose, contextCom
             setResult(plan);
         } catch (e) {
             console.error("Failed to generate goal plan:", e);
-            if (e instanceof Error && e.message.includes("Requested entity was not found.")) {
-                setIsKeyReady(false);
-            }
             setError("The AI model could not generate a plan based on the inputs. Please adjust your goals or try again later.");
         } finally {
             setIsLoading(false);

@@ -6,7 +6,7 @@
  * This software is for institutional use only. All rights reserved.
  */
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Company, SortConfig, InvestmentTier, RiskLevel, GeopoliticalRiskLevel } from './types';
+import { Company, SortConfig, InvestmentTier, RiskLevel, GeopoliticalRiskLevel, StockPrediction } from './types';
 import { companiesData } from './constants';
 import Header from './components/Header';
 import FilterSidebar from './components/FilterSidebar';
@@ -14,31 +14,22 @@ import CompanyModal from './components/CompanyModal';
 import GlossaryModal from './components/GlossaryModal';
 import UpdateModal from './components/UpdateModal';
 import NewsTicker from './components/NewsTicker';
-import { getMarketNews, NewsItem } from './lib/gemini';
-import AISyncModal from './components/AISyncModal';
+// FIX: Corrected function name from getPDCIStockPrediction to getAIStockPrediction.
+import { getMarketNews, NewsItem, getAIStockPrediction } from './lib/gemini';
+import PDCISyncModal from './components/AISyncModal';
 import HistoricalBacktestModal from './components/HistoricalBacktestModal';
 import MarketCommentaryModal from './components/MarketCommentaryModal';
 import { getMarketCommentary } from './lib/gemini';
 import OpportunityPipelineModal from './components/OpportunityPipelineModal';
 import Footer from './components/Footer';
 import LegalModal from './components/LegalModal';
-import { FilterIcon } from './components/icons/Icons';
+import { FilterIcon, CloseIcon } from './components/icons/Icons';
 import MainDashboard from './components/MainDashboard';
 import RightSidebar from './components/RightSidebar';
 import GoalPlannerModal from './components/GoalPlannerModal';
-import ApiKeySelectionScreen from './components/ApiKeySelectionScreen';
-import { ApiKeyContext } from './context';
-
-// Assume aistudio object is available on window
-// FIX: Removed declare global block to prevent type conflicts.
-// Global types are now centralized in `types.ts`.
 
 
 const App: React.FC = () => {
-    // API Key State
-    const [isKeyReady, setIsKeyReady] = useState(false);
-    const [isCheckingKey, setIsCheckingKey] = useState(true);
-
     // Data and Filtering State
     const [companies, setCompanies] = useState<Company[]>(companiesData);
     const [sortConfig, setSortConfig] = useState<SortConfig | null>({ key: 'Universal_Score', direction: 'descending' });
@@ -47,13 +38,14 @@ const App: React.FC = () => {
         tiers: new Set<InvestmentTier>(),
         risks: new Set<RiskLevel>(),
         geoRisks: new Set<GeopoliticalRiskLevel>(),
-        category: 'All',
+        category: new Set<string>(),
         maxPE: '',
         minGrowth: '',
         minCriticality: '',
         minUnivScore: '',
         showBlueChips: true,
         minESG: '',
+        buyRank: '',
     });
 
     // UI State
@@ -73,35 +65,17 @@ const App: React.FC = () => {
     const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
     const [isGoalPlannerOpen, setIsGoalPlannerOpen] = useState(false);
     
-    // AI Content State
+    // PDCI Content State
     const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
     const [isNewsLoading, setIsNewsLoading] = useState(true);
     const [marketCommentary, setMarketCommentary] = useState<string | null>(null);
     const [isCommentaryLoading, setIsCommentaryLoading] = useState(false);
+    const [predictions, setPredictions] = useState<Record<string, StockPrediction>>({});
+    const [predictionsLoading, setPredictionsLoading] = useState<Record<string, boolean>>({});
 
     // Geolocation State
     const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const [locationStatus, setLocationStatus] = useState<string>('Initializing...');
-
-    // API Key check effect
-    useEffect(() => {
-        const checkKey = async () => {
-            if (window.aistudio && typeof window.aistudio.hasSelectedApiKey === 'function') {
-                try {
-                    const hasKey = await window.aistudio.hasSelectedApiKey();
-                    setIsKeyReady(hasKey);
-                } catch (e) {
-                    console.error("Error checking for API key, assuming it's set.", e);
-                    setIsKeyReady(true);
-                }
-            } else {
-                console.warn("`window.aistudio` not found. Assuming API key is set via environment variables.");
-                setIsKeyReady(true);
-            }
-            setIsCheckingKey(false);
-        };
-        checkKey();
-    }, []);
 
     // Handlers
     const handleUpdate = () => {
@@ -143,9 +117,6 @@ const App: React.FC = () => {
             setNewsItems(news);
         } catch (error) {
             console.error("Failed to fetch news:", error);
-            if (error instanceof Error && error.message.includes("Requested entity was not found.")) {
-                setIsKeyReady(false);
-            }
         } finally {
             setIsNewsLoading(false);
         }
@@ -161,14 +132,27 @@ const App: React.FC = () => {
             } catch (error) {
                 console.error("Failed to generate commentary:", error);
                 setMarketCommentary("Error: Could not generate market commentary.");
-                 if (error instanceof Error && error.message.includes("Requested entity was not found.")) {
-                    setIsKeyReady(false);
-                }
             } finally {
                 setIsCommentaryLoading(false);
             }
         }
     }, [marketCommentary, userLocation]);
+
+     const fetchPrediction = useCallback(async (company: Company) => {
+        if (predictions[company.Ticker] || predictionsLoading[company.Ticker]) {
+            return;
+        }
+        setPredictionsLoading(prev => ({ ...prev, [company.Ticker]: true }));
+        try {
+            // FIX: Corrected function name from getPDCIStockPrediction to getAIStockPrediction.
+            const prediction = await getAIStockPrediction(company);
+            setPredictions(prev => ({ ...prev, [company.Ticker]: prediction }));
+        } catch (e) {
+            console.error(`Failed to fetch prediction for ${company.Ticker}`, e);
+        } finally {
+            setPredictionsLoading(prev => ({ ...prev, [company.Ticker]: false }));
+        }
+    }, [predictions, predictionsLoading]);
 
     useEffect(() => {
         if (navigator.geolocation) {
@@ -213,10 +197,8 @@ const App: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (isKeyReady) {
-            fetchNews();
-        }
-    }, [fetchNews, isKeyReady]);
+        fetchNews();
+    }, [fetchNews]);
 
     // Memoized Calculations
     const categories = useMemo(() => [...new Set(companiesData.map(c => c.Category))], []);
@@ -234,13 +216,14 @@ const App: React.FC = () => {
         if (filters.tiers.size > 0) filtered = filtered.filter(c => filters.tiers.has(c.Investment_Tier));
         if (filters.risks.size > 0) filtered = filtered.filter(c => c.Risk_Level && filters.risks.has(c.Risk_Level));
         if (filters.geoRisks.size > 0) filtered = filtered.filter(c => c.Geopolitical_Risk && filters.geoRisks.has(c.Geopolitical_Risk));
-        if (filters.category !== 'All') filtered = filtered.filter(c => c.Category === filters.category);
+        if (filters.category.size > 0) filtered = filtered.filter(c => filters.category.has(c.Category));
         if (!filters.showBlueChips) filtered = filtered.filter(c => !c.isBlueChip);
         if (filters.maxPE) filtered = filtered.filter(c => c.PE_Ratio <= parseFloat(filters.maxPE));
         if (filters.minGrowth) filtered = filtered.filter(c => c.Revenue_Growth_YoY >= parseFloat(filters.minGrowth));
         if (filters.minCriticality) filtered = filtered.filter(c => c.Criticality >= parseInt(filters.minCriticality, 10));
         if (filters.minUnivScore) filtered = filtered.filter(c => c.Universal_Score >= parseInt(filters.minUnivScore, 10));
         if (filters.minESG) filtered = filtered.filter(c => c.ESG_Score != null && c.ESG_Score >= parseFloat(filters.minESG));
+        if (filters.buyRank) filtered = filtered.filter(c => c.Buy_Rank != null && c.Buy_Rank <= parseInt(filters.buyRank, 10));
 
 
         if (sortConfig !== null) {
@@ -257,109 +240,116 @@ const App: React.FC = () => {
         return filtered;
     }, [companies, filters, sortConfig]);
 
-    if (isCheckingKey) {
-        return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-gray-400">Initializing & Verifying Credentials...</div>;
-    }
-
-    if (!isKeyReady) {
-        return <ApiKeySelectionScreen onKeySelect={() => setIsKeyReady(true)} />;
-    }
 
     return (
-        <ApiKeyContext.Provider value={{ isKeyReady, setIsKeyReady }}>
-            <div className="min-h-screen bg-gray-900 text-gray-100 font-sans flex flex-col">
-                <Header
-                    onUpdate={handleUpdate}
-                    lastUpdated={lastUpdated}
-                    isUpdating={isUpdating}
-                    searchValue={filters.search}
-                    onSearchChange={value => setFilters(f => ({ ...f, search: value }))}
-                    onOpenGlossary={() => setIsGlossaryOpen(true)}
-                    onSyncAI={() => setIsSyncing(true)}
-                    onOpenBacktest={() => setIsBacktestOpen(true)}
-                    onOpenCommentary={openCommentary}
-                    onOpenOpportunityPipeline={() => setIsOpportunityPipelineOpen(true)}
-                    onOpenGoalPlanner={() => setIsGoalPlannerOpen(true)}
-                    locationStatus={locationStatus}
-                />
-                <NewsTicker newsItems={newsItems} isLoading={isNewsLoading} />
+        <div className="min-h-screen bg-gray-900 text-gray-100 font-sans flex flex-col">
+            <Header
+                onUpdate={handleUpdate}
+                lastUpdated={lastUpdated}
+                isUpdating={isUpdating}
+                searchValue={filters.search}
+                onSearchChange={value => setFilters(f => ({ ...f, search: value }))}
+                onOpenGlossary={() => setIsGlossaryOpen(true)}
+                onSyncPDCI={() => setIsSyncing(true)}
+                onOpenBacktest={() => setIsBacktestOpen(true)}
+                onOpenCommentary={openCommentary}
+                onOpenOpportunityPipeline={() => setIsOpportunityPipelineOpen(true)}
+                onOpenGoalPlanner={() => setIsGoalPlannerOpen(true)}
+                locationStatus={locationStatus}
+            />
+            <NewsTicker newsItems={newsItems} isLoading={isNewsLoading} />
 
-                <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8 w-full flex-grow">
-                     <div className="lg:hidden mb-4">
-                        <button
-                            onClick={() => setIsMobileFiltersOpen(true)}
-                            className="btn btn-secondary w-full"
-                        >
-                            <FilterIcon />
-                            Show Filters & Options
+            <main className="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8 w-full flex-grow">
+                 <div className="lg:hidden mb-4">
+                    <button
+                        onClick={() => setIsMobileFiltersOpen(true)}
+                        className="btn btn-secondary w-full"
+                    >
+                        <FilterIcon />
+                        Show Filters & Options
+                    </button>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="lg:col-span-2 hidden lg:block">
+                        <FilterSidebar
+                            filters={filters}
+                            onFilterChange={setFilters}
+                            categories={categories}
+                        />
+                    </div>
+
+                    <div className="lg:col-span-7">
+                        <MainDashboard
+                            companies={companies}
+                            filteredAndSortedCompanies={filteredAndSortedCompanies}
+                            onViewDetails={setSelectedCompany}
+                            onAddToPortfolio={handleAddToPortfolio}
+                            onSort={handleSort}
+                            sortConfig={sortConfig}
+                            predictions={predictions}
+                            predictionsLoading={predictionsLoading}
+                            fetchPrediction={fetchPrediction}
+                        />
+                    </div>
+
+                    <div className="lg:col-span-3">
+                         <RightSidebar
+                            portfolio={portfolio}
+                            onRemoveFromPortfolio={handleRemoveFromPortfolio}
+                            onViewDetails={setSelectedCompany}
+                            allCompanies={companies}
+                         />
+                    </div>
+                </div>
+            </main>
+
+            <Footer onOpenLegal={() => setIsLegalModalOpen(true)} />
+
+            {selectedCompany && (
+                <CompanyModal
+                    company={selectedCompany}
+                    onClose={() => setSelectedCompany(null)}
+                    onAddToPortfolio={handleAddToPortfolio}
+                    viewCompanyDetails={setSelectedCompany}
+                />
+            )}
+            
+            {isGlossaryOpen && <GlossaryModal onClose={() => setIsGlossaryOpen(false)} />}
+            {isUpdateModalOpen && <UpdateModal onClose={() => setIsUpdateModalOpen(false)} />}
+            {isLegalModalOpen && <LegalModal onClose={() => setIsLegalModalOpen(false)} />}
+            {isSyncing && <PDCISyncModal onClose={() => setIsSyncing(false)} />}
+            {isBacktestOpen && <HistoricalBacktestModal onClose={() => setIsBacktestOpen(false)} portfolio={portfolio} allCompanies={companies} />}
+            {isCommentaryOpen && <MarketCommentaryModal onClose={() => setIsCommentaryOpen(false)} isLoading={isCommentaryLoading} commentary={marketCommentary} allCompanies={companies} newsItems={newsItems.slice(0, 3)} />}
+            {isOpportunityPipelineOpen && <OpportunityPipelineModal onClose={() => setIsOpportunityPipelineOpen(false)} allCompanies={companies} portfolio={portfolio} />}
+            {isGoalPlannerOpen && <GoalPlannerModal onClose={() => setIsGoalPlannerOpen(false)} contextCompanies={filteredAndSortedCompanies} />}
+
+
+            <div
+                className={`fixed inset-0 z-40 lg:hidden transition-opacity duration-300 ease-in-out ${isMobileFiltersOpen ? 'bg-black bg-opacity-75' : 'pointer-events-none bg-transparent'}`}
+                onClick={() => setIsMobileFiltersOpen(false)}
+                role="dialog"
+                aria-modal="true"
+            >
+                <div
+                    className={`absolute top-0 left-0 h-full w-80 bg-gray-900 shadow-xl flex flex-col transition-transform duration-300 ease-in-out ${isMobileFiltersOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                    onClick={e => e.stopPropagation()}
+                >
+                    <div className="p-4 border-b border-white/10 flex justify-between items-center flex-shrink-0">
+                        <h2 className="text-lg font-semibold text-gray-200">Filters & Options</h2>
+                        <button onClick={() => setIsMobileFiltersOpen(false)} className="btn btn-ghost rounded-full -mr-2">
+                            <CloseIcon />
                         </button>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                        <div className="lg:col-span-2 hidden lg:block">
-                            <FilterSidebar
-                                filters={filters}
-                                onFilterChange={setFilters}
-                                categories={categories}
-                            />
-                        </div>
-
-                        <div className="lg:col-span-7">
-                            <MainDashboard
-                                companies={companies}
-                                filteredAndSortedCompanies={filteredAndSortedCompanies}
-                                onViewDetails={setSelectedCompany}
-                                onAddToPortfolio={handleAddToPortfolio}
-                                onSort={handleSort}
-                                sortConfig={sortConfig}
-                            />
-                        </div>
-
-                        <div className="lg:col-span-3">
-                             <RightSidebar
-                                portfolio={portfolio}
-                                onRemoveFromPortfolio={handleRemoveFromPortfolio}
-                                onViewDetails={setSelectedCompany}
-                                allCompanies={companies}
-                             />
-                        </div>
+                    <div className="overflow-y-auto p-4">
+                        <FilterSidebar
+                            filters={filters}
+                            onFilterChange={setFilters}
+                            categories={categories}
+                        />
                     </div>
-                </main>
-
-                <Footer onOpenLegal={() => setIsLegalModalOpen(true)} />
-
-                {selectedCompany && (
-                    <CompanyModal
-                        company={selectedCompany}
-                        onClose={() => setSelectedCompany(null)}
-                        onAddToPortfolio={handleAddToPortfolio}
-                        viewCompanyDetails={setSelectedCompany}
-                    />
-                )}
-                
-                {isGlossaryOpen && <GlossaryModal onClose={() => setIsGlossaryOpen(false)} />}
-                {isUpdateModalOpen && <UpdateModal onClose={() => setIsUpdateModalOpen(false)} />}
-                {isLegalModalOpen && <LegalModal onClose={() => setIsLegalModalOpen(false)} />}
-                {isSyncing && <AISyncModal onClose={() => setIsSyncing(false)} />}
-                {isBacktestOpen && <HistoricalBacktestModal onClose={() => setIsBacktestOpen(false)} portfolio={portfolio} allCompanies={companies} />}
-                {isCommentaryOpen && <MarketCommentaryModal onClose={() => setIsCommentaryOpen(false)} isLoading={isCommentaryLoading} commentary={marketCommentary} allCompanies={companies} newsItems={newsItems.slice(0, 3)} />}
-                {isOpportunityPipelineOpen && <OpportunityPipelineModal onClose={() => setIsOpportunityPipelineOpen(false)} allCompanies={companies} portfolio={portfolio} />}
-                {isGoalPlannerOpen && <GoalPlannerModal onClose={() => setIsGoalPlannerOpen(false)} contextCompanies={filteredAndSortedCompanies} />}
-
-
-                {isMobileFiltersOpen && (
-                     <div className="fixed inset-0 bg-black bg-opacity-75 z-40 lg:hidden" onClick={() => setIsMobileFiltersOpen(false)}>
-                        <div className="absolute top-0 left-0 h-full w-80 bg-gray-900 shadow-xl p-4 overflow-y-auto animate-slide-in-left" onClick={e => e.stopPropagation()}>
-                            <FilterSidebar
-                                filters={filters}
-                                onFilterChange={setFilters}
-                                categories={categories}
-                            />
-                             <button onClick={() => setIsMobileFiltersOpen(false)} className="mt-4 btn btn-secondary w-full">Close</button>
-                        </div>
-                    </div>
-                )}
+                </div>
             </div>
-        </ApiKeyContext.Provider>
+        </div>
     );
 };
 
