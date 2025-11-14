@@ -342,3 +342,9 @@ export const QuestionMarkCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093v.213a1 1 0 01-2 0v-.213c0-.925.395-1.742 1.006-2.219C12.42 12.42 13 11.745 13 11c0-.966-.784-1.75-1.75-1.75-1.31 0-2.313.882-2.65 2.064A1 1 0 016.65 12.5a1 1 0 01-1.932-.516c.337-1.182 1.343-2.064 2.65-2.064 1.742 0 3.228.835 3.772 2M12 18h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
+
+export const ActivityIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12h2.5l2.5-5 4 10 2.5-5H21" />
+    </svg>
+);

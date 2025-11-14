@@ -27,6 +27,7 @@ import { FilterIcon, CloseIcon } from './components/icons/Icons';
 import MainDashboard from './components/MainDashboard';
 import RightSidebar from './components/RightSidebar';
 import GoalPlannerModal from './components/GoalPlannerModal';
+import ScenarioAnalysisModal from './components/ScenarioAnalysisModal';
 
 
 const App: React.FC = () => {
@@ -64,6 +65,7 @@ const App: React.FC = () => {
     const [isOpportunityPipelineOpen, setIsOpportunityPipelineOpen] = useState(false);
     const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
     const [isGoalPlannerOpen, setIsGoalPlannerOpen] = useState(false);
+    const [isScenarioAnalysisOpen, setIsScenarioAnalysisOpen] = useState(false);
     
     // PDCI Content State
     const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
@@ -255,6 +257,7 @@ const App: React.FC = () => {
                 onOpenCommentary={openCommentary}
                 onOpenOpportunityPipeline={() => setIsOpportunityPipelineOpen(true)}
                 onOpenGoalPlanner={() => setIsGoalPlannerOpen(true)}
+                onOpenScenarioAnalysis={() => setIsScenarioAnalysisOpen(true)}
                 locationStatus={locationStatus}
             />
             <NewsTicker newsItems={newsItems} isLoading={isNewsLoading} />
@@ -322,6 +325,7 @@ const App: React.FC = () => {
             {isCommentaryOpen && <MarketCommentaryModal onClose={() => setIsCommentaryOpen(false)} isLoading={isCommentaryLoading} commentary={marketCommentary} allCompanies={companies} newsItems={newsItems.slice(0, 3)} />}
             {isOpportunityPipelineOpen && <OpportunityPipelineModal onClose={() => setIsOpportunityPipelineOpen(false)} allCompanies={companies} portfolio={portfolio} />}
             {isGoalPlannerOpen && <GoalPlannerModal onClose={() => setIsGoalPlannerOpen(false)} contextCompanies={filteredAndSortedCompanies} />}
+            {isScenarioAnalysisOpen && <ScenarioAnalysisModal onClose={() => setIsScenarioAnalysisOpen(false)} portfolio={portfolio} />}
 
 
             <div

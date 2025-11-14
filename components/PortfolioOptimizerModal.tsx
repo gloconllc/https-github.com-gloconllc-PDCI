@@ -101,7 +101,7 @@ const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClo
     const renderSelectionScreen = () => (
         <div className="p-6">
             <h3 className="text-xl font-semibold text-gray-200 mb-4">Select a Quantitative Strategy</h3>
-            <p className="text-sm text-gray-400 mb-4">The PICOU AI will analyze your current portfolio and suggest trades to align it with your chosen strategy.</p>
+            <p className="text-sm text-gray-400 mb-4">The PDCI AI will analyze your current portfolio and suggest trades to align it with your chosen strategy.</p>
             <div className="space-y-3">
                 {strategies.map((strategy) => (
                     <div
@@ -128,10 +128,10 @@ const PortfolioOptimizerModal: React.FC<PortfolioOptimizerModalProps> = ({ onClo
     );
     
     const renderLoadingScreen = () => (
-        <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-            <SparkleIcon />
+        <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-4">
+            <SparkleIcon className="w-12 h-12 text-accent-blue" />
             <p className="text-gray-300 text-lg animate-pulse mt-4">Optimizing your portfolio...</p>
-            <p className="text-gray-500 mt-2 max-w-md">Our PICOU AI is running thousands of simulations to find the optimal trades for your selected strategy.</p>
+            <p className="text-gray-500 mt-2 max-w-md">Our PDCI AI is running thousands of simulations to find the optimal trades for your selected strategy.</p>
         </div>
     );
     

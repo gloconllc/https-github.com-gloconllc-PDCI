@@ -6,7 +6,7 @@
  * This software is for institutional use only. All rights reserved.
  */
 import React, { useState, useRef, useEffect } from 'react';
-import { UpdateIcon, SearchIcon, PDCIcon, GlossaryIcon, HistoryIcon, CommentaryIcon, PipelineIcon, BrainCircuitIcon, ToolsIcon, GoalIcon } from './icons/Icons';
+import { UpdateIcon, SearchIcon, PDCIcon, GlossaryIcon, HistoryIcon, CommentaryIcon, PipelineIcon, BrainCircuitIcon, ToolsIcon, GoalIcon, ActivityIcon } from './icons/Icons';
 
 interface HeaderProps {
     onUpdate: () => void;
@@ -20,11 +20,12 @@ interface HeaderProps {
     onOpenCommentary: () => void;
     onOpenOpportunityPipeline: () => void;
     onOpenGoalPlanner: () => void;
+    onOpenScenarioAnalysis: () => void;
     locationStatus: string;
 }
 
 const AnalysisToolsDropdown: React.FC<Omit<HeaderProps, 'onUpdate' | 'lastUpdated' | 'isUpdating' | 'searchValue' | 'onSearchChange' | 'locationStatus'>> = 
-({ onOpenGlossary, onOpenBacktest, onOpenOpportunityPipeline, onSyncPDCI, onOpenCommentary, onOpenGoalPlanner }) => {
+({ onOpenGlossary, onOpenBacktest, onOpenOpportunityPipeline, onSyncPDCI, onOpenCommentary, onOpenGoalPlanner, onOpenScenarioAnalysis }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -40,6 +41,7 @@ const AnalysisToolsDropdown: React.FC<Omit<HeaderProps, 'onUpdate' | 'lastUpdate
     
     const menuItems = [
         { label: "PDCI Goal Planner", icon: <GoalIcon />, action: onOpenGoalPlanner },
+        { label: "Scenario Analysis", icon: <ActivityIcon />, action: onOpenScenarioAnalysis },
         { label: "Market Backtest", icon: <HistoryIcon />, action: onOpenBacktest },
         { label: "Opportunity Pipeline", icon: <PipelineIcon />, action: onOpenOpportunityPipeline },
         { label: "PDCI Metrics Glossary", icon: <GlossaryIcon />, action: onOpenGlossary },

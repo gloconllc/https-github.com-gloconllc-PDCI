@@ -50,7 +50,11 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
     };
 
     const handleRunAnalysis = useCallback(async (scenarioTitle: string) => {
-        if (!portfolio.length) return;
+        if (!portfolio.length) {
+            setResult("Your portfolio is empty. Please add companies to run a scenario analysis.");
+            setSelectedScenario(scenarioTitle);
+            return;
+        };
 
         setSelectedScenario(scenarioTitle);
         setIsLoading(true);
@@ -72,7 +76,6 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
         `;
 
         try {
-            // Using getChatResponse for simplicity, but a dedicated function would be better in a real app
             const response = await getChatResponse(prompt, portfolio);
             setResult(response.text);
         } catch (error) {
@@ -85,13 +88,16 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
     }, [portfolio]);
 
     const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
+        const lines = content.split('\n');
         return (
-            <div className="prose prose-invert prose-sm max-w-none">
-                {content.split('\n').map((line, i) => {
-                    if (line.startsWith('### ')) return <h3 key={i} className="text-lg font-semibold mt-4 mb-2">{line.replace('### ', '')}</h3>;
-                    if (line.startsWith('* ')) return <li key={i} className="my-1">{line.replace('* ', '')}</li>;
+            <div className="prose prose-invert prose-sm max-w-none text-gray-300">
+                {lines.map((line, i) => {
+                    if (line.startsWith('### ')) return <h3 key={i} className="text-lg font-semibold mt-4 mb-2 text-gray-100">{line.replace('### ', '')}</h3>;
+                    if (line.match(/^\s*(\*|-)\s/)) {
+                        return <li key={i} className="my-1 ml-4 list-disc">{line.replace(/^\s*(\*|-)\s/, '')}</li>;
+                    }
                     if (line.trim() === '') return <br key={i} />;
-                    return <p key={i}>{line}</p>;
+                    return <p key={i} className="my-2">{line}</p>;
                 })}
             </div>
         );
@@ -135,9 +141,10 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
                         <h3 className="font-semibold text-gray-200 mb-3">AI-Generated Impact Analysis</h3>
                         <div className="min-h-[300px] overflow-y-auto text-sm">
                             {isLoading && (
-                                <div className="flex flex-col items-center justify-center h-full">
-                                    <SparkleIcon className="animate-pulse" />
-                                    <p className="mt-2 text-gray-400">Analyzing scenario impact...</p>
+                                <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                                    <SparkleIcon className="w-8 h-8 text-accent-blue animate-pulse" />
+                                    <p className="mt-4 text-gray-300">PDCI is simulating market shockwaves...</p>
+                                    <p className="text-xs text-gray-500">This may take a moment.</p>
                                 </div>
                             )}
                             {result && <MarkdownRenderer content={result} />}

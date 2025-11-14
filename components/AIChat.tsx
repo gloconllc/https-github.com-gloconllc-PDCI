@@ -22,18 +22,41 @@ interface Message {
     groundingMetadata?: any;
 }
 
+const loadingMessages = [
+    "Analyzing market trends...",
+    "Cross-referencing supply chains...",
+    "Consulting historical data...",
+    "Synthesizing insights...",
+    "Finalizing response...",
+];
+
+
 const PDCIChat: React.FC<PDCIChatProps> = ({ companies }) => {
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isDeepAnalysis, setIsDeepAnalysis] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     useEffect(scrollToBottom, [messages, isLoading]);
+    
+    useEffect(() => {
+        let interval: number;
+        if (isLoading) {
+            let i = 0;
+            interval = window.setInterval(() => {
+                i = (i + 1) % loadingMessages.length;
+                setLoadingMessage(loadingMessages[i]);
+            }, 1500);
+        }
+        return () => window.clearInterval(interval);
+    }, [isLoading]);
+
 
     const handleQuery = useCallback(async () => {
         if (!query.trim() || isLoading) return;
@@ -96,8 +119,11 @@ const PDCIChat: React.FC<PDCIChatProps> = ({ companies }) => {
                 ))}
                  {isLoading && (
                     <div className="flex justify-start">
-                        <div className="rounded-lg p-3 max-w-sm bg-gray-800 text-gray-400 animate-pulse">
-                            {isDeepAnalysis ? 'PDCI Network Intelligence is thinking...' : 'PDCI is thinking...'}
+                        <div className="rounded-lg p-3 max-w-sm bg-gray-800 text-gray-400">
+                             <div className="flex items-center gap-2">
+                                <SparkleIcon className="w-4 h-4 animate-spin"/>
+                                <span className="animate-pulse">{isDeepAnalysis ? 'PDCI Network Intelligence is thinking...' : loadingMessage}</span>
+                            </div>
                         </div>
                     </div>
                 )}

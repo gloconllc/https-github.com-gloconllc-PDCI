@@ -215,8 +215,8 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ analysis, onClose, isAnal
     const renderContent = () => {
         if (isAnalyzing) {
             return (
-                <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
-                    <SparkleIcon />
+                <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-4">
+                    <SparkleIcon className="w-12 h-12 text-accent-blue" />
                     <p className="text-gray-300 text-lg animate-pulse mt-4">Analyzing your portfolio with PDCI Network Intelligence...</p>
                     <p className="text-gray-500 mt-2">This may take a moment to generate your deep analysis report.</p>
                 </div>

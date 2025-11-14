@@ -174,10 +174,15 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
         }
     };
 
-    const AnalysisLoader: React.FC = () => (
-        <div className="flex items-center gap-2 text-sm text-gray-400 animate-pulse">
-            <SparkleIcon className="w-4 h-4" />
-            <span>Generating PDCI analysis...</span>
+    const AnalysisLoader: React.FC<{ message: string }> = ({ message }) => (
+        <div className="space-y-3 animate-pulse p-2">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+                <SparkleIcon className="w-4 h-4" />
+                <span>{message}</span>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-1.5">
+                 <div className="bg-accent-blue h-1.5 rounded-full w-3/4"></div>
+            </div>
         </div>
     );
 
@@ -241,7 +246,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="glass-panel p-4">
                                         <h3 className="font-semibold text-gray-200 mb-3 flex items-center gap-2"><DocumentTextIcon /> PDCI Financial Analysis</h3>
-                                        {isLoadingAnalysis ? <AnalysisLoader /> : financialAnalysis ? (
+                                        {isLoadingAnalysis ? <AnalysisLoader message="Running financial health check..."/> : financialAnalysis ? (
                                             <div className="space-y-3 text-sm">
                                                 <p><strong className="text-gray-300">Valuation:</strong> {financialAnalysis.valuation}</p>
                                                 <p><strong className="text-gray-300">Health:</strong> {financialAnalysis.financialHealth}</p>
@@ -252,7 +257,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                     </div>
                                      <div className="glass-panel p-4">
                                         <h3 className="font-semibold text-gray-200 mb-3 flex items-center gap-2"><CalculatorIcon /> PDCI Quantitative Outlook</h3>
-                                        {isLoadingAnalysis ? <AnalysisLoader /> : predictiveAnalysis ? (
+                                        {isLoadingAnalysis ? <AnalysisLoader message="Calculating predictive factors..."/> : predictiveAnalysis ? (
                                             <div className="space-y-3 text-sm">
                                                 <div>
                                                     <strong className="text-gray-300">Key Predictors:</strong>
@@ -268,7 +273,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                 </div>
                                  <div className="glass-panel p-4">
                                     <h3 className="font-semibold text-gray-200 mb-3 flex items-center gap-2"><BrainCircuitIcon /> PDCI Prediction</h3>
-                                    {isLoadingAnalysis ? <AnalysisLoader /> : stockPrediction ? (
+                                    {isLoadingAnalysis ? <AnalysisLoader message="Generating stock prediction..."/> : stockPrediction ? (
                                         <div className="space-y-3 text-sm">
                                             <div className="flex justify-between items-baseline">
                                                 <span className="text-gray-400">Outlook ({stockPrediction.timescale})</span>

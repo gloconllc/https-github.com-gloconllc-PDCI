@@ -90,7 +90,7 @@ const GoalPlannerModal: React.FC<GoalPlannerModalProps> = ({ onClose, contextCom
         if (isLoading) {
             return (
                 <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center p-6">
-                    <SparkleIcon />
+                    <SparkleIcon className="w-12 h-12 text-accent-blue" />
                     <p className="text-gray-300 text-lg animate-pulse mt-4">Generating your personalized AI plan...</p>
                     <p className="text-gray-500 mt-2 max-w-md">The PDCI core is analyzing your goals against our universe of companies to build a suitable hypothetical strategy.</p>
                 </div>
