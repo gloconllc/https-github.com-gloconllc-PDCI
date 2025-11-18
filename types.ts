@@ -110,6 +110,11 @@ export interface PredictiveAnalysis {
     keyPredictors: { predictor: string; rationale: string }[];
     modelConfidence: number; // 0-100
     outlook: string;
+    projectedMetrics?: {
+        PE_Ratio: string;
+        Revenue_Growth: string;
+        Geopolitical_Risk_Trend: string;
+    };
 }
 
 export interface StockPrediction {

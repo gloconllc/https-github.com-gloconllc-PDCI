@@ -32,6 +32,24 @@ interface FilterSidebarProps {
     supplyChainRoles: string[];
 }
 
+const RangeSlider: React.FC<{ label: string; value: string; onChange: (val: string) => void; min: number; max: number; step?: number; suffix?: string }> = ({ label, value, onChange, min, max, step = 1, suffix = '' }) => (
+    <div className="mb-4">
+        <div className="flex justify-between items-center mb-1">
+            <label className="text-sm font-medium text-gray-400">{label}</label>
+            <span className="text-xs font-mono text-accent-blue">{value || min}{suffix}</span>
+        </div>
+        <input
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={value || min}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-accent-blue"
+        />
+    </div>
+);
+
 const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, categories, subCategories, supplyChainRoles }) => {
 
     const handleTierChange = useCallback((tier: InvestmentTier) => {
@@ -150,84 +168,60 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             </div>
 
              <div className="mb-6">
-                <h3 className="font-semibold text-gray-300 mb-2">Advanced Filters</h3>
-                <div className="space-y-3">
-                    <div>
-                        <label htmlFor="minUnivScore" className="block text-sm font-medium text-gray-400">Min Universal Score</label>
-                        <input
-                            type="number"
-                            id="minUnivScore"
-                            name="minUnivScore"
-                            value={filters.minUnivScore}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 90"
-                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                        />
-                    </div>
+                <h3 className="font-semibold text-gray-300 mb-2">Metric Thresholds</h3>
+                <div className="space-y-2">
+                     <RangeSlider 
+                        label="Min Universal Score" 
+                        value={filters.minUnivScore} 
+                        onChange={(val) => onFilterChange({...filters, minUnivScore: val})} 
+                        min={0} max={100} 
+                    />
                      <div>
-                        <label htmlFor="minCriticality" className="block text-sm font-medium text-gray-400">Min Criticality</label>
+                        <label htmlFor="minCriticality" className="block text-sm font-medium text-gray-400 mb-1">Min Criticality</label>
                         <select
                             id="minCriticality"
                             name="minCriticality"
                             value={filters.minCriticality}
                             onChange={handleInputChange}
-                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
+                            className="w-full bg-black/20 border border-white/10 rounded-md py-1 px-3 text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-accent-blue"
                         >
                             <option value="">Any</option>
-                            <option value="8">8+</option>
-                            <option value="9">9+</option>
-                            <option value="10">10</option>
+                            <option value="7">7+ (Important)</option>
+                            <option value="8">8+ (High)</option>
+                            <option value="9">9+ (Critical)</option>
+                            <option value="10">10 (Vital)</option>
                         </select>
                     </div>
-                     <div>
-                        <label htmlFor="buyRank" className="block text-sm font-medium text-gray-400">Max Buy Rank</label>
-                        <input
-                            type="number"
-                            id="buyRank"
-                            name="buyRank"
+                     <div className="mt-4">
+                         <RangeSlider
+                            label="Max Buy Rank"
                             value={filters.buyRank}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 20"
-                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                        />
+                            onChange={(val) => onFilterChange({...filters, buyRank: val})}
+                            min={1} max={50}
+                            suffix="#"
+                         />
                     </div>
-                    <div>
-                        <label htmlFor="maxPE" className="block text-sm font-medium text-gray-400">Max P/E Ratio</label>
-                        <input
-                            type="number"
-                            id="maxPE"
-                            name="maxPE"
-                            value={filters.maxPE}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 50"
-                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="minGrowth" className="block text-sm font-medium text-gray-400">Min Revenue Growth (YoY %)</label>
-                        <input
-                            type="number"
-                            id="minGrowth"
-                            name="minGrowth"
-                            value={filters.minGrowth}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 20"
-                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="minESG" className="block text-sm font-medium text-gray-400">Min ESG Score</label>
-                        <input
-                            type="number"
-                            id="minESG"
-                            name="minESG"
-                            value={filters.minESG}
-                            onChange={handleInputChange}
-                            placeholder="e.g., 75"
-                            className="w-full mt-1 bg-black/20 border border-white/10 rounded-md py-2 px-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-accent-blue"
-                        />
-                    </div>
-                    <div>
+                    <RangeSlider
+                        label="Max P/E Ratio"
+                        value={filters.maxPE}
+                        onChange={(val) => onFilterChange({...filters, maxPE: val})}
+                        min={5} max={200} step={5}
+                    />
+                    <RangeSlider
+                        label="Min Revenue Growth (YoY)"
+                        value={filters.minGrowth}
+                        onChange={(val) => onFilterChange({...filters, minGrowth: val})}
+                        min={-20} max={150} step={5}
+                        suffix="%"
+                    />
+                     <RangeSlider
+                        label="Min ESG Score"
+                        value={filters.minESG}
+                        onChange={(val) => onFilterChange({...filters, minESG: val})}
+                        min={0} max={100} step={5}
+                    />
+                    
+                    <div className="mt-4">
                         <label htmlFor="growthDriver" className="block text-sm font-medium text-gray-400">Growth Driver Keyword</label>
                         <input
                             type="text"

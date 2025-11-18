@@ -56,16 +56,17 @@ const getPredictionColorClass = (prediction: StockPrediction['prediction']) => {
 };
 
 
-const Th: React.FC<{ children: React.ReactNode; sortKey: keyof Company; onSort: (key: keyof Company) => void; sortConfig: SortConfig | null; className?: string; }> = ({ children, sortKey, onSort, sortConfig, className }) => {
+const Th: React.FC<{ children: React.ReactNode; sortKey: keyof Company; onSort: (key: keyof Company) => void; sortConfig: SortConfig | null; className?: string; title?: string }> = ({ children, sortKey, onSort, sortConfig, className, title }) => {
     const isSorted = sortConfig?.key === sortKey;
     const direction = isSorted ? sortConfig.direction : undefined;
     return (
         <th 
-          className={`p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer ${className}`} 
+          className={`p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-200 transition-colors ${className}`} 
           onClick={() => onSort(sortKey)}
           aria-sort={isSorted ? direction : 'none'}
+          title={title}
         >
-            <div className="flex items-center">
+            <div className="flex items-center gap-1">
                 {children}
                 <SortIcon direction={direction} />
             </div>
@@ -148,37 +149,45 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                         <tr>
                             <Th sortKey="Company" onSort={onSort} sortConfig={sortConfig}>Company</Th>
                             <Th sortKey="Current_Price_USD" onSort={onSort} sortConfig={sortConfig}>Price</Th>
-                            <Th sortKey="Universal_Score" onSort={onSort} sortConfig={sortConfig}>Score</Th>
-                            <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">
+                            <Th sortKey="Universal_Score" onSort={onSort} sortConfig={sortConfig} title="0-100 score quantifying overall importance and irreplaceability within the supply chain.">Score</Th>
+                            <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell" title="AI-driven stock prediction based on PDCI quantitative metrics.">
                                 <div className="flex items-center gap-1">
                                     <BrainCircuitIcon className="w-4 h-4" />
                                     <span>PDCI Outlook</span>
                                 </div>
                             </th>
+                            {visibleColumns.has('Market_Cap_B') && (
+                                <Th sortKey="Market_Cap_B" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">Mkt Cap</Th>
+                            )}
                             {visibleColumns.has('Sub_Category') && (
-                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Sub Category</th>
+                                <Th sortKey="Sub_Category" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">Sub Category</Th>
                             )}
                             {visibleColumns.has('Supply_Chain_Role') && (
-                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Supply Chain Role</th>
+                                <Th sortKey="Supply_Chain_Role" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">Role</Th>
                             )}
                             {visibleColumns.has('Growth_Driver') && (
-                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Growth Driver</th>
+                                <Th sortKey="Growth_Driver" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">Growth Driver</Th>
                             )}
                              {visibleColumns.has('52_Week_High') && (
-                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">52W High</th>
+                                <Th sortKey="52_Week_High" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">52W High</Th>
                             )}
                             {visibleColumns.has('EPS') && (
-                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">EPS</th>
+                                <Th sortKey="EPS" onSort={onSort} sortConfig={sortConfig}>EPS</Th>
                             )}
                             {visibleColumns.has('Dividend_Yield') && (
-                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Div Yield</th>
+                                <Th sortKey="Dividend_Yield" onSort={onSort} sortConfig={sortConfig}>Yield</Th>
                             )}
                             {visibleColumns.has('Beta') && (
-                                <th className="p-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Beta</th>
+                                <Th sortKey="Beta" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">Beta</Th>
                             )}
-                            <Th sortKey="Geopolitical_Risk_Score" onSort={onSort} sortConfig={sortConfig} className="hidden sm:table-cell">Geo Risk</Th>
+                            {visibleColumns.has('Geopolitical_Risk') && (
+                                <Th sortKey="Geopolitical_Risk" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">Geo Risk Lvl</Th>
+                            )}
+                            <Th sortKey="Geopolitical_Risk_Score" onSort={onSort} sortConfig={sortConfig} className="hidden sm:table-cell" title="0-100 score assessing risk from operational geographies. Higher is riskier.">Geo Risk</Th>
                             <Th sortKey="ESG_Score" onSort={onSort} sortConfig={sortConfig} className="hidden lg:table-cell">ESG</Th>
-                            <Th sortKey="YTD_Performance" onSort={onSort} sortConfig={sortConfig} className="hidden md:table-cell">YTD %</Th>
+                            {visibleColumns.has('YTD_Performance') && (
+                                <Th sortKey="YTD_Performance" onSort={onSort} sortConfig={sortConfig}>YTD %</Th>
+                            )}
                             <th className="p-3 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -194,7 +203,11 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                             const prediction = predictions[company.Ticker];
                             const isLoadingPrediction = predictionsLoading[company.Ticker];
                             return (
-                                <tr key={company.Ticker} className={`${tierColorMap[company.Investment_Tier]} ${flashClass} ${company.isBlueChip ? 'opacity-80 hover:opacity-100 transition-opacity' : ''}`} style={{ height: `${ROW_HEIGHT}px` }}>
+                                <tr 
+                                    key={company.Ticker} 
+                                    className={`${tierColorMap[company.Investment_Tier]} ${flashClass} hover:bg-white/5 hover:scale-[1.005] hover:shadow-lg transition-all duration-200 ${company.isBlueChip ? 'opacity-90' : ''}`} 
+                                    style={{ height: `${ROW_HEIGHT}px` }}
+                                >
                                     <td className="p-3 whitespace-nowrap cursor-pointer" onClick={() => onViewDetails(company)}>
                                         <div className="flex items-center">
                                             <img src={company.logoUrl} alt={`${company.Company} logo`} className="w-8 h-8 rounded-full mr-3 object-contain bg-white" />
@@ -202,8 +215,8 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                                                 <div className="font-semibold text-gray-200 flex items-center">
                                                     {company.Company}
                                                     {company.isBlueChip && (
-                                                        <span className="ml-2 text-xs font-semibold px-1.5 py-0.5 rounded-full bg-blue-900/50 text-blue-300 border border-blue-500/50">
-                                                            BLUE CHIP
+                                                        <span className="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-900/50 text-blue-300 border border-blue-500/50">
+                                                            BLUE
                                                         </span>
                                                     )}
                                                 </div>
@@ -232,6 +245,9 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                                             <span className="text-gray-600">-</span>
                                         )}
                                     </td>
+                                    {visibleColumns.has('Market_Cap_B') && (
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell font-mono">${company.Market_Cap_B.toFixed(1)}B</td>
+                                    )}
                                     {visibleColumns.has('Sub_Category') && (
                                         <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell" title={company.Sub_Category}>{company.Sub_Category}</td>
                                     )}
@@ -239,19 +255,22 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                                         <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell" title={company.Supply_Chain_Role}>{company.Supply_Chain_Role}</td>
                                     )}
                                     {visibleColumns.has('Growth_Driver') && (
-                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell" title={company.Growth_Driver}>{company.Growth_Driver}</td>
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell max-w-[150px] truncate" title={company.Growth_Driver}>{company.Growth_Driver}</td>
                                     )}
                                     {visibleColumns.has('52_Week_High') && (
                                         <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell font-mono">${company['52_Week_High'].toFixed(2)}</td>
                                     )}
                                     {visibleColumns.has('EPS') && (
-                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell font-mono">{company.EPS.toFixed(2)}</td>
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 font-mono">{company.EPS.toFixed(2)}</td>
                                     )}
                                     {visibleColumns.has('Dividend_Yield') && (
-                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell font-mono">{company.Dividend_Yield.toFixed(2)}%</td>
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 font-mono">{company.Dividend_Yield.toFixed(2)}%</td>
                                     )}
                                     {visibleColumns.has('Beta') && (
                                         <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell font-mono">{company.Beta.toFixed(2)}</td>
+                                    )}
+                                    {visibleColumns.has('Geopolitical_Risk') && (
+                                        <td className="p-3 whitespace-nowrap text-sm text-gray-400 hidden lg:table-cell">{company.Geopolitical_Risk}</td>
                                     )}
                                     <td className="p-3 whitespace-nowrap text-center font-mono hidden sm:table-cell cursor-pointer" onClick={() => onViewDetails(company)}>
                                         <span className={`font-bold ${getGeoRiskColor(company.Geopolitical_Risk_Score)}`}>
@@ -267,11 +286,13 @@ const CompanyTable: React.FC<CompanyTableProps> = ({ companies, onViewDetails, o
                                             <span className="text-gray-500">N/A</span>
                                         )}
                                     </td>
-                                    <td className="p-3 whitespace-nowrap text-center font-mono hidden md:table-cell cursor-pointer" onClick={() => onViewDetails(company)}>
-                                       <span className={company.YTD_Performance >= 0 ? 'text-accent-green' : 'text-accent-red'}>
-                                            {company.YTD_Performance >= 0 ? '+' : ''}{company.YTD_Performance.toFixed(1)}%
-                                        </span>
-                                    </td>
+                                    {visibleColumns.has('YTD_Performance') && (
+                                        <td className="p-3 whitespace-nowrap text-center font-mono cursor-pointer" onClick={() => onViewDetails(company)}>
+                                        <span className={company.YTD_Performance >= 0 ? 'text-accent-green' : 'text-accent-red'}>
+                                                {company.YTD_Performance >= 0 ? '+' : ''}{company.YTD_Performance.toFixed(1)}%
+                                            </span>
+                                        </td>
+                                    )}
                                     <td className="p-3 whitespace-nowrap text-center">
                                         <div className="flex justify-center items-center gap-1">
                                             <button

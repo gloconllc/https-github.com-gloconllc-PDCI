@@ -27,9 +27,11 @@ interface CompanyModalProps {
     viewCompanyDetails: (company: Company) => void;
 }
 
-const Stat: React.FC<{ label: string; value: string | number; subValue?: string; className?: string }> = ({ label, value, subValue, className = '' }) => (
-    <div className={`bg-black/20 p-3 rounded-md ${className}`}>
-        <h4 className="text-xs text-gray-400 uppercase tracking-wider">{label}</h4>
+const Stat: React.FC<{ label: string; value: string | number; subValue?: string; className?: string; tooltip?: string }> = ({ label, value, subValue, className = '', tooltip }) => (
+    <div className={`bg-black/20 p-3 rounded-md ${className}`} title={tooltip}>
+        <h4 className="text-xs text-gray-400 uppercase tracking-wider flex items-center gap-1">
+            {label}
+        </h4>
         <p className="text-xl font-bold text-gray-100">{value}</p>
         {subValue && <p className="text-xs text-gray-500">{subValue}</p>}
     </div>
@@ -292,6 +294,26 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                                 </div>
                                                 <p><strong className="text-gray-300">Confidence:</strong> {predictiveAnalysis.modelConfidence}%</p>
                                                 <p><strong className="text-gray-300">Outlook:</strong> {predictiveAnalysis.outlook}</p>
+                                                
+                                                {predictiveAnalysis.projectedMetrics && (
+                                                    <div className="mt-3 pt-3 border-t border-white/10">
+                                                        <p className="font-semibold text-accent-blue mb-2">AI Projected 12-Mo Metrics:</p>
+                                                        <div className="grid grid-cols-3 gap-2 text-center">
+                                                            <div className="bg-black/20 p-1 rounded">
+                                                                <p className="text-xs text-gray-400">PE Ratio</p>
+                                                                <p className="font-mono text-gray-200">{predictiveAnalysis.projectedMetrics.PE_Ratio}</p>
+                                                            </div>
+                                                            <div className="bg-black/20 p-1 rounded">
+                                                                <p className="text-xs text-gray-400">Growth</p>
+                                                                <p className="font-mono text-accent-green">{predictiveAnalysis.projectedMetrics.Revenue_Growth}</p>
+                                                            </div>
+                                                            <div className="bg-black/20 p-1 rounded">
+                                                                <p className="text-xs text-gray-400">Geo Trend</p>
+                                                                <p className="font-mono text-gray-200">{predictiveAnalysis.projectedMetrics.Geopolitical_Risk_Trend}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         ) : <p className="text-sm text-gray-500">Outlook could not be generated.</p>}
                                     </div>
@@ -372,15 +394,15 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ company, onClose, onAddToPo
                                 <div className="glass-panel p-4">
                                     <h3 className="font-semibold text-gray-200 mb-3">Key Metrics</h3>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <Stat label="P/E Ratio" value={company.PE_Ratio.toFixed(1)} subValue={`Fwd: ${company.Forward_PE.toFixed(1)}`} />
-                                        <Stat label="Rev Growth (YoY)" value={`${company.Revenue_Growth_YoY.toFixed(1)}%`} className={growthColor} />
-                                        <Stat label="Market Cap (B)" value={`$${company.Market_Cap_B.toFixed(1)}`} />
-                                        <Stat label="EPS" value={company.EPS.toFixed(2)} />
-                                        <Stat label="52-Wk Range" value={`${company['52_Week_Low'].toFixed(2)} - ${company['52_Week_High'].toFixed(2)}`} />
-                                        <Stat label="Avg Volume (M)" value={company.Avg_Volume.toFixed(2)} />
-                                        <Stat label="Div Yield" value={`${company.Dividend_Yield.toFixed(2)}%`} />
-                                        <Stat label="Beta" value={company.Beta.toFixed(2)} />
-                                        <Stat label="Debt-to-Equity" value={company.Debt_to_Equity.toFixed(2)} />
+                                        <Stat label="P/E Ratio" value={company.PE_Ratio.toFixed(1)} subValue={`Fwd: ${company.Forward_PE.toFixed(1)}`} tooltip="Price-to-Earnings Ratio. A lower P/E suggests better value." />
+                                        <Stat label="Rev Growth (YoY)" value={`${company.Revenue_Growth_YoY.toFixed(1)}%`} className={growthColor} tooltip="Year-over-Year Revenue Growth. High growth indicates strong market demand." />
+                                        <Stat label="Market Cap (B)" value={`$${company.Market_Cap_B.toFixed(1)}`} tooltip="Total market value of the company's outstanding shares." />
+                                        <Stat label="EPS" value={company.EPS.toFixed(2)} tooltip="Earnings Per Share. Indicator of profitability." />
+                                        <Stat label="52-Wk Range" value={`${company['52_Week_Low'].toFixed(2)} - ${company['52_Week_High'].toFixed(2)}`} tooltip="Lowest and highest price in the last year." />
+                                        <Stat label="Avg Volume (M)" value={company.Avg_Volume.toFixed(2)} tooltip="Average daily trading volume in millions." />
+                                        <Stat label="Div Yield" value={`${company.Dividend_Yield.toFixed(2)}%`} tooltip="Annual dividend payments as a percentage of share price." />
+                                        <Stat label="Beta" value={company.Beta.toFixed(2)} tooltip="Measure of volatility relative to the market. >1 is more volatile." />
+                                        <Stat label="Debt-to-Equity" value={company.Debt_to_Equity.toFixed(2)} tooltip="Ratio of total debt to shareholder equity. Lower is generally safer." />
                                     </div>
                                 </div>
                                 <PeerComparison company={company} allCompanies={companiesData} onViewDetails={viewCompanyDetails} />

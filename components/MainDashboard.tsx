@@ -30,6 +30,7 @@ interface MainDashboardProps {
 }
 
 const TOGGLEABLE_COLUMNS: { key: keyof Company; label: string }[] = [
+    { key: 'Market_Cap_B', label: 'Market Cap' },
     { key: 'Sub_Category', label: 'Sub Category' },
     { key: 'Supply_Chain_Role', label: 'Supply Chain Role' },
     { key: 'Growth_Driver', label: 'Growth Driver' },
@@ -37,6 +38,8 @@ const TOGGLEABLE_COLUMNS: { key: keyof Company; label: string }[] = [
     { key: 'EPS', label: 'EPS' },
     { key: 'Dividend_Yield', label: 'Div. Yield' },
     { key: 'Beta', label: 'Beta' },
+    { key: 'Geopolitical_Risk', label: 'Geopolitical Risk' },
+    { key: 'YTD_Performance', label: 'YTD Performance' }
 ];
 
 const ColumnToggleDropdown: React.FC<{
@@ -98,7 +101,8 @@ const MainDashboard: React.FC<MainDashboardProps> = ({
     fetchPrediction
 }) => {
     const [activeTab, setActiveTab] = useState<ViewMode>('overview');
-    const [visibleColumns, setVisibleColumns] = useState<Set<keyof Company>>(new Set());
+    // Updated default visible columns to include EPS and Dividend_Yield
+    const [visibleColumns, setVisibleColumns] = useState<Set<keyof Company>>(new Set(['Market_Cap_B', 'YTD_Performance', 'EPS', 'Dividend_Yield']));
 
     const handleColumnToggle = (key: keyof Company) => {
         setVisibleColumns(prev => {

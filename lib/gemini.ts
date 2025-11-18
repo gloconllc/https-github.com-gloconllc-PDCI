@@ -502,15 +502,19 @@ export const getPredictiveAnalysis = async (company: Company): Promise<Predictiv
     const ai = getAiClient();
     const prompt = `
         System: ${systemInstruction}
-        Task: Perform a simulated quantitative regression analysis for the specified company.
+        Task: Perform a simulated quantitative regression analysis for the specified company. Use the provided data as a training set context to infer trends.
 
         Company Data:
         ${formatCompanyDataForPrompt([company])}
 
         Output a structured analysis:
-        1.  **Key Predictors:** Based on the data, identify the top 2-3 factors (e.g., 'High Universal_Score', 'Strong Revenue_Growth_YoY', 'Low Substitutability_Score') that are the strongest statistical predictors for this company's success. Provide a brief rationale for each.
+        1.  **Key Predictors:** Based on the data, identify the top 2-3 factors (e.g., 'High Universal_Score', 'Strong Revenue_Growth_YoY', 'Low Substitutability_Score') that are the strongest statistical predictors for this company's success.
         2.  **Model Confidence:** State a confidence level (0-100) in the predictive model based on the clarity and strength of the available data points.
         3.  **Quantitative Outlook:** Provide a concise, data-driven summary of the company's future prospects.
+        4.  **Projected Metrics**: Based on the current trajectory and historical analogs, generate *projected* values for key metrics over the next 12 months.
+            - PE Ratio: Estimate the future PE ratio.
+            - Revenue Growth: Estimate the YoY revenue growth %.
+            - Geopolitical Risk Trend: Predict if the risk is 'Stable', 'Increasing', or 'Decreasing'.
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
@@ -533,8 +537,17 @@ export const getPredictiveAnalysis = async (company: Company): Promise<Predictiv
                     },
                     modelConfidence: { type: Type.NUMBER },
                     outlook: { type: Type.STRING },
+                    projectedMetrics: {
+                        type: Type.OBJECT,
+                        properties: {
+                            PE_Ratio: { type: Type.STRING, description: "Projected P/E Ratio (e.g., '25.4')" },
+                            Revenue_Growth: { type: Type.STRING, description: "Projected Revenue Growth (e.g., '18.5%')" },
+                            Geopolitical_Risk_Trend: { type: Type.STRING, description: "Trend: Stable, Increasing, or Decreasing" },
+                        },
+                        required: ["PE_Ratio", "Revenue_Growth", "Geopolitical_Risk_Trend"]
+                    }
                 },
-                required: ["keyPredictors", "modelConfidence", "outlook"]
+                required: ["keyPredictors", "modelConfidence", "outlook", "projectedMetrics"]
             },
         },
     });
