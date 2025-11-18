@@ -46,7 +46,12 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
 
     const formatCompanyDataForPrompt = (companies: Company[]): string => {
         return companies.map(c =>
-            `- ${c.Company} (${c.Ticker}): Role: ${c.Supply_Chain_Role}, Category: ${c.Category}, Key Product: ${c.Product_Component}`
+            `- ${c.Company} (${c.Ticker}):
+             Role: ${c.Supply_Chain_Role}
+             Category: ${c.Category}
+             Key Product: ${c.Product_Component}
+             Geopolitical Risk: ${c.Geopolitical_Risk} (Score: ${c.Geopolitical_Risk_Score}/100)
+             Geopolitical Notes: ${c.Geopolitical_Notes}`
         ).join('\n');
     };
 
@@ -64,6 +69,8 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
         const prompt = `
             System: You are a geopolitical and financial risk analyst. Analyze the impact of a specific scenario on the user's investment portfolio.
 
+            You must specifically consider the 'Geopolitical Risk Score' and 'Geopolitical Notes' provided for each company to assess their vulnerability or resilience to the event.
+
             Scenario: "${scenarioTitle}"
 
             User's Portfolio:
@@ -71,8 +78,9 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
 
             Task:
             1. Provide a brief (2-3 sentences) overview of the immediate impact of this scenario on the AI data center supply chain.
-            2. Identify the **most impacted companies** (both positive and negative) in the portfolio and explain why in a bulleted list.
+            2. Identify the **most impacted companies** (both positive and negative) in the portfolio and explain why in a bulleted list. **CRITICAL:** You must explicitly reference specific details from the 'Geopolitical Notes' (e.g., dependency on Taiwan, specific mine locations) to support your impact assessment for each company.
             3. Suggest **1-2 strategic considerations** for the portfolio owner in light of this scenario.
+            
             Use markdown for formatting, with headers and bold text.
         `;
 
@@ -129,7 +137,7 @@ const ScenarioAnalysisModal: React.FC<ScenarioAnalysisModalProps> = ({ onClose, 
                                 <div className="flex flex-col items-center justify-center h-full text-center p-4">
                                     <SparkleIcon className="w-8 h-8 text-accent-blue animate-pulse" />
                                     <p className="mt-4 text-gray-300">PDCI is simulating market shockwaves...</p>
-                                    <p className="text-xs text-gray-500">This may take a moment.</p>
+                                    <p className="text-xs text-gray-500">Analyzing geopolitical vectors and supply chain nodes.</p>
                                 </div>
                             )}
                             {result && <MarkdownRenderer content={result} />}

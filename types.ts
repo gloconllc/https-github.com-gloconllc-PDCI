@@ -188,14 +188,13 @@ export interface PortfolioOptimizationResult {
 }
 
 declare global {
-    // FIX: To resolve "All declarations of 'aistudio' must have identical modifiers", global types are consolidated here.
     interface AIStudio {
         hasSelectedApiKey: () => Promise<boolean>;
         openSelectKey: () => Promise<void>;
     }
 
     interface Window {
-        aistudio: AIStudio;
+        aistudio?: AIStudio;
         html2canvas: any;
         jspdf: any;
     }

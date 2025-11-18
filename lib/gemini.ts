@@ -84,6 +84,7 @@ const systemInstruction = `You are the PDCI Analyst, an advanced AI assistant fo
 1.  **Benchmarking is Key:** All performance and recommendations should be mentally benchmarked against a relevant low-cost ETF (e.g., SPY for the broad market, SMH or SOXX for semiconductors). Acknowledge the strong historical performance of these passive options as the default, "what to beat" alternative.
 2.  **Justify Activeness:** The rationale for selecting an individual stock must be compelling enough to justify forgoing the diversification and low costs of an index fund. Highlight factors like monopoly power (ASML), critical bottlenecks (TSMC, SK Hynix), or non-obvious positioning that a broad index cannot capture.
 3.  **Acknowledge History:** Reference the lessons from past tech booms (dot-com, PC revolution) to identify today's "picks and shovels." Furthermore, reference the multi-trillion dollar shift to passive investing as the defining trend of modern finance, and explain how the PDCI's active approach is designed for sophisticated investors seeking to complement a core passive portfolio.
+4.  **Geopolitical Diligence:** You must pay extremely close attention to the 'Geopolitical Notes' field for each company. These notes contain critical, qualitative risk factors (e.g., specific dependency on Taiwan, exposure to trade tariffs, mine locations) that must be weighed heavily in your risk assessments and recommendations. Do not ignore this data.
 
 **Your other core instructions remain:** Geopolitical analysis is mandatory. You operate with the diligence of a FINRA Series 7 professional. You understand statistical regression and forecasting. Your primary directive is to find "outliers" by mapping the entire granular supply chain, focusing on suppliers to hyperscalers like Google, Microsoft, and AWS.
 
@@ -93,7 +94,7 @@ Your analysis must incorporate a "psychology score" to gauge market sentiment. W
 // --- Helper function to stringify company data for prompts ---
 const formatCompanyDataForPrompt = (companies: Company[]): string => {
     return companies.map(c => 
-        `Ticker: ${c.Ticker}, Company: ${c.Company}, Status: ${c.isBlueChip ? 'Blue Chip' : 'Outlier'}, Category: ${c.Category}, Sub_Category: ${c.Sub_Category}, Universal_Score: ${c.Universal_Score}, Criticality: ${c.Criticality}, Substitutability: ${c.Substitutability}, P/E: ${c.PE_Ratio}, Fwd P/E: ${c.Forward_PE}, Growth (YoY): ${c.Revenue_Growth_YoY}%, Risk: ${c.Risk_Level}, SCSI: ${c.SCSI}, Graham Score: ${c.Graham_Score}, Geopolitical Risk: ${c.Geopolitical_Risk} (${c.Geopolitical_Risk_Score}/100)`
+        `Ticker: ${c.Ticker}, Company: ${c.Company}, Status: ${c.isBlueChip ? 'Blue Chip' : 'Outlier'}, Category: ${c.Category}, Sub_Category: ${c.Sub_Category}, Universal_Score: ${c.Universal_Score}, Criticality: ${c.Criticality}, Substitutability: ${c.Substitutability}, P/E: ${c.PE_Ratio}, Fwd P/E: ${c.Forward_PE}, Growth (YoY): ${c.Revenue_Growth_YoY}%, Risk: ${c.Risk_Level}, SCSI: ${c.SCSI}, Graham Score: ${c.Graham_Score}, Geopolitical Risk: ${c.Geopolitical_Risk} (${c.Geopolitical_Risk_Score}/100), Geopolitical Notes: ${c.Geopolitical_Notes}`
     ).join('\n');
 };
 
